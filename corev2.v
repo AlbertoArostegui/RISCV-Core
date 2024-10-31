@@ -1,5 +1,6 @@
 module core (
     input clk,
+    input reset,
     output [31:0] OUT_PC,
     output [31:0] OUT_IR,
     output [31:0] OUT_AluIn1,
@@ -15,6 +16,7 @@ module core (
 
     reg [31:0] PC;
     reg [31:0] RF [0:31];
+
 
     //Pipeline registers
     reg [31:0] IDEX_A, IDEX_B, EXMEM_B, EXMEM_ALUOut, MEMWB_Value;

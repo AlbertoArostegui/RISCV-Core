@@ -1,10 +1,10 @@
 module memory (
-    input CLK,
-    input [3:0] mem_addr,
-    output reg [31:0] inst_out
+    input clk,
+    input [31:0] mem_addr,
+    output [31:0] inst_out
 );
 
-    reg [31:0] ROM [0:15];
+    reg [31:0] ROM [0:1023];
 
     initial begin
         ROM[0] = 32'b0000000_00010_00011_000_00001_0110011; //add r1, r2, r3
@@ -25,8 +25,6 @@ module memory (
         ROM[15] = 32'b00000000_00000000_00000000_00000011;
     end
 
-    always @(posedge CLK) begin
-        inst_out <= ROM[mem_addr];
-    end
+    assign inst_out = ROM[mem_addr];
 
 endmodule
