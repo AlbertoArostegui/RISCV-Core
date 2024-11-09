@@ -10,6 +10,7 @@ module stage_decode(
     input [31:0] in_PC,
 
     //To modify Register File
+    //This comes from WB
     input in_write_enable,
     input [4:0] in_write_reg,
     input [31:0] in_write_data,
@@ -33,8 +34,13 @@ module stage_decode(
     output [31:0] out_data_b,
 
     output [31:0] out_immediate,
-    output [4:0] out_rd
+    output [4:0] out_rd,
 
+    //Output from decoder for alu
+    output [6:0] out_funct7,
+    output [2:0] out_funct3,
+    output [5:0] out_opcode,
+    output [2:0] out_instr_type,
 );
 
 wire [4:0] decoder_to_rf_rs1;
@@ -46,10 +52,10 @@ decoder decoder(
     .rs2(decoder_to_rf_rs2),
     .rd(out_rd),
     .imm(out_immediate),
-    .funct7(),
-    .funct3(),
-    .opcode(),
-    .instr_type()
+    .funct7(out_funct7),
+    .funct3(out_funct3),
+    .opcode(out_opcode),
+    .instr_type(out_instr_type)
 );
 
 register_file RF(
@@ -59,7 +65,7 @@ register_file RF(
     .wreg(in_write_reg),
     .wdata(in_write_data),
     .reg_a(decoder_to_rf_rs1),
-    .reg_b(decoder_to_rf_rs1),
+    .reg_b(decoder_to_rf_rs2),
     .out_data_a(out_data_a),
     .out_data_b(out_data_b)
 );
