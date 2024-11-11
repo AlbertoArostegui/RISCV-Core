@@ -1,5 +1,5 @@
 `include "defines.v"
-`include "memory.v"
+`include "imemory.v"
 
 //Here everything should be a wire (its comb. logic)
 module stage_fetch (
@@ -30,7 +30,7 @@ always @(posedge clk or posedge reset) begin
 end
 
 
-memory memory(
+memory imemory(
     .mem_addr(out_pc),
     .inst_out(inst_out)
 );
