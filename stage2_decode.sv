@@ -1,5 +1,6 @@
 `include "register_file.sv"
 `include "decoder.sv"
+`include "control.sv"
 
 module stage_decode(
     input clk,
@@ -23,6 +24,7 @@ module stage_decode(
     //For MEM
     output MEM_mem_write,
     output MEM_mem_read,
+    output MEM_branch_inst,
 
     //For WB
     output WB_write_mem_to_reg,
@@ -47,8 +49,8 @@ wire [4:0] decoder_to_rf_rs1;
 wire [4:0] decoder_to_rf_rs2;
 
 decoder decoder(
-    .instruction(instruction),
-    .rs1(decoder_to_rf_rs1),
+    .instruction(in_instruction),   //In
+    .rs1(decoder_to_rf_rs1),        //Out
     .rs2(decoder_to_rf_rs2),
     .rd(out_rd),
     .imm(out_immediate),
@@ -59,15 +61,26 @@ decoder decoder(
 );
 
 register_file RF(
-    .clk(clk), 
+    .clk(clk),                  //In 
     .reset(reset),
     .we(in_write_enable),
     .wreg(in_write_reg),
-    .wdata(in_write_data),
-    .reg_a(decoder_to_rf_rs1),
-    .reg_b(decoder_to_rf_rs2),
-    .out_data_a(out_data_a),
-    .out_data_b(out_data_b)
+    .wdata(in_write_data),      
+    .reg_a(decoder_to_rf_rs1), 
+    .reg_b(decoder_to_rf_rs2),  
+    .out_data_a(out_data_a),    //Out
+    .out_data_b(out_data_b)     
+);
+
+control control(
+    .in_instruction(in_instruction),            //In
+    .EX_alu_src(EX_alu_src),                    //Out
+    .EX_alu_op(EX_alu_op),
+    .MEM_mem_write(MEM_mem_write),
+    .MEM_mem_read(MEM_mem_read),
+    .MEM_branch_inst(MEM_branch_inst),
+    .WB_write_mem_to_reg(WB_write_mem_to_reg),
+    .WB_write_enable(WB_write_enable)
 );
 
 endmodule

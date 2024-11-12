@@ -49,6 +49,7 @@ wire [2:0] decode_to_registers_EX_alu_op;
 //MEM
 wire decode_to_registers_MEM_mem_write;
 wire decode_to_registers_MEM_mem_read;
+wire decode_to_registers_MEM_branch_inst;
 //WB
 wire decode_to_registers_WB_write_mem_to_reg;
 wire decode_to_registers_WB_write_enable;
@@ -87,6 +88,7 @@ stage_decode decode(
 
     .MEM_mem_write(decode_to_registers_MEM_mem_write),
     .MEM_mem_read(decode_to_registers_MEM_mem_read),
+    .MEM_branch_inst(decode_to_registers_MEM_branch_inst),
 
     .WB_write_mem_to_reg(decode_to_registers_WB_write_mem_to_reg),
     .WB_write_enable(decode_to_registers_WB_write_enable),
