@@ -2,7 +2,12 @@
 `include "stage1_fetch.sv"
 `include "registers_IFID.sv"
 `include "stage2_decode.sv"
-`include "registers_IDEX"
+`include "registers_IDEX.sv"
+`include "stage3_execute.sv"
+`include "registers_EXMEM.sv"
+//`include "stage4_memory.sv"
+//`include "registers_MEMWB.sv"
+//`include "stage5_writeback.sv"
 
 module core (
     input clk,
@@ -117,8 +122,14 @@ wire [31:0] IDEX_to_execute_rs1;
 wire [31:0] IDEX_to_execute_rs2;
 wire [4:0]  IDEX_to_execute_rd;
 
+//CONTROL
 wire IDEX_to_execute_alu_src;
 wire [2:0] IDEX_to_execute_alu_op;
+wire IDEX_to_execute_mem_write;
+wire IDEX_to_execute_mem_read;
+wire IDEX_to_execute_branch_inst;
+wire IDEX_to_execute_mem_to_reg;
+wire IDEX_to_execute_write_enable;
 
 wire [6:0] IDEX_to_execute_funct7;
 wire [2:0] IDEX_to_execute_funct3;
@@ -136,7 +147,6 @@ registers_IDEX registers_IDEX(
     .in_immediate(decode_to_registers_immediate),
     .in_rs1(decode_to_registers_data_a),
     .in_rs2(decode_to_registers_data_b),
-    .in_rd(decode_to_registers_rd),
 
     .in_alu_src(decode_to_registers_EX_alu_src),
     .in_alu_op(decode_to_registers_EX_alu_op),
@@ -146,6 +156,16 @@ registers_IDEX registers_IDEX(
     .in_opcode(decode_to_registers_opcode),
     .in_instr_type(decode_to_registers_instr_type),
 
+    //Passing by
+    .in_rd(decode_to_registers_rd),
+        //Control
+    .in_mem_write(decode_to_registers_MEM_mem_write),
+    .in_mem_read(decode_to_registers_MEM_mem_read),
+    .in_branch_inst(decode_to_registers_MEM_branch_inst),
+    .in_mem_to_reg(decode_to_registers_WB_write_mem_to_reg),
+    .in_write_enable(decode_to_registers_WB_write_enable),
+
+    
     //OUTPUT
     .out_instruction(IDEX_to_execute_instruction),
     .out_PC(IDEX_to_execute_PC),
@@ -157,9 +177,107 @@ registers_IDEX registers_IDEX(
 
     .out_alu_src(IDEX_to_execute_alu_src),
     .out_alu_op(IDEX_to_execute_alu_op),
+    .out_mem_write(IDEX_to_execute_mem_write),
+    .out_mem_read(IDEX_to_execute_mem_read),
+    .out_branch_inst(IDEX_to_execute_branch_inst),
+    .out_mem_to_reg(IDEX_to_execute_mem_to_reg),
+    .out_write_enable(IDEX_to_execute_write_enable),
 
     .out_funct7(IDEX_to_execute_funct7),
     .out_funct3(IDEX_to_execute_funct3),
     .out_opcode(IDEX_to_execute_opcode),
     .out_instr_type(IDEX_to_execute_instr_type)
+);
+
+//wires for
+//Execute Stage --> Registers EXMEM
+wire [31:0] execute_to_registers_alu_out;
+wire [31:0] execute_to_registers_PC;
+wire execute_to_registers_branch_taken;
+
+wire [4:0] execute_to_registers_rd;
+wire execute_to_registers_mem_write;
+wire execute_to_registers_mem_read;
+wire execute_to_registers_branch_inst;
+wire execute_to_registers_mem_to_reg;
+wire execute_to_registers_write_enable;
+
+stage_execute execute(
+    //INPUT
+    .clk(clk),
+    .reset(reset),
+
+    .in_instruction(IDEX_to_execute_instruction),
+    .in_PC(IDEX_to_execute_PC),
+
+    .in_rs1(IDEX_to_execute_rs1),
+    .in_rs2(IDEX_to_execute_rs2),
+    .in_immediate(IDEX_to_execute_immediate),
+
+    //CONTROL
+    .in_alu_src(IDEX_to_execute_alu_src),
+    .in_alu_op(IDEX_to_execute_alu_op),
+    //Passing by
+    .in_rd(IDEX_to_execute_rd),
+        //Control
+    .in_mem_write(IDEX_to_execute_mem_write),
+    .in_mem_read(IDEX_to_execute_mem_read),
+    .in_branch_inst(IDEX_to_execute_branch_inst),
+    .in_mem_to_reg(IDEX_to_execute_mem_to_reg),
+    .in_write_enable(IDEX_to_execute_write_enable),
+
+    .in_funct7(IDEX_to_execute_funct7),
+    .in_funct3(IDEX_to_execute_funct3),
+    .in_opcode(IDEX_to_execute_opcode),
+    .in_instr_type(IDEX_to_execute_instr_type),
+
+
+    //OUTPUT
+    .out_alu_out(execute_to_registers_alu_out),
+    .out_PC(execute_to_registers_PC),
+    .out_branch_taken(execute_to_registers_branch_taken),
+
+    .out_rd(execute_to_registers_rd),
+    .out_mem_write(execute_to_registers_mem_write),
+    .out_mem_read(execute_to_registers_mem_read),
+    .out_branch_inst(execute_to_registers_branch_inst),
+    .out_mem_to_reg(execute_to_registers_mem_to_reg),
+    .out_write_enable(execute_to_registers_write_enable)
+);
+
+//wires for
+//EXMEM Registers --> Writeback Stage
+
+
+registers_EXMEM registers_EXMEM(
+    .clk(clk),
+    .reset(reset),
+
+    //INPUT
+    .in_alu_out(execute_to_registers_alu_out),
+    .in_PC(execute_to_registers_PC),
+    .in_branch_taken(execute_to_registers_branch_taken),
+
+    //Passing by
+    .in_rd(execute_to_registers_rd),
+        //Control
+    .in_mem_write(execute_to_registers_mem_write),
+    .in_mem_read(execute_to_registers_mem_read),
+    .in_branch_inst(execute_to_registers_branch_inst),
+    .in_mem_to_reg(execute_to_registers_mem_to_reg),
+    .in_write_enable(execute_to_registers_write_enable),
+
+    //OUTPUT
+    .out_alu_out(EXMEM_to_memory_alu_out),
+    .out_PC(EXMEM_to_memory_PC),
+    .out_branch_taken(EXMEM_to_memory_branch_taken),
+
+    //Passing by    
+    .out_rd(EXMEM_to_memory_rd),
+        //Control
+    .out_mem_write(EXMEM_to_memory_mem_write),
+    .out_mem_read(EXMEM_to_memory_mem_read),
+    .out_branch_inst(EXMEM_to_memory_branch_inst),
+    .out_mem_to_reg(EXMEM_to_memory_mem_to_reg),
+    .out_write_enable(EXMEM_to_memory_write_enable)
 );

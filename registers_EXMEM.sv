@@ -10,7 +10,8 @@ module registers_EXMEM(
     input [4:0] in_rd,
     input in_mem_write,
     input in_mem_read,
-    input in_mem_to_register,
+    input in_branch_inst,
+    input in_mem_to_reg,
     input in_write_enable,
 
     //OUTPUT
@@ -21,6 +22,7 @@ module registers_EXMEM(
     output reg [4:0] out_rd,
     output reg out_mem_write,
     output reg out_mem_read,
+    output reg out_branch_inst,
     output reg out_mem_to_reg,
     output reg out_write_enable
 );
@@ -48,6 +50,7 @@ always @(posedge clk) begin
     out_rd <= in_rd;
     out_mem_write <= in_mem_write;
     out_mem_read <= in_mem_read;
+    out_branch_inst <= in_branch_inst;
     out_mem_to_reg <= in_mem_to_reg;
     out_write_enable <= in_write_enable;
 

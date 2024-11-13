@@ -56,6 +56,7 @@ assign out_mem_to_reg = in_mem_to_reg;
 assign out_write_enable = in_write_enable;
 
 alu alu(
+    //INPUT
     .opcode(in_opcode),
     .funct3(in_funct3),
     .funct7(in_funct7),
@@ -63,6 +64,8 @@ alu alu(
     .operand2(in_rs2),
     .immediate(in_immediate), //This renders alu_src useless
     .PC(in_PC),
+
+    //OUTPUT
     .alu_out(out_alu_out),
     .out_PC(out_PC),
     .branch_taken(out_branch_taken),
