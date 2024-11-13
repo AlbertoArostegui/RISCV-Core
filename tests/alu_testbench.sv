@@ -24,8 +24,6 @@ module alu_testbench();
     
 
     alu 
-    
-
     dut 
     (
    .PC               (pc),

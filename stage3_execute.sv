@@ -41,6 +41,7 @@ module stage_execute(
     output out_branch_taken,
 
     output [4:0] out_rd,
+    output [31:0] out_mem_data,
     output out_mem_write,
     output out_mem_read,
     output out_branch_inst,
@@ -54,6 +55,7 @@ assign out_mem_read = in_mem_read;
 assign out_branch_inst = in_branch_inst;
 assign out_mem_to_reg = in_mem_to_reg;
 assign out_write_enable = in_write_enable;
+assign out_mem_data = in_rs2;
 
 alu alu(
     //INPUT

@@ -5,9 +5,9 @@
 `include "registers_IDEX.sv"
 `include "stage3_execute.sv"
 `include "registers_EXMEM.sv"
-//`include "stage4_memory.sv"
-//`include "registers_MEMWB.sv"
-//`include "stage5_writeback.sv"
+`include "stage4_memory.sv"
+`include "registers_MEMWB.sv"
+`include "stage5_writeback.sv"
 
 module core (
     input clk,
@@ -196,6 +196,7 @@ wire [31:0] execute_to_registers_PC;
 wire execute_to_registers_branch_taken;
 
 wire [4:0] execute_to_registers_rd;
+wire [31:0] execute_to_registers_mem_data;
 wire execute_to_registers_mem_write;
 wire execute_to_registers_mem_read;
 wire execute_to_registers_branch_inst;
@@ -234,6 +235,7 @@ stage_execute execute(
 
     //OUTPUT
     .out_alu_out(execute_to_registers_alu_out),
+    .out_mem_data(execute_to_registers_mem_data),
     .out_PC(execute_to_registers_PC),
     .out_branch_taken(execute_to_registers_branch_taken),
 
@@ -246,8 +248,24 @@ stage_execute execute(
 );
 
 //wires for
-//EXMEM Registers --> Writeback Stage
+//EXMEM Registers --> Memory Stage
+//To Fetch Stage
+wire [31:0] EXMEM_to_memory_PC;
+wire EXMEM_to_memory_branch_taken;
+wire EXMEM_to_memory_branch_inst;
 
+//Actual memory interaction
+wire [31:0] EXMEM_to_memory_alu_out;
+wire [31:0] EXMEM_to_memory_mem_data;
+
+//Control
+wire EXMEM_to_memory_mem_write;
+wire EXMEM_to_memory_mem_read;
+
+//Passing by
+wire EXMEM_to_memory_rd;
+wire EXMEM_to_memory_mem_to_reg;
+wire EXMEM_to_memory_write_enable;
 
 registers_EXMEM registers_EXMEM(
     .clk(clk),
@@ -261,6 +279,7 @@ registers_EXMEM registers_EXMEM(
     //Passing by
     .in_rd(execute_to_registers_rd),
         //Control
+    .in_mem_data(execute_to_registers_mem_data),
     .in_mem_write(execute_to_registers_mem_write),
     .in_mem_read(execute_to_registers_mem_read),
     .in_branch_inst(execute_to_registers_branch_inst),
@@ -268,16 +287,87 @@ registers_EXMEM registers_EXMEM(
     .in_write_enable(execute_to_registers_write_enable),
 
     //OUTPUT
-    .out_alu_out(EXMEM_to_memory_alu_out),
+    //To Fetch Stage
     .out_PC(EXMEM_to_memory_PC),
     .out_branch_taken(EXMEM_to_memory_branch_taken),
+    .out_branch_inst(EXMEM_to_memory_branch_inst),
+
+    //Actual memory interaction
+    .out_alu_out(EXMEM_to_memory_alu_out),
+    .out_mem_data(EXMEM_to_memory_mem_data),
+
+    //Control
+    .out_mem_write(EXMEM_to_memory_mem_write),
+    .out_mem_read(EXMEM_to_memory_mem_read),
 
     //Passing by    
     .out_rd(EXMEM_to_memory_rd),
-        //Control
-    .out_mem_write(EXMEM_to_memory_mem_write),
-    .out_mem_read(EXMEM_to_memory_mem_read),
-    .out_branch_inst(EXMEM_to_memory_branch_inst),
     .out_mem_to_reg(EXMEM_to_memory_mem_to_reg),
     .out_write_enable(EXMEM_to_memory_write_enable)
 );
+
+//wires for
+//Memory Stage --> MEMWB Registers
+wire [31:0] memory_to_MEMWB_alu_out;
+wire [31:0] memory_to_MEMWB_mem_out;
+wire memory_to_MEMWB_rd;
+wire memory_to_MEMWB_mem_to_reg;
+wire memory_to_MEMWB_write_enable;
+ 
+stage_memory dmemory(
+    .clk(clk),
+    .reset(reset),
+
+    //INPUT
+    //Actual memory interaction
+    .in_alu_out(EXMEM_to_memory_alu_out),
+    .in_mem_data(EXMEM_to_memory_mem_data),
+
+    //Control
+    .in_mem_write(EXMEM_to_memory_mem_write),
+    .in_mem_data(EXMEM_to_memory_mem_data),
+
+    //Passing by
+    .in_rd(EXMEM_to_memory_in_rd),
+    .in_mem_to_reg(EXMEM_to_memory_mem_to_reg),
+    .in_write_enable(EXMEM_to_memory_write_enable),
+
+    //OUTPUT
+    .out_alu_out(memory_to_MEMWB_alu_out),
+    .out_mem_out(memory_to_MEMWB_mem_out),
+    .out_rd(memory_to_MEMWB_rd),
+    .out_mem_to_reg(memory_to_MEMWB_mem_to_reg),
+    .out_write_enable(memory_to_MEMWB_write_enable)
+);
+
+//wires for
+//MEMWB Registers --> Writeback Stage
+wire [31:0] MEMWB_to_writeback_alu_out;
+wire [31:0] MEMWB_to_writeback_mem_out
+
+wire [4:0] MEMWB_to_writeback_rd;
+wire MEMWB_to_writeback_mem_to_reg;
+wire MEMWB_to_writeback_write_enable;
+
+registers_MEMWB registers_MEMWB(
+    .clk(clk),
+    .reset(reset),
+
+    //INPUT
+    .in_alu_out(memory_to_MEMWB_alu_out),
+    .in_mem_out(memory_to_MEMWB_mem_out),
+
+    .in_rd(memory_to_MEMWB_rd),
+    .in_mem_to_reg(memory_to_MEMWB_mem_to_reg),
+    .in_write_enable(memory_to_MEMWB_write_enable),
+
+    //OUTPUT
+    .out_alu_out(MEMWB_to_writeback_alu_out),
+    .out_mem_out(MEMWB_to_writeback_mem_out),
+
+    .out_rd(MEMWB_to_writeback_rd),
+    .out_mem_to_reg(MEMWB_to_writeback_mem_to_reg),
+    .out_write_enable(MEMWB_to_writeback_write_enable)
+);
+
+stage_writeback writeback();

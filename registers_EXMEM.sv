@@ -8,6 +8,7 @@ module registers_EXMEM(
     input in_branch_taken,
     
     input [4:0] in_rd,
+    input [31:0] in_mem_data,
     input in_mem_write,
     input in_mem_read,
     input in_branch_inst,
@@ -20,6 +21,7 @@ module registers_EXMEM(
     output reg out_branch_taken,
 
     output reg [4:0] out_rd,
+    output reg [31:0] out_mem_data,
     output reg out_mem_write,
     output reg out_mem_read,
     output reg out_branch_inst,
@@ -48,6 +50,7 @@ always @(posedge clk) begin
     out_branch_taken <= in_branch_taken;
 
     out_rd <= in_rd;
+    out_mem_data <= in_mem_data;
     out_mem_write <= in_mem_write;
     out_mem_read <= in_mem_read;
     out_branch_inst <= in_branch_inst;
