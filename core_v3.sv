@@ -80,11 +80,11 @@ stage_decode decode(
 
     //INPUT FROM WB
     //This should come from control from WB
-    .in_write_enable(),
+    .in_write_enable(writeback_to_decode_out_write_enable),
     //This should come from control from WB
-    .in_write_reg(),
+    .in_write_reg(writeback_to_decode_out_rd),
     //This should come from WB
-    .in_write_data(),
+    .in_write_data(writeback_to_decode_out_data),
 
     //OUTPUT
         //CONTROL
@@ -370,4 +370,26 @@ registers_MEMWB registers_MEMWB(
     .out_write_enable(MEMWB_to_writeback_write_enable)
 );
 
-stage_writeback writeback();
+//wires for 
+//Writeback Stage --> Decode Stage
+wire [31:0] writeback_to_decode_out_data;
+wire [4:0] writeback_to_decode_rd;
+wire writeback_to_decode_write_enable;
+
+stage_writeback writeback(
+    .clk(clk),
+    .reset(reset),
+
+    //INPUT
+    .in_alu_out(MEMWB_to_writeback_alu_out),
+    .in_mem_out(MEMWB_to_writeback_mem_out),
+
+    .in_rd(MEMWB_to_writeback_rd),
+    .in_mem_to_reg(MEMWB_to_writeback_mem_to_reg),
+    .in_write_enable(MEMWB_to_writeback_write_enable),
+
+    //OUTPUT
+    .out_data(writeback_to_decode_out_data),
+    .out_rd(writeback_to_decode_rd),
+    .out_write_enable(writeback_to_decode_out_write_enable)
+);
