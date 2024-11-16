@@ -8,6 +8,7 @@ module register_file(
     input [4:0] reg_b,
     output reg [31:0] out_data_a,
     output reg [31:0] out_data_b,
+    output reg [31:0] r1
 );
 
 wire [31:0] out_data;
@@ -17,6 +18,10 @@ reg [31:0] registers [0:31];
 initial begin
     for (i=0; i <32, i++) 
         registers[i] = 0;
+    registers[2] = 32'd10;
+    registers[3] = 32'd20;
+    registers[5] = 32'd30;
+    registers[6] = 32'd15;
 end
 
 always @(*) begin
@@ -28,6 +33,7 @@ always @(posedge clk) begin
     if (we) begin
         registers[wreg] = wdata;
     end
+    r1 <= registers[1];
 end
 endmodule
 

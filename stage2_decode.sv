@@ -43,6 +43,8 @@ module stage_decode(
     output [2:0] out_funct3,
     output [5:0] out_opcode,
     output [2:0] out_instr_type,
+
+    output reg [31:0] r1,
 );
 
 wire [4:0] decoder_to_rf_rs1;
@@ -60,6 +62,7 @@ decoder decoder(
     .instr_type(out_instr_type)
 );
 
+wire [31:0] tmp_r1;
 register_file RF(
     .clk(clk),                  //In 
     .reset(reset),
@@ -69,7 +72,8 @@ register_file RF(
     .reg_a(decoder_to_rf_rs1), 
     .reg_b(decoder_to_rf_rs2),  
     .out_data_a(out_data_a),    //Out
-    .out_data_b(out_data_b)     
+    .out_data_b(out_data_b),    
+    .r1(tmp_r1)
 );
 
 control control(
@@ -82,5 +86,7 @@ control control(
     .WB_write_mem_to_reg(WB_write_mem_to_reg),
     .WB_write_enable(WB_write_enable)
 );
+
+always @(posedge clk) r1 <= tmp_r1;
 
 endmodule

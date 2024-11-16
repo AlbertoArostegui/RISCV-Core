@@ -8,16 +8,16 @@ module core_testbench();
 
     `SVUT_SETUP
 
-    CLK;
-    RESET;
-    [3:0] out;
+    clk;
+    reset;
+    reg [31:0] r1;
 
     core 
     dut 
     (
-    .CLK   (CLK),
-    .RESET (RESET),
-    .out   (out)
+        .clk   (clk),
+        .reset (reset),
+        .r1_out (r1)
     );
 
 

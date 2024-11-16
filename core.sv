@@ -11,8 +11,9 @@
 
 module core (
     input clk,
-    input reset
-)
+    input reset,
+    output reg [31:0] r1_out;
+);
 
 //FETCH STAGE
 wire [31:0] fetch_to_registers_pc;
@@ -71,6 +72,8 @@ wire [2:0] decode_to_registers_instr_type;
 wire [31:0] decode_to_registers_immediate;
 wire [4:0] decode_to_registers_rd;
 
+wire [31:0] tmp_r1;
+
 stage_decode decode(
     .clk(clk),
     .reset(reset),
@@ -109,6 +112,8 @@ stage_decode decode(
     .out_funct3(decode_to_registers_funct3),
     .out_opcode(decode_to_registers_opcode),
     .out_instr_type(decode_to_registers_instr_type),
+
+    .r1(tmp_r1)
 );
 
 //wires for
@@ -393,3 +398,5 @@ stage_writeback writeback(
     .out_rd(writeback_to_decode_rd),
     .out_write_enable(writeback_to_decode_out_write_enable)
 );
+
+always @(posedge clk) r1_out <= tmp_r1;

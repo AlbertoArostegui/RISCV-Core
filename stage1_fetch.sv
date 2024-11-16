@@ -1,5 +1,5 @@
-`include "defines.v"
-`include "imemory.v"
+`include "defines.sv"
+`include "imemory.sv"
 
 //Here everything should be a wire (its comb. logic)
 module stage_fetch (
