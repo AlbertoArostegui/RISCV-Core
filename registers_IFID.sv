@@ -14,6 +14,10 @@ module registers_IFID(
     end
 
     always @(posedge clk) begin
+        if (reset) begin
+            out_instruction = 0;
+            out_PC = 0;
+        end
         out_PC <= in_PC;
         out_instruction <= in_instruction;
     end

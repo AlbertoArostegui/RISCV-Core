@@ -12,7 +12,15 @@
 module core (
     input clk,
     input reset,
-    output reg [31:0] r1_out
+    output reg [31:0] r0_out,
+    output reg [31:0] r1_out,
+    output reg [31:0] r2_out,
+    output reg [31:0] r3_out,
+    output reg [31:0] r4_out,
+    output reg [31:0] r5_out,
+    output reg [31:0] r6_out,
+    output reg [31:0] r7_out,
+    output reg [31:0] r8_out
 );
 
 //FETCH STAGE
@@ -76,7 +84,15 @@ wire [2:0] decode_to_registers_instr_type;
 wire [31:0] decode_to_registers_immediate;
 wire [4:0] decode_to_registers_rd;
 
+wire [31:0] tmp_r0;
 wire [31:0] tmp_r1;
+wire [31:0] tmp_r2;
+wire [31:0] tmp_r3;
+wire [31:0] tmp_r4;
+wire [31:0] tmp_r5;
+wire [31:0] tmp_r6;
+wire [31:0] tmp_r7;
+wire [31:0] tmp_r8;
 
 //wires for 
 //Writeback Stage --> Decode Stage
@@ -123,7 +139,15 @@ stage_decode decode(
     .out_opcode(decode_to_registers_opcode),
     .out_instr_type(decode_to_registers_instr_type),
 
-    .r1(tmp_r1)
+    .r0(tmp_r0),
+    .r1(tmp_r1),
+    .r2(tmp_r2),
+    .r3(tmp_r3),
+    .r4(tmp_r4),
+    .r5(tmp_r5),
+    .r6(tmp_r6),
+    .r7(tmp_r7),
+    .r8(tmp_r8)
 );
 
 //wires for
@@ -324,7 +348,7 @@ registers_EXMEM registers_EXMEM(
 //Memory Stage --> MEMWB Registers
 wire [31:0] memory_to_MEMWB_alu_out;
 wire [31:0] memory_to_MEMWB_mem_out;
-wire memory_to_MEMWB_rd;
+wire [4:0] memory_to_MEMWB_rd;
 wire memory_to_MEMWB_mem_to_reg;
 wire memory_to_MEMWB_write_enable;
  
@@ -339,7 +363,7 @@ stage_memory dmemory(
 
     //Control
     .in_mem_write(EXMEM_to_memory_mem_write),
-    .in_mem_data(EXMEM_to_memory_mem_data),
+    .in_mem_read(EXMEM_to_memory_mem_read),
 
     //Passing by
     .in_rd(EXMEM_to_memory_rd),
@@ -402,5 +426,15 @@ stage_writeback writeback(
     .out_write_enable(writeback_to_decode_write_enable)
 );
 
-always @(posedge clk) r1_out <= tmp_r1;
+    always @(posedge clk) begin
+        r0_out <= tmp_r0;
+        r1_out <= tmp_r1;
+        r2_out <= tmp_r2;
+        r3_out <= tmp_r3;
+        r4_out <= tmp_r4;
+        r5_out <= tmp_r5;
+        r6_out <= tmp_r6;
+        r7_out <= tmp_r7;
+        r8_out <= tmp_r8;
+    end
 endmodule

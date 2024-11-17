@@ -1,4 +1,6 @@
 obj_dir/
 obj_dir/*
 obj_dir
-
+sim
+*.vcd
+*.out

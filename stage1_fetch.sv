@@ -17,12 +17,13 @@ assign out_pc = PC;
 
 initial begin 
     init = 32'h0;
+    PC = 32'h0;
 end
 
 always @(posedge clk or posedge reset) begin
     if (reset) 
         PC <= init;
-    if (branch_taken)
+    else if (branch_taken)
         PC <= new_pc;
     else
         PC <= PC + 4;

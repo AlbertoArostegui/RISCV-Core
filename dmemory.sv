@@ -16,7 +16,7 @@ module dmemory (
     reg [31:0] MEMORY [0:MAXMEM - 1];
 
     always @(*)
-        out_data <= ROM[in_mem_addr[9:0]];
+        out_data <= MEMORY[in_mem_addr[9:0]];
 
     always @(posedge clk) begin
         if (reset)

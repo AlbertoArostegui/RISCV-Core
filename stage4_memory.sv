@@ -35,7 +35,7 @@ module stage_memory(
         .reset(reset),
 
         //INPUT
-        .in_alu_out(in_alu_out),
+        .in_mem_addr(in_alu_out),
         .in_mem_data(in_mem_data),
         .in_mem_write(in_mem_write),
         .in_mem_read(in_mem_read),
