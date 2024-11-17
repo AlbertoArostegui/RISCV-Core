@@ -44,15 +44,15 @@ module stage_decode(
     output [5:0] out_opcode,
     output [2:0] out_instr_type,
 
-    output reg [31:0] r1,
+    output reg [31:0] r1
 );
 
 wire [4:0] decoder_to_rf_rs1;
 wire [4:0] decoder_to_rf_rs2;
 
 decoder decoder(
-    .instruction(in_instruction),   //In
-    .rs1(decoder_to_rf_rs1),        //Out
+    .instr(in_instruction),     //In
+    .rs1(decoder_to_rf_rs1),    //Out
     .rs2(decoder_to_rf_rs2),
     .rd(out_rd),
     .imm(out_immediate),

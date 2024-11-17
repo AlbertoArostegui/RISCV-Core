@@ -1,4 +1,3 @@
-`timescale 1 ns / 1 ns
 
 `ifndef DEFINES
 `define DEFINES
@@ -7,7 +6,7 @@
 `define	WORD_SIZE 32
 
 `define PC_EXCEPTION 32'h00002000
-`define PC_INITIAL   32'h00001000
+`define PC_INITIAL   32'h00000000
 
 /*
  * Number of total architectural registers.

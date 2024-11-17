@@ -1,4 +1,4 @@
-`define PC_INITIAL 32'h0
+`define PC_INITIAL 32'h00000000
 
 `define OPCODE_RTYPE    7'b0110011
 `define OPCODE_STORE    7'b0100011

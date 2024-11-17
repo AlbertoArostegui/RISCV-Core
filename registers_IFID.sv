@@ -4,8 +4,8 @@ module registers_IFID(
     input [31:0] in_instruction,
     input [31:0] in_PC,
 
-    output [31:0] reg out_instruction,
-    output [31:0] reg out_PC
+    output reg [31:0] out_instruction,
+    output reg [31:0] out_PC
 );
 
     initial begin

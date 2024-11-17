@@ -1,4 +1,3 @@
-`include "defines.sv"
 `include "imemory.sv"
 
 //Here everything should be a wire (its comb. logic)
@@ -17,12 +16,12 @@ reg [31:0] init;
 assign out_pc = PC;
 
 initial begin 
-    init = `PC_INITIAL
+    init = 32'h0;
 end
 
 always @(posedge clk or posedge reset) begin
     if (reset) 
-        PC = init;
+        PC <= init;
     if (branch_taken)
         PC <= new_pc;
     else
@@ -30,7 +29,8 @@ always @(posedge clk or posedge reset) begin
 end
 
 
-memory imemory(
+imemory imemory(
+    .clk(clk),
     .mem_addr(out_pc),
     .inst_out(inst_out)
 );

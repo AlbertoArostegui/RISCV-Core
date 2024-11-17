@@ -15,12 +15,12 @@ module stage_execute(
 
     //Alu control
     input in_alu_src,
-    input in_alu_op,
+    input [2:0] in_alu_op,
 
     input [6:0] in_funct7,
     input [2:0] in_funct3,
     input [5:0] in_opcode,
-    input [2:0] in_inst_type,
+    input [2:0] in_instr_type,
 
     //Passing by
     input [4:0] in_rd,
@@ -70,7 +70,7 @@ alu alu(
     //OUTPUT
     .alu_out(out_alu_out),
     .out_PC(out_PC),
-    .branch_taken(out_branch_taken),
+    .branch_taken(out_branch_taken)
 );
     
 

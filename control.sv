@@ -1,7 +1,7 @@
 `include "defines.sv"
 
 module control(
-    input in_instruction,
+    input [31:0] in_instruction,
 
     //For EXECUTE STAGE (For Alu)
     output EX_alu_src,

@@ -9,7 +9,7 @@ module dmemory (
     input in_mem_read,
 
     //OUTPUT
-    output reg [31:0] out_data,
+    output reg [31:0] out_data
 );
 
     localparam MAXMEM = 1024;

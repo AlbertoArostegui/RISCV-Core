@@ -16,7 +16,7 @@ wire [31:0] out_data;
 reg [31:0] registers [0:31];
 
 initial begin
-    for (i=0; i <32, i++) 
+    for (integer i=0; i <32; i++) 
         registers[i] = 0;
     registers[2] = 32'd10;
     registers[3] = 32'd20;

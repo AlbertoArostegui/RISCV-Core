@@ -12,18 +12,22 @@
 module core (
     input clk,
     input reset,
-    output reg [31:0] r1_out;
+    output reg [31:0] r1_out
 );
 
 //FETCH STAGE
 wire [31:0] fetch_to_registers_pc;
 wire [31:0] fetch_to_registers_inst;
 
+
+wire EXMEM_to_fetch_branch_taken;
+wire [31:0] EXMEM_to_fetch_PC;
+
 stage_fetch fetch(
     .clk(clk),    
     .reset(reset),
-    .branch_taken(),
-    .new_pc(),
+    .branch_taken(EXMEM_to_fetch_branch_taken),
+    .new_pc(EXMEM_to_fetch_PC),
     .out_pc(fetch_to_registers_pc),
     .inst_out(fetch_to_registers_inst)
 );
@@ -74,6 +78,12 @@ wire [4:0] decode_to_registers_rd;
 
 wire [31:0] tmp_r1;
 
+//wires for 
+//Writeback Stage --> Decode Stage
+wire [31:0] writeback_to_decode_out_data;
+wire [4:0] writeback_to_decode_rd;
+wire writeback_to_decode_write_enable;
+
 stage_decode decode(
     .clk(clk),
     .reset(reset),
@@ -83,9 +93,9 @@ stage_decode decode(
 
     //INPUT FROM WB
     //This should come from control from WB
-    .in_write_enable(writeback_to_decode_out_write_enable),
+    .in_write_enable(writeback_to_decode_write_enable),
     //This should come from control from WB
-    .in_write_reg(writeback_to_decode_out_rd),
+    .in_write_reg(writeback_to_decode_rd),
     //This should come from WB
     .in_write_data(writeback_to_decode_out_data),
 
@@ -129,6 +139,7 @@ wire [4:0]  IDEX_to_execute_rd;
 
 //CONTROL
 wire IDEX_to_execute_alu_src;
+wire [31:0] IDEX_to_execute_inst;
 wire [2:0] IDEX_to_execute_alu_op;
 wire IDEX_to_execute_mem_write;
 wire IDEX_to_execute_mem_read;
@@ -172,7 +183,7 @@ registers_IDEX registers_IDEX(
 
     
     //OUTPUT
-    .out_instruction(IDEX_to_execute_instruction),
+    .out_instruction(IDEX_to_execute_inst),
     .out_PC(IDEX_to_execute_PC),
 
     .out_immediate(IDEX_to_execute_immediate),
@@ -213,7 +224,7 @@ stage_execute execute(
     .clk(clk),
     .reset(reset),
 
-    .in_instruction(IDEX_to_execute_instruction),
+    .in_instruction(IDEX_to_execute_inst),
     .in_PC(IDEX_to_execute_PC),
 
     .in_rs1(IDEX_to_execute_rs1),
@@ -255,8 +266,6 @@ stage_execute execute(
 //wires for
 //EXMEM Registers --> Memory Stage
 //To Fetch Stage
-wire [31:0] EXMEM_to_memory_PC;
-wire EXMEM_to_memory_branch_taken;
 wire EXMEM_to_memory_branch_inst;
 
 //Actual memory interaction
@@ -268,7 +277,7 @@ wire EXMEM_to_memory_mem_write;
 wire EXMEM_to_memory_mem_read;
 
 //Passing by
-wire EXMEM_to_memory_rd;
+wire [4:0] EXMEM_to_memory_rd;
 wire EXMEM_to_memory_mem_to_reg;
 wire EXMEM_to_memory_write_enable;
 
@@ -278,7 +287,7 @@ registers_EXMEM registers_EXMEM(
 
     //INPUT
     .in_alu_out(execute_to_registers_alu_out),
-    .in_PC(execute_to_registers_PC),
+    .in_new_PC(execute_to_registers_PC),
     .in_branch_taken(execute_to_registers_branch_taken),
 
     //Passing by
@@ -293,8 +302,8 @@ registers_EXMEM registers_EXMEM(
 
     //OUTPUT
     //To Fetch Stage
-    .out_PC(EXMEM_to_memory_PC),
-    .out_branch_taken(EXMEM_to_memory_branch_taken),
+    .out_new_PC(EXMEM_to_fetch_PC),
+    .out_branch_taken(EXMEM_to_fetch_branch_taken),
     .out_branch_inst(EXMEM_to_memory_branch_inst),
 
     //Actual memory interaction
@@ -333,7 +342,7 @@ stage_memory dmemory(
     .in_mem_data(EXMEM_to_memory_mem_data),
 
     //Passing by
-    .in_rd(EXMEM_to_memory_in_rd),
+    .in_rd(EXMEM_to_memory_rd),
     .in_mem_to_reg(EXMEM_to_memory_mem_to_reg),
     .in_write_enable(EXMEM_to_memory_write_enable),
 
@@ -348,7 +357,7 @@ stage_memory dmemory(
 //wires for
 //MEMWB Registers --> Writeback Stage
 wire [31:0] MEMWB_to_writeback_alu_out;
-wire [31:0] MEMWB_to_writeback_mem_out
+wire [31:0] MEMWB_to_writeback_mem_out;
 
 wire [4:0] MEMWB_to_writeback_rd;
 wire MEMWB_to_writeback_mem_to_reg;
@@ -375,12 +384,6 @@ registers_MEMWB registers_MEMWB(
     .out_write_enable(MEMWB_to_writeback_write_enable)
 );
 
-//wires for 
-//Writeback Stage --> Decode Stage
-wire [31:0] writeback_to_decode_out_data;
-wire [4:0] writeback_to_decode_rd;
-wire writeback_to_decode_write_enable;
-
 stage_writeback writeback(
     .clk(clk),
     .reset(reset),
@@ -396,7 +399,8 @@ stage_writeback writeback(
     //OUTPUT
     .out_data(writeback_to_decode_out_data),
     .out_rd(writeback_to_decode_rd),
-    .out_write_enable(writeback_to_decode_out_write_enable)
+    .out_write_enable(writeback_to_decode_write_enable)
 );
 
 always @(posedge clk) r1_out <= tmp_r1;
+endmodule
