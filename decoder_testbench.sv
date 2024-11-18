@@ -1,100 +1,126 @@
-// Mandatory file to be able to launch SVUT flow
-`include "svut_h.sv"
-// Specify the module to load or on files.f
-`include "decoder(.sv"
+`include "decoder.sv"
 `timescale 1 ns / 100 ps
 
-module decoder(_testbench();
+module decoder_testbench();
 
-    `SVUT_SETUP
+    parameter INSTR_SIZE = 32;
 
-    [31:0] instruction;
-    [4:0] rs1;
-    [4:0] rs2;
-    [4:0] rd;
-    [31:0] imm;
-    [6:0] funct7;
-    [2:0] funct3;
-    [5:0] opcode;
-    [2:0] instr_type;
+    // Inputs
+    reg [INSTR_SIZE-1:0] instr;
 
-    decoder( 
-    dut 
-    (
-    .instruction (instruction),
-    .rs1         (rs1),
-    .rs2         (rs2),
-    .rd          (rd),
-    .imm         (imm),
-    .funct7      (funct7),
-    .funct3      (funct3),
-    .opcode      (opcode),
-    .instr_type  (instr_type)
+    // Outputs
+    wire [4:0] rs1;
+    wire [4:0] rs2;
+    wire [4:0] rd;
+    wire [31:0] imm;
+    wire [6:0] funct7;
+    wire [2:0] funct3;
+    wire [6:0] opcode;
+    wire [2:0] instr_type;
+
+    // Instantiate the decoder
+    decoder dut (
+        .instr(instr),
+        .rs1(rs1),
+        .rs2(rs2),
+        .rd(rd),
+        .imm(imm),
+        .funct7(funct7),
+        .funct3(funct3),
+        .opcode(opcode),
+        .instr_type(instr_type)
     );
 
-
-    // To create a clock:
-    // initial aclk = 0;
-    // always #2 aclk = !aclk;
-
-    // To dump data for visualization:
-    // initial begin
-    //     Default wavefile name with VCD format
-    //     $dumpfile("decoder(_testbench.vcd");
-    //     Or use FST format with -fst argument
-    //     $dumpfile("decoder(_testbench.fst");
-    //     Dump all the signals of the design
-    //     $dumpvars(0, decoder(_testbench);
-    // end
-
-    // Setup time format when printing with $realtime()
-    initial $timeformat(-9, 1, "ns", 8);
-
-    task setup(msg="");
-    begin
-        // setup() runs when a test begins
+    // For waveform dumping
+    initial begin
+        $dumpfile("decoder_testbench.vcd");
+        $dumpvars(0, decoder_testbench);
     end
-    endtask
 
-    task teardown(msg="");
-    begin
-        // teardown() runs when a test ends
+    // Test stimulus
+    initial begin
+        // Test case 1: ADD
+        $display("\nTest Case 1: ADD x1, x2, x3");
+        instr = 32'h003100b3;  // add x1, x2, x3
+        #1;
+        if (rs1 !== 5'd2) $error("ADD: rs1 incorrect. Expected 2, got %d", rs1);
+        if (rs2 !== 5'd3) $error("ADD: rs2 incorrect. Expected 3, got %d", rs2);
+        if (rd !== 5'd1)  $error("ADD: rd incorrect. Expected 1, got %d", rd);
+        if (funct7 !== 7'b0000000) $error("ADD: funct7 incorrect");
+        if (funct3 !== 3'b000) $error("ADD: funct3 incorrect");
+        if (opcode !== 7'b0110011) $error("ADD: opcode incorrect");
+
+        // Test case 2: ADDI
+        $display("\nTest Case 2: ADDI x1, x1, 5");
+        instr = 32'h00508093;  // addi x1, x1, 5
+        #1;
+        if (rs1 !== 5'd1) $error("ADDI: rs1 incorrect. Expected 1, got %d", rs1);
+        if (rd !== 5'd1)  $error("ADDI: rd incorrect. Expected 1, got %d", rd);
+        if (imm !== 32'd5) $error("ADDI: immediate incorrect. Expected 5, got %d", imm);
+        if (funct3 !== 3'b000) $error("ADDI: funct3 incorrect");
+        if (opcode !== 7'b0010011) $error("ADDI: opcode incorrect");
+
+        // Test case 3: SUB
+        $display("\nTest Case 3: SUB x2, x3, x4");
+        instr = 32'h40418133;  // sub x2, x3, x4
+        #1;
+        if (rs1 !== 5'd3) $error("SUB: rs1 incorrect. Expected 3, got %d", rs1);
+        if (rs2 !== 5'd4) $error("SUB: rs2 incorrect. Expected 4, got %d", rs2);
+        if (rd !== 5'd2)  $error("SUB: rd incorrect. Expected 2, got %d", rd);
+        if (funct7 !== 7'b0100000) $error("SUB: funct7 incorrect");
+        if (funct3 !== 3'b000) $error("SUB: funct3 incorrect");
+        if (opcode !== 7'b0110011) $error("SUB: opcode incorrect");
+
+        // Test case 4: LOAD
+        $display("\nTest Case 4: LW x1, 4(x2)");
+        instr = 32'h00412083;  // lw x1, 4(x2)
+        #1;
+        if (rs1 !== 5'd2) $error("LOAD: rs1 incorrect. Expected 2, got %d", rs1);
+        if (rd !== 5'd1)  $error("LOAD: rd incorrect. Expected 1, got %d", rd);
+        if (imm !== 32'd4) $error("LOAD: immediate incorrect. Expected 4, got %d", imm);
+        if (funct3 !== 3'b010) $error("LOAD: funct3 incorrect");
+        if (opcode !== 7'b0000011) $error("LOAD: opcode incorrect");
+
+        // Test case 5: STORE
+        $display("\nTest Case 5: SW x1, 8(x2)");
+        instr = 32'h00112423;  // sw x1, 8(x2)
+        #1;
+        if (rs1 !== 5'd2) $error("STORE: rs1 incorrect. Expected 2, got %d", rs1);
+        if (rs2 !== 5'd1) $error("STORE: rs2 incorrect. Expected 1, got %d", rs2);
+        if (imm !== 32'd8) $error("STORE: immediate incorrect. Expected 8, got %d", imm);
+        if (funct3 !== 3'b010) $error("STORE: funct3 incorrect");
+        if (opcode !== 7'b0100011) $error("STORE: opcode incorrect");
+
+        // Test case 6: BRANCH
+        $display("\nTest Case 6: BEQ x1, x2, 12");
+        instr = 32'h00208663;  // beq x1, x2, 12
+        #1;
+        if (rs1 !== 5'd1) $error("BRANCH: rs1 incorrect. Expected 1, got %d", rs1);
+        if (rs2 !== 5'd2) $error("BRANCH: rs2 incorrect. Expected 2, got %d", rs2);
+        if (imm !== 32'd12) $error("BRANCH: immediate incorrect. Expected 12, got %d", imm);
+        if (funct3 !== 3'b000) $error("BRANCH: funct3 incorrect");
+        if (opcode !== 7'b1100011) $error("BRANCH: opcode incorrect, got %b", opcode);
+
+        // Test case 7: JAL
+        $display("\nTest Case 7: JAL x1, 16");
+        instr = 32'h010000ef;  // jal x1, 16
+        #1;
+        if (rd !== 5'd1) $error("JAL: rd incorrect. Expected 1, got %d", rd);
+        if (imm !== 32'd16) $error("JAL: immediate incorrect. Expected 16, got %d", imm);
+        if (opcode !== 7'b1101111) $error("JAL: opcode incorrect");
+
+        // Test case 8: MUL
+        $display("\nTest Case 8: MUL x2, x3, x4");
+        instr = 32'h02418133;  // mul x2, x3, x4
+        #1;
+        if (rs1 !== 5'd3) $error("MUL: rs1 incorrect. Expected 3, got %d", rs1);
+        if (rs2 !== 5'd4) $error("MUL: rs2 incorrect. Expected 4, got %d", rs2);
+        if (rd !== 5'd2)  $error("MUL: rd incorrect. Expected 2, got %d", rd);
+        if (funct7 !== 7'b0000001) $error("MUL: funct7 incorrect");
+        if (opcode !== 7'b0110011) $error("MUL: opcode incorrect");
+
+        $display("\nAll tests completed!");
+        $finish;
     end
-    endtask
-
-    `TEST_SUITE("TESTSUITE_NAME")
-
-    //  Available macros:"
-    //
-    //    - `MSG("message"):       Print a raw white message
-    //    - `INFO("message"):      Print a blue message with INFO: prefix
-    //    - `SUCCESS("message"):   Print a green message if SUCCESS: prefix
-    //    - `WARNING("message"):   Print an orange message with WARNING: prefix and increment warning counter
-    //    - `CRITICAL("message"):  Print a purple message with CRITICAL: prefix and increment critical counter
-    //    - `FAILURE("message"):   Print a red message with FAILURE: prefix and do **not** increment error counter
-    //    - `ERROR("message"):     Print a red message with ERROR: prefix and increment error counter
-    //
-    //    - `FAIL_IF(aSignal):                 Increment error counter if evaluaton is true
-    //    - `FAIL_IF_NOT(aSignal):             Increment error coutner if evaluation is false
-    //    - `FAIL_IF_EQUAL(aSignal, 23):       Increment error counter if evaluation is equal
-    //    - `FAIL_IF_NOT_EQUAL(aSignal, 45):   Increment error counter if evaluation is not equal
-    //    - `ASSERT(aSignal):                  Increment error counter if evaluation is not true
-    //    - `ASSERT(aSignal == 0):           Increment error counter if evaluation is not true
-    //
-    //  Available flag:
-    //
-    //    - `LAST_STATUS: tied to 1 if last macro did experience a failure, else tied to 0
-
-    `UNIT_TEST("TESTCASE_NAME")
-
-        // Describe here the testcase scenario
-        //
-        // Because SVUT uses long nested macros, it's possible
-        // some local variable declaration leads to compilation issue.
-        // You should declare your variables after the IOs declaration to avoid that.
-
-    `UNIT_TEST_END
-
-    `TEST_SUITE_END
 
 endmodule

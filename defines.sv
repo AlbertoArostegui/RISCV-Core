@@ -5,3 +5,6 @@
 `define OPCODE_LOAD     7'b0000011
 `define OPCODE_JUMP     7'b1101111
 `define OPCODE_BRANCH   7'b1100011
+
+
+`define OPCODE_ALU_IMM  7'b0010011

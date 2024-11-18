@@ -1,26 +1,17 @@
 `include "defines.sv"
 `include "stage1_fetch.sv"
-`include "registers_IFID.sv"
+`include "registers1_IFID.sv"
 `include "stage2_decode.sv"
-`include "registers_IDEX.sv"
+`include "registers2_IDEX.sv"
 `include "stage3_execute.sv"
-`include "registers_EXMEM.sv"
+`include "registers3_EXMEM.sv"
 `include "stage4_memory.sv"
-`include "registers_MEMWB.sv"
+`include "registers4_MEMWB.sv"
 `include "stage5_writeback.sv"
 
 module core (
     input clk,
-    input reset,
-    output reg [31:0] r0_out,
-    output reg [31:0] r1_out,
-    output reg [31:0] r2_out,
-    output reg [31:0] r3_out,
-    output reg [31:0] r4_out,
-    output reg [31:0] r5_out,
-    output reg [31:0] r6_out,
-    output reg [31:0] r7_out,
-    output reg [31:0] r8_out
+    input reset
 );
 
 //FETCH STAGE
@@ -34,8 +25,12 @@ wire [31:0] EXMEM_to_fetch_PC;
 stage_fetch fetch(
     .clk(clk),    
     .reset(reset),
+
+    //INPUT
     .branch_taken(EXMEM_to_fetch_branch_taken),
     .new_pc(EXMEM_to_fetch_PC),
+
+    //OUTPUT
     .out_pc(fetch_to_registers_pc),
     .inst_out(fetch_to_registers_inst)
 );
@@ -43,18 +38,20 @@ stage_fetch fetch(
 //wires for
 //Registers IFID --> Decode Stage
 
-wire [31:0] instruction;
-wire [31:0] PC;
+wire [31:0] IFID_to_decode_instruction;
+wire [31:0] IFID_to_decode_PC;
 
 registers_IFID registers_IFID(
     .clk(clk),
     .reset(reset),
 
+    //INPUT
     .in_instruction(fetch_to_registers_inst),
     .in_PC(fetch_to_registers_pc),
 
-    .out_instruction(instruction),
-    .out_PC(PC)
+    //OUTPUT
+    .out_instruction(IFID_to_decode_instruction),
+    .out_PC(IFID_to_decode_PC)
 );
 
 //wires for
@@ -78,21 +75,14 @@ wire [31:0] decode_to_registers_data_b; //(rs2)
 
 wire [6:0] decode_to_registers_funct7;
 wire [2:0] decode_to_registers_funct3;
-wire [5:0] decode_to_registers_opcode;
+wire [6:0] decode_to_registers_opcode;
 wire [2:0] decode_to_registers_instr_type;
 
+wire [31:0] decode_to_registers_PC;
+wire [31:0] decode_to_registers_instruction;
 wire [31:0] decode_to_registers_immediate;
 wire [4:0] decode_to_registers_rd;
 
-wire [31:0] tmp_r0;
-wire [31:0] tmp_r1;
-wire [31:0] tmp_r2;
-wire [31:0] tmp_r3;
-wire [31:0] tmp_r4;
-wire [31:0] tmp_r5;
-wire [31:0] tmp_r6;
-wire [31:0] tmp_r7;
-wire [31:0] tmp_r8;
 
 //wires for 
 //Writeback Stage --> Decode Stage
@@ -104,8 +94,8 @@ stage_decode decode(
     .clk(clk),
     .reset(reset),
 
-    .in_instruction(instruction),
-    .in_PC(PC),
+    .in_instruction(IFID_to_decode_instruction),
+    .in_PC(IFID_to_decode_PC),
 
     //INPUT FROM WB
     //This should come from control from WB
@@ -130,6 +120,8 @@ stage_decode decode(
     .out_data_a(decode_to_registers_data_a),
     .out_data_b(decode_to_registers_data_b),
 
+    .out_PC(decode_to_registers_PC),
+    .out_instruction(decode_to_registers_instruction),
     .out_immediate(decode_to_registers_immediate),
     .out_rd(decode_to_registers_rd),
 
@@ -137,17 +129,7 @@ stage_decode decode(
     .out_funct7(decode_to_registers_funct7),
     .out_funct3(decode_to_registers_funct3),
     .out_opcode(decode_to_registers_opcode),
-    .out_instr_type(decode_to_registers_instr_type),
-
-    .r0(tmp_r0),
-    .r1(tmp_r1),
-    .r2(tmp_r2),
-    .r3(tmp_r3),
-    .r4(tmp_r4),
-    .r5(tmp_r5),
-    .r6(tmp_r6),
-    .r7(tmp_r7),
-    .r8(tmp_r8)
+    .out_instr_type(decode_to_registers_instr_type)
 );
 
 //wires for
@@ -173,7 +155,7 @@ wire IDEX_to_execute_write_enable;
 
 wire [6:0] IDEX_to_execute_funct7;
 wire [2:0] IDEX_to_execute_funct3;
-wire [5:0] IDEX_to_execute_opcode;
+wire [6:0] IDEX_to_execute_opcode;
 wire [2:0] IDEX_to_execute_instr_type;
 
 registers_IDEX registers_IDEX(
@@ -181,8 +163,8 @@ registers_IDEX registers_IDEX(
     .reset(reset),
 
     //INPUT
-    .in_instruction(instruction),
-    .in_PC(PC),
+    .in_instruction(decode_to_registers_instruction),
+    .in_PC(decode_to_registers_PC),
 
     .in_immediate(decode_to_registers_immediate),
     .in_rs1(decode_to_registers_data_a),
@@ -275,7 +257,7 @@ stage_execute execute(
 
     //OUTPUT
     .out_alu_out(execute_to_registers_alu_out),
-    .out_mem_data(execute_to_registers_mem_data),
+    .out_mem_in_data(execute_to_registers_mem_data),
     .out_PC(execute_to_registers_PC),
     .out_branch_taken(execute_to_registers_branch_taken),
 
@@ -426,15 +408,4 @@ stage_writeback writeback(
     .out_write_enable(writeback_to_decode_write_enable)
 );
 
-    always @(posedge clk) begin
-        r0_out <= tmp_r0;
-        r1_out <= tmp_r1;
-        r2_out <= tmp_r2;
-        r3_out <= tmp_r3;
-        r4_out <= tmp_r4;
-        r5_out <= tmp_r5;
-        r6_out <= tmp_r6;
-        r7_out <= tmp_r7;
-        r8_out <= tmp_r8;
-    end
 endmodule

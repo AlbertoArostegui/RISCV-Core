@@ -35,28 +35,23 @@ module stage_decode(
     output [31:0] out_data_a,
     output [31:0] out_data_b,
 
+    output [31:0] out_PC,
+    output [31:0] out_instruction,
     output [31:0] out_immediate,
     output [4:0] out_rd,
 
     //Output from decoder for alu
     output [6:0] out_funct7,
     output [2:0] out_funct3,
-    output [5:0] out_opcode,
-    output [2:0] out_instr_type,
-
-    output reg [31:0] r0,
-    output reg [31:0] r1,
-    output reg [31:0] r2,
-    output reg [31:0] r3,
-    output reg [31:0] r4,
-    output reg [31:0] r5,
-    output reg [31:0] r6,
-    output reg [31:0] r7,
-    output reg [31:0] r8
+    output [6:0] out_opcode,
+    output [2:0] out_instr_type
 );
 
 wire [4:0] decoder_to_rf_rs1;
 wire [4:0] decoder_to_rf_rs2;
+
+assign out_instruction = in_instruction;
+assign out_PC = in_PC;
 
 decoder decoder(
     .instr(in_instruction),     //In
@@ -70,16 +65,6 @@ decoder decoder(
     .instr_type(out_instr_type)
 );
 
-wire [31:0] tmp_r0;
-wire [31:0] tmp_r1;
-wire [31:0] tmp_r2;
-wire [31:0] tmp_r3;
-wire [31:0] tmp_r4;
-wire [31:0] tmp_r5;
-wire [31:0] tmp_r6;
-wire [31:0] tmp_r7;
-wire [31:0] tmp_r8;
-
 register_file RF(
     .clk(clk),                  //In 
     .reset(reset),
@@ -89,16 +74,7 @@ register_file RF(
     .reg_a(decoder_to_rf_rs1), 
     .reg_b(decoder_to_rf_rs2),  
     .out_data_a(out_data_a),    //Out
-    .out_data_b(out_data_b),    
-    .r0(tmp_r0),
-    .r1(tmp_r1),
-    .r2(tmp_r2),
-    .r3(tmp_r3),
-    .r4(tmp_r4),
-    .r5(tmp_r5),
-    .r6(tmp_r6),
-    .r7(tmp_r7),
-    .r8(tmp_r8)
+    .out_data_b(out_data_b)    
 );
 
 control control(
@@ -111,17 +87,5 @@ control control(
     .WB_write_mem_to_reg(WB_write_mem_to_reg),
     .WB_write_enable(WB_write_enable)
 );
-
-always @(posedge clk) begin
-    r0 <= tmp_r0;
-    r1 <= tmp_r1;
-    r2 <= tmp_r2;
-    r3 <= tmp_r3;
-    r4 <= tmp_r4;
-    r5 <= tmp_r5;
-    r6 <= tmp_r6;
-    r7 <= tmp_r7;
-    r8 <= tmp_r8;
-end
 
 endmodule

@@ -26,7 +26,7 @@ always @(posedge clk or posedge reset) begin
     else if (branch_taken)
         PC <= new_pc;
     else
-        PC <= PC + 4;
+        PC <= PC + 1;
 end
 
 

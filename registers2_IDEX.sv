@@ -15,7 +15,7 @@ module registers_IDEX(
     input [2:0] in_alu_op,
     input [6:0] in_funct7,
     input [2:0] in_funct3,
-    input [5:0] in_opcode,
+    input [6:0] in_opcode,
     input [2:0] in_instr_type,
     
     //Passing by
@@ -41,7 +41,7 @@ module registers_IDEX(
 
     output reg [6:0] out_funct7,
     output reg [2:0] out_funct3,
-    output reg [5:0] out_opcode,
+    output reg [6:0] out_opcode,
     output reg [2:0] out_instr_type,
     
     //Passing by
@@ -73,7 +73,7 @@ module registers_IDEX(
         out_mem_write <= in_mem_write;
         out_mem_read <= in_mem_read;
         out_branch_inst <= in_branch_inst;
-        out_mem_to_reg <= out_mem_to_reg;
-        out_write_enable <= out_write_enable;
+        out_mem_to_reg <= in_mem_to_reg;
+        out_write_enable <= in_write_enable;
     end
 endmodule

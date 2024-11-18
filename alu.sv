@@ -1,5 +1,5 @@
 module alu (
-    input [5:0] opcode,
+    input [6:0] opcode,
     input [2:0] funct3,
     input [6:0] funct7,
     input [31:0] operand1,

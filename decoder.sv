@@ -8,7 +8,7 @@ module decoder(
     output [31:0] imm,
     output [6:0] funct7,
     output [2:0] funct3,
-    output [5:0] opcode,
+    output [6:0] opcode,
     output [2:0] instr_type
 );
 
