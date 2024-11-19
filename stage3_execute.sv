@@ -9,13 +9,19 @@ module stage_execute(
     input [31:0] in_PC,
 
     //Alu
-    input [31:0] in_rs1,
-    input [31:0] in_rs2,
+    input [31:0] in_data_rs1,
+    input [31:0] in_data_rs2,
     input [31:0] in_immediate,
 
     //Alu control
     input in_alu_src,
     input [2:0] in_alu_op,
+
+    //Forwarding Unit
+    input [4:0] in_rs1,
+    input [4:0] in_rs2,
+    input [4:0] in_EXMEM_rd,
+    input [4:0] in_MEMWB_rd,
 
     input [6:0] in_funct7,
     input [2:0] in_funct3,
@@ -23,7 +29,7 @@ module stage_execute(
     input [2:0] in_instr_type,
 
     //Passing by
-    input [4:0] in_rd,
+    input [4:0] in_IDEX_rd,
 
         //Control
     input in_mem_write,
@@ -62,9 +68,9 @@ alu alu(
     .opcode(in_opcode),
     .funct3(in_funct3),
     .funct7(in_funct7),
-    .operand1(in_rs1),
-    .operand2(in_rs2),
-    .immediate(in_immediate), //This renders alu_src useless
+    .operand1(in_data_rs1),
+    .operand2(in_data_rs2),
+    .immediate(in_immediate),   //This renders alu_src useless
     .PC(in_PC),
 
     //OUTPUT

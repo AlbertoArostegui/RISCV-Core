@@ -32,6 +32,9 @@ module stage_decode(
 
 
     //Output from RF, data
+    output [4:0] out_rs1,
+    output [4:0] out_rs2,
+
     output [31:0] out_data_a,
     output [31:0] out_data_b,
 
@@ -64,6 +67,9 @@ decoder decoder(
     .opcode(out_opcode),
     .instr_type(out_instr_type)
 );
+
+assign out_rs1 = decoder_to_rf_rs1;
+assign out_rs2 = decoder_to_rf_rs2;
 
 register_file RF(
     .clk(clk),                  //In 

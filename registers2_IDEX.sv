@@ -7,8 +7,10 @@ module registers_IDEX(
     input [31:0] in_PC,
     input [31:0] in_immediate,
 
-    input [31:0] in_rs1,
-    input [31:0] in_rs2,
+    input [4:0] in_rs1,
+    input [4:0] in_rs2,
+    input [31:0] in_data_rs1,
+    input [31:0] in_data_rs2,
 
     //For alu
     input in_alu_src,
@@ -32,8 +34,10 @@ module registers_IDEX(
     output reg [31:0] out_PC,
     output reg [31:0] out_immediate,
 
-    output reg [31:0] out_rs1,
-    output reg [31:0] out_rs2,
+    output reg [4:0] out_rs1,
+    output reg [4:0] out_rs2,
+    output reg [31:0] out_data_rs1,
+    output reg [31:0] out_data_rs2,
 
     //For alu
     output reg out_alu_src,
@@ -61,6 +65,8 @@ module registers_IDEX(
 
         out_rs1 <= in_rs1;
         out_rs2 <= in_rs2;
+        out_data_rs1 <= in_data_rs1;
+        out_data_rs2 <= in_data_rs2;
 
         out_alu_src <= in_alu_src;
         out_alu_op <= in_alu_op;
