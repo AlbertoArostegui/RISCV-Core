@@ -6,7 +6,7 @@ module core_testbench();
     logic clk;
     logic reset;
 
-    parameter MAX_CYCLES = 8;  // Reduced for testing
+    parameter MAX_CYCLES = 16;  // Reduced for testing
     integer cycle_count;
 
     // DUT instantiation
@@ -18,8 +18,17 @@ module core_testbench();
     // Initialize test program
     initial begin
         // Initialize instruction memory with test program
-        dut.fetch.imemory.ROM[0] = 32'h00100093;  // addi x1, x0, 1
-        dut.fetch.imemory.ROM[1] = 32'h00200113;  // addi x2, x0, 2
+        dut.fetch.imemory.ROM[0] = 32'h00000000;  // nop
+        dut.fetch.imemory.ROM[1] = 32'h00000000;  // nop
+        dut.fetch.imemory.ROM[2] = 32'h00000000;  // nop
+        dut.fetch.imemory.ROM[3] = 32'h00100093;  // addi x1, x0, 1
+        dut.fetch.imemory.ROM[4] = 32'h00200113;  // addi x2, x0, 2
+        dut.fetch.imemory.ROM[5] = 32'h00000000;  // nop
+        dut.fetch.imemory.ROM[6] = 32'h00000000;  // nop
+        dut.fetch.imemory.ROM[7] = 32'h00000000;  // nop
+        dut.fetch.imemory.ROM[8] = 32'h00000000;  // nop
+        dut.fetch.imemory.ROM[9] = 32'h00000000;  // nop
+        dut.fetch.imemory.ROM[10] = 32'h002081b3;  // add x3, x1, x2
     end
 
     // Clock and reset generation
@@ -54,9 +63,9 @@ module core_testbench();
             $display("========================================================\n=== Cycle %0d ===\n========================================================\n", cycle_count);
             
             // Fetch Stage
-            $display("FETCH: out_PC=%h out_instruction=%h", 
-                dut.fetch_to_registers_pc,
-                dut.fetch_to_registers_inst);
+            $display("FETCH: out_PC=%h out_instruction=%h\n", 
+                dut.fetch.out_PC,
+                dut.fetch.out_instruction);
 
             //Fetch to Decode registers
             $display("Registers IFID: out_PC=%h out_instruction=%h", 
@@ -66,23 +75,24 @@ module core_testbench();
             $display("\n========================================\n");
             
             // Decode Stage
-            $display("DECODE: Instruction=%h rs1=%d rs2=%d rd=%d imm=%h\nout_alu_src=%b out_alu_op=%b out_mem_write=%b out_mem_read=%b\nout_branch_inst=%b out_mem_to_reg=%b out_write_enable=%b out_funct7=%b out_funct3=%b out_opcode=%b out_instr_type=%b\n",
-                dut.decode_to_registers_instruction,
-                dut.decode_to_registers_data_a,
-                dut.decode_to_registers_data_b,
-                dut.decode_to_registers_rd,
-                dut.decode_to_registers_immediate,
-                dut.decode_to_registers_EX_alu_src,
-                dut.decode_to_registers_EX_alu_op,
-                dut.decode_to_registers_MEM_mem_write,
-                dut.decode_to_registers_MEM_mem_read,
-                dut.decode_to_registers_MEM_branch_inst,
-                dut.decode_to_registers_WB_write_mem_to_reg,
-                dut.decode_to_registers_WB_write_enable,
-                dut.decode_to_registers_funct7,
-                dut.decode_to_registers_funct3,
-                dut.decode_to_registers_opcode,
-                dut.decode_to_registers_instr_type);
+            $display("DECODE: out_PC=%h out_instruction=%h rs1=%d rs2=%d rd=%d imm=%h\nout_alu_src=%b out_alu_op=%b out_mem_write=%b out_mem_read=%b\nout_branch_inst=%b out_mem_to_reg=%b out_write_enable=%b out_funct7=%b out_funct3=%b out_opcode=%b out_instr_type=%b\n",
+                dut.decode.out_PC,
+                dut.decode.out_instruction,
+                dut.decode.out_data_a,
+                dut.decode.out_data_b,
+                dut.decode.out_rd,
+                dut.decode.out_immediate,
+                dut.decode.EX_alu_src,
+                dut.decode.EX_alu_op,
+                dut.decode.MEM_mem_write,
+                dut.decode.MEM_mem_read,
+                dut.decode.MEM_branch_inst,
+                dut.decode.WB_write_mem_to_reg,
+                dut.decode.WB_write_enable,
+                dut.decode.out_funct7,
+                dut.decode.out_funct3,
+                dut.decode.out_opcode,
+                dut.decode.out_instr_type);
             
             // Decode to Execute registers
             $display("Registers IDEX: Instruction=%h PC=%h immediate=%h\nrs1=%d rs2=%d rd=%d\n alu_src=%b alu_op=%b mem_write=%b mem_read=%b branch_inst=%b mem_to_reg=%b\n out_write_enable=%b out_funct7=%b out_funct3=%b out_opcode=%b out_instr_type=%b\n",
@@ -151,18 +161,18 @@ module core_testbench();
 
             $display("\n========================================\n");
             // Writeback Stage
-            $display("WRITEBACK: out_rd=%d out_data=%h out_write_enable=%b",
+            $display("WRITEBACK: out_rd=%d out_data=%h out_write_enable=%b\n",
                 dut.writeback.out_rd,
                 dut.writeback.out_data,
                 dut.writeback.out_write_enable);
 
             // Register File Status
-            $display("REGISTERS: r0=%h r1=%h r2=%h r3=%h",
+            $display("registers: r0=%h \nr1=%h \nr2=%h \nr3=%h",
                 dut.decode.RF.registers[0],
                 dut.decode.RF.registers[1],
                 dut.decode.RF.registers[2],
                 dut.decode.RF.registers[3]);
-            $display("          r4=%h r5=%h r6=%h r7=%h r8=%h",
+            $display("r4=%h\nr5=%h\nr6=%h\nr7=%h\nr8=%h",
                 dut.decode.RF.registers[4],
                 dut.decode.RF.registers[5],
                 dut.decode.RF.registers[6],

@@ -31,8 +31,8 @@ stage_fetch fetch(
     .new_pc(EXMEM_to_fetch_PC),
 
     //OUTPUT
-    .out_pc(fetch_to_registers_pc),
-    .inst_out(fetch_to_registers_inst)
+    .out_PC(fetch_to_registers_pc),
+    .out_instruction(fetch_to_registers_inst)
 );
 
 //wires for

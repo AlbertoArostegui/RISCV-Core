@@ -6,14 +6,14 @@ module stage_fetch (
     input reset,
     input branch_taken,
     input [31:0] new_pc,
-    output [31:0] out_pc,
-    output [31:0] inst_out
+    output [31:0] out_PC,
+    output [31:0] out_instruction
 );
 
 reg [31:0] PC;
 reg [31:0] init;
 
-assign out_pc = PC;
+assign out_PC = PC;
 
 initial begin 
     init = 32'h0;
@@ -32,8 +32,8 @@ end
 
 imemory imemory(
     .clk(clk),
-    .mem_addr(out_pc),
-    .inst_out(inst_out)
+    .mem_addr(out_PC),
+    .inst_out(out_instruction)
 );
 
 endmodule

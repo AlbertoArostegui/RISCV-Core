@@ -28,6 +28,13 @@ initial begin
 end
 
 always @(posedge clk) begin
+    if (reset) begin
+        out_alu_out <= 0;
+        out_mem_out <= 0;
+        out_rd <= 0;
+        out_mem_to_reg <= 0;
+        out_write_enable <= 0;       
+    end
     out_alu_out <= in_alu_out;
     out_mem_out <= in_mem_out;
 

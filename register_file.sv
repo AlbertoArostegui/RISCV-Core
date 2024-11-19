@@ -26,7 +26,7 @@ end
 
 always @(posedge clk) begin
     if (we && wreg != 0) begin
-        registers[wreg] = wdata;
+        registers[wreg] <= wdata;
     end
 end
 endmodule
