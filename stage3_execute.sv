@@ -59,7 +59,7 @@ module stage_execute(
     output out_write_enable
 );
 
-assign out_rd = in_rd;
+assign out_rd = in_IDEX_rd;
 assign out_mem_write = in_mem_write;
 assign out_mem_read = in_mem_read;
 assign out_branch_inst = in_branch_inst;

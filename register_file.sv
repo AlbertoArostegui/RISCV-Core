@@ -10,8 +10,6 @@ module register_file(
     output reg [31:0] out_data_b
 );
 
-wire [31:0] out_data;
-
 reg [31:0] registers [0:31];
 
 initial begin
@@ -20,8 +18,13 @@ initial begin
 end
 
 always @(*) begin
-    out_data_a <= registers[reg_a];
-    out_data_b <= registers[reg_b];
+    if (we && wreg != 0) begin
+        out_data_a = (reg_a == wreg) ? wdata : registers[reg_a];
+        out_data_b = (reg_b == wreg) ? wdata : registers[reg_b];
+    end else begin
+        out_data_a = registers[reg_a];
+        out_data_b = registers[reg_b];
+    end
 end
 
 always @(posedge clk) begin

@@ -1,3 +1,5 @@
+`include "forwarding_unit.sv"
+
 module registers_EXMEM(
     input clk,
     input reset,

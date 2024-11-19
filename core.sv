@@ -311,7 +311,6 @@ wire EXMEM_to_memory_mem_read;
 
 //Passing by
 wire EXMEM_to_memory_mem_to_reg;
-wire EXMEM_to_execute_and_memory_write_enable;
 
 registers_EXMEM registers_EXMEM(
     .clk(clk),

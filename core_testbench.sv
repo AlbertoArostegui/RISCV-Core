@@ -21,12 +21,12 @@ module core_testbench();
         dut.fetch.imemory.ROM[0] = 32'h00000000;  // nop
         dut.fetch.imemory.ROM[1] = 32'h00000000;  // nop
         dut.fetch.imemory.ROM[2] = 32'h00000000;  // nop
-        dut.fetch.imemory.ROM[3] = 32'h00100093;  // addi x1, x0, 1
-        dut.fetch.imemory.ROM[4] = 32'h00200113;  // addi x2, x0, 2
-        dut.fetch.imemory.ROM[5] = 32'h00000000;  // nop
-        dut.fetch.imemory.ROM[6] = 32'h00000000;  // nop
-        dut.fetch.imemory.ROM[7] = 32'h00000000;  // nop
-        dut.fetch.imemory.ROM[8] = 32'h00000000;  // nop
+        dut.fetch.imemory.ROM[3] = 32'h03200093;  // addi x1, x0, 50
+        dut.fetch.imemory.ROM[4] = 32'h02300193;  // addi x3, x0, 35
+        dut.fetch.imemory.ROM[5] = 32'h40308133;  // sub x2, x1, x3
+        dut.fetch.imemory.ROM[6] = 32'h00517233;  // and x4, x2, x5
+        dut.fetch.imemory.ROM[7] = 32'h0020e333;  // or x6, x1, x2
+        dut.fetch.imemory.ROM[8] = 32'h00210433;  // add x8, x2, x2
         dut.fetch.imemory.ROM[9] = 32'h00000000;  // nop
         dut.fetch.imemory.ROM[10] = 32'h002081b3;  // add x3, x1, x2
     end
