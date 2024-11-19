@@ -22,6 +22,10 @@ module stage_execute(
     input [4:0] in_rs2,
     input [4:0] in_EXMEM_rd,
     input [4:0] in_MEMWB_rd,
+    input in_EXMEM_write_enable,
+    input in_MEMWB_write_enable,
+    input [31:0] in_EXMEM_alu_out,
+    input [31:0] in_MEMWB_out_data,
 
     input [6:0] in_funct7,
     input [2:0] in_funct3,
@@ -63,14 +67,45 @@ assign out_mem_to_reg = in_mem_to_reg;
 assign out_write_enable = in_write_enable;
 assign out_mem_in_data = in_rs2;
 
+forwarding_unit forwarding_unit(
+    .clk(clk),
+    .reset(reset),
+
+    //INPUT
+    .in_IDEX_rs1(in_rs1),
+    .in_IDEX_rs2(in_rs2),
+    .in_EXMEM_rd(in_EXMEM_rd),
+    .in_MEMWB_rd(in_MEMWB_rd),
+    .in_EXMEM_write_enable(in_EXMEM_write_enable),
+    .in_MEMWB_write_enable(in_MEMWB_write_enable),
+
+    //OUTPUT
+    .forwardA(forwardA),
+    .forwardB(forwardB)
+);
+
+wire [1:0] forwardA;
+wire [1:0] forwardB;
+wire [31:0] alu_operand1;
+wire [31:0] alu_operand2;
+
+// MUX for forwarding
+assign alu_operand1 = (forwardA == 2'b10) ? in_EXMEM_alu_out :
+                     (forwardA == 2'b01) ? in_MEMWB_out_data :
+                     in_data_rs1;
+
+assign alu_operand2 = (forwardB == 2'b10) ? in_EXMEM_alu_out :
+                     (forwardB == 2'b01) ? in_MEMWB_out_data :
+                     in_data_rs2;
+
 alu alu(
     //INPUT
     .opcode(in_opcode),
     .funct3(in_funct3),
     .funct7(in_funct7),
-    .operand1(in_data_rs1),
-    .operand2(in_data_rs2),
-    .immediate(in_immediate),   //This renders alu_src useless
+    .operand1(alu_operand1),
+    .operand2(alu_operand2),
+    .immediate(in_immediate),
     .PC(in_PC),
 
     //OUTPUT
