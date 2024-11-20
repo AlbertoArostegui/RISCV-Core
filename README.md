@@ -7,7 +7,7 @@ The following are the intended features to be implemented on this processor.
 - [ ] iCache
 - [ ] dCache
 - [ ] Branch Prediction
-- [ ] Bypass ALU
+- [X] Bypass ALU
 - [ ] Bypass memory
 - [ ] ptw
 - [ ] LB, LH, LW
