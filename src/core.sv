@@ -18,7 +18,10 @@ module core (
 wire [31:0] fetch_to_registers_pc;
 wire [31:0] fetch_to_registers_inst;
 
+//FROM Decode Stage
+wire pc_write_disable;
 
+//FROM EXMEM
 wire EXMEM_to_fetch_branch_taken;
 wire [31:0] EXMEM_to_fetch_PC;
 
@@ -29,6 +32,7 @@ stage_fetch fetch(
     //INPUT
     .branch_taken(EXMEM_to_fetch_branch_taken),
     .new_pc(EXMEM_to_fetch_PC),
+    .pc_write_disable(pc_write_disable),
 
     //OUTPUT
     .out_PC(fetch_to_registers_pc),
@@ -41,6 +45,9 @@ stage_fetch fetch(
 wire [31:0] IFID_to_decode_instruction;
 wire [31:0] IFID_to_decode_PC;
 
+//FROM Decode Stage
+wire IFID_write_disable;
+
 registers_IFID registers_IFID(
     .clk(clk),
     .reset(reset),
@@ -48,6 +55,9 @@ registers_IFID registers_IFID(
     //INPUT
     .in_instruction(fetch_to_registers_inst),
     .in_PC(fetch_to_registers_pc),
+
+    //CONTROL
+    .in_IFID_write_disable(IFID_write_disable),
 
     //OUTPUT
     .out_instruction(IFID_to_decode_instruction),
@@ -92,6 +102,10 @@ wire [31:0] writeback_to_decode_and_execute_out_data;
 wire [4:0] writeback_to_decode_rd;
 wire writeback_to_decode_write_enable;
 
+//FROM IDEX
+wire [4:0] IDEX_to_decode_and_execute_rd;
+wire IDEX_to_decode_and_execute_mem_read;
+
 stage_decode decode(
     .clk(clk),
     .reset(reset),
@@ -106,6 +120,10 @@ stage_decode decode(
     .in_write_reg(writeback_to_decode_rd),
     //This should come from WB
     .in_write_data(writeback_to_decode_and_execute_out_data),
+
+    //Hazard Detection Unit
+    .in_IDEX_rd(IDEX_to_decode_and_execute_rd),
+    .in_IDEX_mem_read(IDEX_to_decode_and_execute_mem_read),
 
     //OUTPUT
         //CONTROL
@@ -133,7 +151,10 @@ stage_decode decode(
     .out_funct7(decode_to_registers_funct7),
     .out_funct3(decode_to_registers_funct3),
     .out_opcode(decode_to_registers_opcode),
-    .out_instr_type(decode_to_registers_instr_type)
+    .out_instr_type(decode_to_registers_instr_type),
+
+    .out_pc_write_disable(pc_write_disable),
+    .out_IFID_write_disable(IFID_write_disable)
 );
 
 //wires for
@@ -206,12 +227,12 @@ registers_IDEX registers_IDEX(
     .out_data_rs2(IDEX_to_execute_data_rs2),
     .out_rs1(IDEX_to_execute_rs1),
     .out_rs2(IDEX_to_execute_rs2),
-    .out_rd(IDEX_to_execute_rd),
+    .out_rd(IDEX_to_decode_and_execute_rd),
 
     .out_alu_src(IDEX_to_execute_alu_src),
     .out_alu_op(IDEX_to_execute_alu_op),
-    .out_mem_write(IDEX_to_execute_mem_write),
-    .out_mem_read(IDEX_to_execute_mem_read),
+    .out_mem_write(IDEX_to_decode_and_execute_mem_write),
+    .out_mem_read(IDEX_to_decode_and_execute_mem_read),
     .out_branch_inst(IDEX_to_execute_branch_inst),
     .out_mem_to_reg(IDEX_to_execute_mem_to_reg),
     .out_write_enable(IDEX_to_execute_write_enable),
@@ -269,10 +290,10 @@ stage_execute execute(
     .in_alu_src(IDEX_to_execute_alu_src),
     .in_alu_op(IDEX_to_execute_alu_op),
         //Passing by
-    .in_IDEX_rd(IDEX_to_execute_rd),
+    .in_IDEX_rd(IDEX_to_decode_and_execute_rd),
         //Control
-    .in_mem_write(IDEX_to_execute_mem_write),
-    .in_mem_read(IDEX_to_execute_mem_read),
+    .in_mem_write(IDEX_to_decode_and_execute_mem_write),
+    .in_mem_read(IDEX_to_decode_and_execute_mem_read),
     .in_branch_inst(IDEX_to_execute_branch_inst),
     .in_mem_to_reg(IDEX_to_execute_mem_to_reg),
     .in_write_enable(IDEX_to_execute_write_enable),

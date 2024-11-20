@@ -4,8 +4,13 @@
 module stage_fetch (
     input clk,
     input reset,
+
+    //INPUT
     input branch_taken,
     input [31:0] new_pc,
+    input pc_write_disable,
+
+    //OUTPUT
     output [31:0] out_PC,
     output [31:0] out_instruction
 );
@@ -23,10 +28,12 @@ end
 always @(posedge clk or posedge reset) begin
     if (reset) 
         PC <= init;
-    else if (branch_taken)
-        PC <= new_pc;
-    else
-        PC <= PC + 1;
+    else if (!pc_write_disable) begin
+        if (branch_taken)
+            PC <= new_pc;
+        else
+            PC <= PC + 1;
+    end
 end
 
 

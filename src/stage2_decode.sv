@@ -1,6 +1,7 @@
 `include "register_file.sv"
 `include "decoder.sv"
 `include "control.sv"
+`include "hazard_detection_unit.sv"
 
 module stage_decode(
     input clk,
@@ -16,6 +17,10 @@ module stage_decode(
     input [4:0] in_write_reg,
     input [31:0] in_write_data,
 
+    input [4:0] in_IDEX_rd,
+    input in_IDEX_mem_read,
+
+    //OUTPUT
     //CONTROL    
     //For EX
     output EX_alu_src,
@@ -47,7 +52,10 @@ module stage_decode(
     output [6:0] out_funct7,
     output [2:0] out_funct3,
     output [6:0] out_opcode,
-    output [2:0] out_instr_type
+    output [2:0] out_instr_type,
+
+    output out_pc_write_disable,
+    output out_IFID_write_disable
 );
 
 wire [4:0] decoder_to_rf_rs1;
@@ -83,15 +91,48 @@ register_file RF(
     .out_data_b(out_data_b)    
 );
 
+wire stall_pipeline;
+wire control_src;
+
+wire EX_alu_src_pre;
+wire [2:0] EX_alu_op_pre;
+wire MEM_mem_write_pre;
+wire MEM_mem_read_pre;
+wire MEM_branch_inst_pre;
+wire WB_write_mem_to_reg_pre;
+wire WB_write_enable_pre;
+
+hazard_detection_unit hazard_detection_unit(
+    .in_IDEX_mem_read(in_IDEX_mem_read),       //In
+    .in_IDEX_rd(in_IDEX_rd),
+    .in_IFID_rs1(decoder_to_rf_rs1),
+    .in_IFID_rs2(decoder_to_rf_rs2),
+
+    .out_stall(stall_pipeline),                             //Out
+    .out_pc_write_disable(out_pc_write_disable),         
+    .out_IFID_write_disable(out_IFID_write_disable),     
+    .out_control_src(control_src)
+);
+
 control control(
     .in_instruction(in_instruction),            //In
-    .EX_alu_src(EX_alu_src),                    //Out
-    .EX_alu_op(EX_alu_op),
-    .MEM_mem_write(MEM_mem_write),
-    .MEM_mem_read(MEM_mem_read),
-    .MEM_branch_inst(MEM_branch_inst),
-    .WB_write_mem_to_reg(WB_write_mem_to_reg),
-    .WB_write_enable(WB_write_enable)
+
+    .EX_alu_src(EX_alu_src_pre),                //Out
+    .EX_alu_op(EX_alu_op_pre),
+    .MEM_mem_write(MEM_mem_write_pre),
+    .MEM_mem_read(MEM_mem_read_pre),
+    .MEM_branch_inst(MEM_branch_inst_pre),
+    .WB_write_mem_to_reg(WB_write_mem_to_reg_pre),
+    .WB_write_enable(WB_write_enable_pre)
 );
+
+//If control_src is 0, stall the pipeline
+assign EX_alu_src = control_src ? EX_alu_src_pre : 1'b0;
+assign EX_alu_op = control_src ? EX_alu_op_pre : 3'b0;
+assign MEM_mem_write = control_src ? MEM_mem_write_pre : 1'b0;
+assign MEM_mem_read = control_src ? MEM_mem_read_pre : 1'b0;
+assign MEM_branch_inst = control_src ? MEM_branch_inst_pre : 1'b0;
+assign WB_write_mem_to_reg = control_src ? WB_write_mem_to_reg_pre : 1'b0;
+assign WB_write_enable = control_src ? WB_write_enable_pre : 1'b0;
 
 endmodule

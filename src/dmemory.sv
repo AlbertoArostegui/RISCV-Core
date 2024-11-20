@@ -23,7 +23,7 @@ module dmemory (
             for (integer i = 0; i < MAXMEM; i++)
                 MEMORY[i] = 0;
         if (in_mem_write) begin
-            MEMORY[in_mem_addr] <= in_mem_data;
+            MEMORY[in_mem_addr[9:0]] <= in_mem_data;
         end
     end
 

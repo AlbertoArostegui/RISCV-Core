@@ -30,15 +30,13 @@ module forwarding_unit(
         end
         //MEM Hazard
         
-        if ((in_MEMWB_rd != 0) && (in_MEMWB_rd == in_IDEX_rs1) && (in_MEMWB_write_enable) && !(in_EXMEM_write_enable && (in_EXMEM_rd != 0)) && (in_EXMEM_rd == in_IDEX_rs1)) begin
+        if ((in_MEMWB_rd != 0) && (in_MEMWB_rd == in_IDEX_rs1) && (in_MEMWB_write_enable) && 
+            !(in_EXMEM_write_enable && (in_EXMEM_rd != 0) && (in_EXMEM_rd == in_IDEX_rs1))) begin
             forwardA = 2'b01;
-        end else if (in_EXMEM_write_enable && (in_EXMEM_rd != 0) && (in_EXMEM_rd == in_IDEX_rs1)) begin
-            forwardA = 2'b10;
         end
-        if ((in_MEMWB_rd != 0) && (in_MEMWB_rd == in_IDEX_rs2) && (in_MEMWB_write_enable) && !(in_EXMEM_write_enable && (in_EXMEM_rd != 0)) && (in_EXMEM_rd == in_IDEX_rs2)) begin
+        if ((in_MEMWB_rd != 0) && (in_MEMWB_rd == in_IDEX_rs2) && (in_MEMWB_write_enable) && 
+            !(in_EXMEM_write_enable && (in_EXMEM_rd != 0) && (in_EXMEM_rd == in_IDEX_rs2))) begin
             forwardB = 2'b01;
-        end else if (in_EXMEM_write_enable && (in_EXMEM_rd != 0) && (in_EXMEM_rd == in_IDEX_rs2)) begin
-            forwardB = 2'b10;
         end
     end
 

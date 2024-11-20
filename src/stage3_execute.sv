@@ -65,7 +65,6 @@ assign out_mem_read = in_mem_read;
 assign out_branch_inst = in_branch_inst;
 assign out_mem_to_reg = in_mem_to_reg;
 assign out_write_enable = in_write_enable;
-assign out_mem_in_data = in_rs2;
 
 forwarding_unit forwarding_unit(
     .clk(clk),
@@ -97,6 +96,11 @@ assign alu_operand1 = (forwardA == 2'b10) ? in_EXMEM_alu_out :
 assign alu_operand2 = (forwardB == 2'b10) ? in_EXMEM_alu_out :
                      (forwardB == 2'b01) ? in_MEMWB_out_data :
                      in_data_rs2;
+                     
+//IMPORTANT: This is the data that will be stored in the memory. It is also
+//from the registers so hazards could happen. It must be after the first MUX
+//(see Patterson Hennessy)
+assign out_mem_in_data = alu_operand2;
 
 alu alu(
     //INPUT
