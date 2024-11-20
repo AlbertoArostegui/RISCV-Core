@@ -1,6 +1,8 @@
 obj_dir/
 obj_dir/*
 obj_dir
+.vscode
 sim
 *.vcd
 svut.out
+build
