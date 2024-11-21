@@ -49,6 +49,7 @@ module stage_execute(
     output [31:0] out_PC,
         //Control
     output out_branch_taken,
+    output out_flush,
 
     output [4:0] out_rd,
     output [31:0] out_mem_in_data,
@@ -118,5 +119,6 @@ alu alu(
     .branch_taken(out_branch_taken)
 );
     
+assign out_flush = out_branch_taken;
 
 endmodule

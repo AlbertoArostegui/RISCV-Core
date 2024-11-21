@@ -29,6 +29,9 @@ module registers_IDEX(
     input in_mem_to_reg,
     input in_write_enable,
 
+    //CONTROL
+    input in_IDEX_flush,
+
     //OUT
     output reg [31:0] out_instruction,
     output reg [31:0] out_PC,
@@ -59,27 +62,37 @@ module registers_IDEX(
 );
 
     always @(posedge clk) begin
-        out_instruction <= in_instruction;
-        out_immediate <= in_immediate;
-        out_PC <= in_PC;
+        if (reset || in_IDEX_flush) begin
+            out_instruction <= 32'b0;
+            out_immediate <= 32'b0;
+            out_PC <= 32'b0;
 
-        out_rs1 <= in_rs1;
-        out_rs2 <= in_rs2;
-        out_data_rs1 <= in_data_rs1;
-        out_data_rs2 <= in_data_rs2;
+            out_mem_write <= 1'b0;
+            out_mem_read <= 1'b0;
+            out_branch_inst <= 1'b0;
+            out_write_enable <= 1'b0;
+        end else begin
+            out_instruction <= in_instruction;
+            out_immediate <= in_immediate;
+            out_PC <= in_PC;
 
-        out_alu_src <= in_alu_src;
-        out_alu_op <= in_alu_op;
-        out_funct7 <= in_funct7;
-        out_funct3 <= in_funct3;
-        out_opcode <= in_opcode;
-        out_instr_type <= in_instr_type;
+            out_rs1 <= in_rs1;
+            out_rs2 <= in_rs2;
+            out_data_rs1 <= in_data_rs1;
+            out_data_rs2 <= in_data_rs2;
 
-        out_rd <= in_rd;
-        out_mem_write <= in_mem_write;
-        out_mem_read <= in_mem_read;
-        out_branch_inst <= in_branch_inst;
-        out_mem_to_reg <= in_mem_to_reg;
-        out_write_enable <= in_write_enable;
+            out_alu_src <= in_alu_src;
+            out_alu_op <= in_alu_op;
+            out_funct7 <= in_funct7;
+            out_funct3 <= in_funct3;
+            out_opcode <= in_opcode;
+            out_instr_type <= in_instr_type;
+
+            out_rd <= in_rd;
+            out_mem_write <= in_mem_write;
+            out_mem_read <= in_mem_read;
+            out_branch_inst <= in_branch_inst;
+            out_mem_to_reg <= in_mem_to_reg;
+            out_write_enable <= in_write_enable;
     end
 endmodule

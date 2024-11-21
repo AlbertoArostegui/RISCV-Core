@@ -48,6 +48,9 @@ wire [31:0] IFID_to_decode_PC;
 //FROM Decode Stage
 wire IFID_write_disable;
 
+//FROM Execute Stage
+wire flush;
+
 registers_IFID registers_IFID(
     .clk(clk),
     .reset(reset),
@@ -55,6 +58,7 @@ registers_IFID registers_IFID(
     //INPUT
     .in_instruction(fetch_to_registers_inst),
     .in_PC(fetch_to_registers_pc),
+    .in_IFID_flush(flush),
 
     //CONTROL
     .in_IFID_write_disable(IFID_write_disable),
@@ -217,6 +221,8 @@ registers_IDEX registers_IDEX(
     .in_mem_to_reg(decode_to_registers_WB_write_mem_to_reg),
     .in_write_enable(decode_to_registers_WB_write_enable),
 
+    //CONTROL
+    .in_IDEX_flush(flush),
     
     //OUTPUT
     .out_instruction(IDEX_to_execute_inst),
@@ -309,6 +315,9 @@ stage_execute execute(
     .out_mem_in_data(execute_to_registers_mem_data),
     .out_PC(execute_to_registers_PC),
     .out_branch_taken(execute_to_registers_branch_taken),
+
+    //CONTROL
+    .out_flush(flush),
 
     .out_rd(execute_to_registers_rd),
     .out_mem_write(execute_to_registers_mem_write),
