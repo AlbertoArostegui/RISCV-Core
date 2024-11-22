@@ -25,3 +25,7 @@ The following are the intended features to be implemented on this processor.
 - [ ] 5 stage multiplication
 - [ ] bypass from sb
 - [ ] Performance data
+
+To run the tests, from src directory:
+```./run_test.sh testbench.sv```
+The core testbench can be used to debug the whole core, it contains a lot of displayed information of each stage as they execute
