@@ -64,12 +64,25 @@ module registers_IDEX(
     always @(posedge clk) begin
         if (reset || in_IDEX_flush) begin
             out_instruction <= 32'b0;
-            out_immediate <= 32'b0;
             out_PC <= 32'b0;
+            out_immediate <= 32'b0;
 
+            out_rs1 <= 5'b0;
+            out_rs2 <= 5'b0;
+            out_data_rs1 <= 32'b0;
+            out_data_rs2 <= 32'b0;
+            out_rd <= 5'b0;
+            //ALU
+            out_alu_src <= 1'b0;
+            out_opcode <= 7'b0;
+            out_funct7 <= 7'b0;
+            out_funct3 <= 3'b0;
+            out_instr_type <= 3'b0;
+            //Control
             out_mem_write <= 1'b0;
             out_mem_read <= 1'b0;
             out_branch_inst <= 1'b0;
+            out_mem_to_reg <= 1'b0;
             out_write_enable <= 1'b0;
         end else begin
             out_instruction <= in_instruction;
@@ -94,5 +107,6 @@ module registers_IDEX(
             out_branch_inst <= in_branch_inst;
             out_mem_to_reg <= in_mem_to_reg;
             out_write_enable <= in_write_enable;
+        end
     end
 endmodule

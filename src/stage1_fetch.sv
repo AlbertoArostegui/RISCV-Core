@@ -32,14 +32,15 @@ always @(posedge clk or posedge reset) begin
         if (branch_taken)
             PC <= new_pc;
         else
-            PC <= PC + 1;
+            PC <= PC + 4;
     end
 end
 
+wire [31:0] mem_addr = PC >> 2; //The aim is to select the word address
 
 imemory imemory(
     .clk(clk),
-    .mem_addr(out_PC),
+    .mem_addr(mem_addr),
     .inst_out(out_instruction)
 );
 

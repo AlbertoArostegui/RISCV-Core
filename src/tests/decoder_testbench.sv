@@ -119,6 +119,16 @@ module decoder_testbench();
         if (funct7 !== 7'b0000001) $error("MUL: funct7 incorrect");
         if (opcode !== 7'b0110011) $error("MUL: opcode incorrect");
 
+        // Test case 9: BNE
+        $display("\nTest Case 9: BNE x1, x2, 8");
+        instr = 32'h00209463;  // bne x1, x2, 8
+        #1;
+        if (rs1 !== 5'd1) $error("BNE: rs1 incorrect. Expected 1, got %d", rs1);
+        if (rs2 !== 5'd2) $error("BNE: rs2 incorrect. Expected 2, got %d", rs2);
+        if (imm !== 32'd8) $error("BNE: immediate incorrect. Expected 8, got %d", imm);
+        if (funct3 !== 3'b001) $error("BNE: funct3 incorrect");
+        if (opcode !== 7'b1100011) $error("BNE: opcode incorrect");
+
         $display("\nAll tests completed!");
         $finish;
     end

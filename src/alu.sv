@@ -12,9 +12,13 @@ module alu (
 );
 
     always @(*) begin
-        out_PC = PC + immediate;
+        branch_taken = 0;
+        out_PC = PC + immediate;  
+        alu_out = 0;
+
         case (opcode)
-            7'b0110011: //ALU OPS
+            7'b0110011: begin //ALU OPS
+                branch_taken = 0;
                 case (funct7)
                     7'b0100000: //SUB rd, rs1, rs2
                         alu_out = operand1 - operand2;
@@ -34,7 +38,9 @@ module alu (
                     default:
                         alu_out = 0;
                 endcase
-            7'b0010011: //ALU OPS IMMEDIATES
+            end
+            7'b0010011: begin //ALU OPS IMMEDIATES
+                branch_taken = 0;
                 case (funct3)
                     3'b000: //ADDI rd, rs1, imm12
                         alu_out = operand1 + immediate;
@@ -45,17 +51,22 @@ module alu (
                     default:
                         alu_out = 0;
                 endcase
-            7'b0010111: //AUIP rd, imm20 -- rd <- PC + imm20 << 12 -- Add upper immediate to PC
+            end
+            7'b0010111: begin //AUIP rd, imm20 -- rd <- PC + imm20 << 12 -- Add upper immediate to PC
+                branch_taken = 0;
                 alu_out = out_PC;
-            7'b0110111: //LUI rd, imm20 -- rd <- imm20 << 12 -- Load upper immediate
+            end
+            7'b0110111: begin //LUI rd, imm20 -- rd <- imm20 << 12 -- Load upper immediate
+                branch_taken = 0;
                 alu_out = immediate;                
-            7'b1100011: //Branching
+            end
+            7'b1100011: begin //Branching
                 case (funct3)
                     3'b000: begin //BEQ rs1, rs2, imm7
                         branch_taken = operand1 == operand2;
-                        alu_out = operand1 - operand2; //operand1 - operand2 = 0? -> then take branch
+                        alu_out = operand1 - operand2; //operand1 - operand2 == 0? -> take branch
                     end
-                    3'b010: begin //BNE rs1, rs2, imm7
+                    3'b001: begin //BNE rs1, rs2, imm7
                         branch_taken = operand1 != operand2;
                         alu_out = operand1 - operand2;
                     end
@@ -70,14 +81,21 @@ module alu (
                     default:
                         alu_out = 0;
                 endcase 
+            end
             7'b1101111: //JUMP. Unconditional
                 branch_taken = 1;
-            7'b0000011: //LOAD. We calculate here the memory address
+            7'b0000011: begin //LOAD. We calculate here the memory address
+                branch_taken = 0;
                 alu_out = operand1 + immediate;
-            7'b0100011: //STORE.
+            end
+            7'b0100011: begin //STORE.
+                branch_taken = 0;
                 alu_out = operand1 + immediate;
-            default: 
+            end
+            default: begin
+                branch_taken = 0;
                 alu_out = 0;
+            end
         endcase
     end
 

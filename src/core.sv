@@ -21,17 +21,25 @@ wire [31:0] fetch_to_registers_inst;
 //FROM Decode Stage
 wire pc_write_disable;
 
-//FROM EXMEM
-wire EXMEM_to_fetch_branch_taken;
+//FROM Execute Stage
+wire execute_to_fetch_branch_taken;
+wire [31:0] execute_to_fetch_PC;
+wire flush;
+
+/*
+Otra manera
 wire [31:0] EXMEM_to_fetch_PC;
+wire EXMEM_to_fetch_branch_taken;
+wire flush = EXMEM_to_fetch_branch_taken;
+*/
 
 stage_fetch fetch(
     .clk(clk),    
     .reset(reset),
 
     //INPUT
-    .branch_taken(EXMEM_to_fetch_branch_taken),
-    .new_pc(EXMEM_to_fetch_PC),
+    .branch_taken(execute_to_fetch_branch_taken),
+    .new_pc(execute_to_fetch_PC),
     .pc_write_disable(pc_write_disable),
 
     //OUTPUT
@@ -48,8 +56,6 @@ wire [31:0] IFID_to_decode_PC;
 //FROM Decode Stage
 wire IFID_write_disable;
 
-//FROM Execute Stage
-wire flush;
 
 registers_IFID registers_IFID(
     .clk(clk),
@@ -313,11 +319,13 @@ stage_execute execute(
     //OUTPUT
     .out_alu_out(execute_to_registers_alu_out),
     .out_mem_in_data(execute_to_registers_mem_data),
-    .out_PC(execute_to_registers_PC),
-    .out_branch_taken(execute_to_registers_branch_taken),
+
+    //Hazard Detection Unit
+    .out_PC(execute_to_fetch_PC),
+    .out_branch_taken(execute_to_fetch_branch_taken),
+    .out_flush(flush),
 
     //CONTROL
-    .out_flush(flush),
 
     .out_rd(execute_to_registers_rd),
     .out_mem_write(execute_to_registers_mem_write),
