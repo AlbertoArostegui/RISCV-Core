@@ -18,16 +18,11 @@ module core_testbench();
     // Initialize test program
     initial begin
         // Test program for branch instructions
-        dut.fetch.imemory.ROM[0]  = 32'h00100093; // addi x1, x0, 1
-        dut.fetch.imemory.ROM[1]  = 32'h00200113; // addi x2, x0, 2
-        dut.fetch.imemory.ROM[2]  = 32'h002081b3; // add x3, x1, x2
-        dut.fetch.imemory.ROM[3]  = 32'h00302223; // sw x3, 4(x0)
-        dut.fetch.imemory.ROM[4]  = 32'h00402203; // lw x4, 4(x0)
-        dut.fetch.imemory.ROM[5]  = 32'h00209463; // bne x1, x2, 8
-        dut.fetch.imemory.ROM[6]  = 32'h00500293; // addi x5, x0, 5 (skipped)
-        dut.fetch.imemory.ROM[7]  = 32'h00600313; // addi x6, x0, 6 (skipped)
-        dut.fetch.imemory.ROM[8]  = 32'h00700393; // addi x7, x0, 7
-        dut.fetch.imemory.ROM[9]  = 32'h00738433; // add x8, x7, x7
+        dut.fetch.imemory.ROM[0] = 32'h00000013; // nop
+        dut.fetch.imemory.ROM[1] = 32'h00100093; // addi x1, x0, 1
+        dut.fetch.imemory.ROM[2] = 32'h00108113; // addi x2, x0, 2
+        dut.fetch.imemory.ROM[3] = 32'h001101b3; // add x3, x2, x1
+        dut.fetch.imemory.ROM[4] = 32'h003182b3; // add x5, x3, x3
     end
     // Clock and reset generation
     initial begin
