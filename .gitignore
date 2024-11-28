@@ -1,3 +1,4 @@
+.gitignore
 out.txt
 obj_dir/
 obj_dir/*
@@ -7,3 +8,4 @@ sim
 *.vcd
 svut.out
 build
+out-*.txt

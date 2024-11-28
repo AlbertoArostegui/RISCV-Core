@@ -58,9 +58,9 @@ module cache_tb();
         end
         else begin
             // Start memory operation when read or write is requested
-            if ((out_mem_read_en || out_mem_write_en) && !mem_operation_pending) begin
+            if ((out_mem_read_en || out_mem_write_en) && !mem_operation_pending && mem_wait_counter == 0) begin
                 mem_operation_pending <= 1;
-                mem_wait_counter <= 0;
+                mem_wait_counter <= 1;  // Start at 1 instead of 0
                 in_mem_ready <= 0;
             end
             
@@ -69,6 +69,7 @@ module cache_tb();
                 if (mem_wait_counter == 9) begin  // 10 cycles total
                     in_mem_ready <= 1;
                     mem_operation_pending <= 0;
+                    mem_wait_counter <= 0;  // Reset counter
                     
                     // If it's a read operation, prepare read data
                     if (out_mem_read_en) begin
@@ -88,7 +89,7 @@ module cache_tb();
                     in_mem_ready <= 0;
                 end
             end
-            else if (!out_mem_read_en && !out_mem_write_en) begin
+            else begin
                 in_mem_ready <= 0;
             end
         end
@@ -125,24 +126,177 @@ module cache_tb();
         repeat(4) @(posedge clk);
         reset = 0;
         @(posedge clk);
-
-        // Simple read miss test
-        $display("\n=== Starting Read Miss Test ===");
+        
+        // **Test 1: Multiple Reads to Populate Cache**
+        $display("\n=== Test 1: Multiple Reads to Populate Cache ===");
+        // Read Address 0x00000100 (Set 0)
         @(posedge clk);
         #1;
         in_addr = 32'h00000100;
         in_read_en = 1;
         in_funct3 = 3'b010;  // LW
-        
-        // Wait for operation to complete
         wait(!out_busy);
         @(posedge clk);
         #1;
-
-        // Add some delay to see final state
-        repeat(25) @(posedge clk);
-
-        $display("\n=== Test Complete ===");
+        in_read_en = 0;
+        
+        // Read Address 0x00000104 (Set 0, different word)
+        @(posedge clk);
+        #1;
+        in_addr = 32'h00000104;
+        in_read_en = 1;
+        in_funct3 = 3'b010;  // LW
+        wait(!out_busy);
+        @(posedge clk);
+        #1;
+        in_read_en = 0;
+        
+        // Read Address 0x00000200 (Set 1)
+        @(posedge clk);
+        #1;
+        in_addr = 32'h00000200;
+        in_read_en = 1;
+        in_funct3 = 3'b010;  // LW
+        wait(!out_busy);
+        @(posedge clk);
+        #1;
+        in_read_en = 0;
+        
+        // **Test 2: Write Operations with Different Sizes**
+        $display("\n=== Test 2: Write Operations with Different Sizes ===");
+        // Write Byte to 0x00000100
+        @(posedge clk);
+        #1;
+        in_addr = 32'h00000100;
+        in_write_data = 32'hAA;
+        in_write_en = 1;
+        in_funct3 = 3'b100;  // SB
+        wait(!out_busy);
+        @(posedge clk);
+        #1;
+        in_write_en = 0;
+        
+        // Write Halfword to 0x00000102
+        @(posedge clk);
+        #1;
+        in_addr = 32'h00000102;
+        in_write_data = 32'hBBBB;
+        in_write_en = 1;
+        in_funct3 = 3'b101;  // SH
+        wait(!out_busy);
+        @(posedge clk);
+        #1;
+        in_write_en = 0;
+        
+        // Write Word to 0x00000100
+        @(posedge clk);
+        #1;
+        in_addr = 32'h00000100;
+        in_write_data = 32'hCCCCCCCC;
+        in_write_en = 1;
+        in_funct3 = 3'b110;  // SW
+        wait(!out_busy);
+        @(posedge clk);
+        #1;
+        in_write_en = 0;
+        
+        // **Test 3: Repeated Reads to Confirm Hits**
+        $display("\n=== Test 3: Repeated Reads to Confirm Hits ===");
+        // Read Address 0x00000100 multiple times
+        for (int i = 0; i < 3; i++) begin
+            @(posedge clk);
+            #1;
+            in_addr = 32'h00000100;
+            in_read_en = 1;
+            in_funct3 = 3'b010;  // LW
+            wait(!out_busy);
+            @(posedge clk);
+            #1;
+            in_read_en = 0;
+        end
+        
+        // **Test 4: Access Additional Addresses to Trigger Replacement**
+        $display("\n=== Test 4: Access Additional Addresses to Trigger Replacement ===");
+        // Read Address 0x00000300 (Set 0, should cause replacement if NUM_WAYS=2)
+        @(posedge clk);
+        #1;
+        in_addr = 32'h00000300;
+        in_read_en = 1;
+        in_funct3 = 3'b010;  // LW
+        wait(!out_busy);
+        @(posedge clk);
+        #1;
+        in_read_en = 0;
+        
+        // Read Address 0x00000400 (Set 0, another replacement)
+        @(posedge clk);
+        #1;
+        in_addr = 32'h00000400;
+        in_read_en = 1;
+        in_funct3 = 3'b010;  // LW
+        wait(!out_busy);
+        @(posedge clk);
+        #1;
+        in_read_en = 0;
+        
+        // **Test 5: Write-Back Verification**
+        $display("\n=== Test 5: Write-Back Verification ===");
+        // Write to an existing cache line to set dirty bit
+        @(posedge clk);
+        #1;
+        in_addr = 32'h00000200;
+        in_write_data = 32'hDDDDDDDD;
+        in_write_en = 1;
+        in_funct3 = 3'b110;  // SW
+        wait(!out_busy);
+        @(posedge clk);
+        #1;
+        in_write_en = 0;
+        
+        // Read the same address to ensure data is written back
+        @(posedge clk);
+        #1;
+        in_addr = 32'h00000200;
+        in_read_en = 1;
+        in_funct3 = 3'b010;  // LW
+        wait(!out_busy);
+        @(posedge clk);
+        #1;
+        in_read_en = 0;
+        
+        // **Test 6: Invalid Address Access**
+        $display("\n=== Test 6: Invalid Address Access ===");
+        // Access an address outside the memory range
+        @(posedge clk);
+        #1;
+        in_addr = 32'hFFFF_FFFF;
+        in_read_en = 1;
+        in_funct3 = 3'b010;  // LW
+        wait(!out_busy);
+        @(posedge clk);
+        #1;
+        in_read_en = 0;
+        
+        // **Test 7: Simultaneous Read and Write**
+        $display("\n=== Test 7: Simultaneous Read and Write ===");
+        // Initiate a read and write to different addresses
+        @(posedge clk);
+        #1;
+        // Write to 0x00000500
+        in_addr = 32'h00000500;
+        in_write_data = 32'hEEEEEEEE;
+        in_write_en = 1;
+        in_funct3 = 3'b110;  // SW
+        // Simultaneously read from 0x00000100
+        in_read_en = 1;
+        wait(!out_busy);
+        @(posedge clk);
+        #1;
+        in_write_en = 0;
+        in_read_en = 0;
+        
+        // **Finalizing Testbench**
+        $display("\n=== All Tests Completed ===");
         $finish;
     end
 

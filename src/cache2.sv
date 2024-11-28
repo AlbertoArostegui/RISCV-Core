@@ -93,7 +93,7 @@ module cache #(
             case(state)
                 IDLE: begin
                     out_hit <= 0;
-                    if (in_read_en || in_write_en) begin
+                    if (in_read_en | in_write_en) begin
                         for (int i = 0; i < NUM_WAYS; i++) begin //Comparators for all the ways in the set
                             if (valid[set_index][i] && tags[set_index][i] == tag) begin
                                 out_hit <= 1;
