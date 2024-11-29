@@ -69,26 +69,17 @@ module cache_tb();
         $dumpvars(0, dut.way_to_replace);
 
         // Initialize memory with test patterns
-        for (int i = 0; i < 1024; i++) begin
-            // Each 128-bit line will contain a sequence like:
-            // addr 0x100: 03_02_01_00 07_06_05_04 0B_0A_09_08 0F_0E_0D_0C
+        for (int i = 0; i < 1024*16; i++) begin  // Note: multiplied by 16 for byte addressing
             mem.memory[i] = i & 8'hFF;
         end
 
-        // Display initial memory contents around our test addresses
+        // Verify memory initialization
         $display("\n=== Initial Memory Contents ===");
         // Show memory around 0x100
         $display("Memory around 0x100:");
         for (int i = 0; i < 32; i++) begin
             if (i % 16 == 0) $write("0x%03x: ", 'h100 + i);
             $write("%02h ", mem.memory['h100 + i]);
-            if (i % 16 == 15) $write("\n");
-        end
-        // Show memory around 0x200
-        $display("\nMemory around 0x200:");
-        for (int i = 0; i < 32; i++) begin
-            if (i % 16 == 0) $write("0x%03x: ", 'h200 + i);
-            $write("%02h ", mem.memory['h200 + i]);
             if (i % 16 == 15) $write("\n");
         end
 
@@ -99,6 +90,9 @@ module cache_tb();
         in_write_en = 0;
         in_read_en = 0;
         in_funct3 = 0;
+
+        // Wait for memory initialization to complete
+        #1;
 
         // Reset sequence
         repeat(4) @(posedge clk);

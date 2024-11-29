@@ -26,6 +26,14 @@ module memory_module (
 
     state_t state;
     integer cycle_count;
+    bit initialized = 0;
+
+    initial begin
+        for (integer i = 0; i < MEM_SIZE*16; i++) begin
+            memory[i] = i & 8'hFF;  // Each byte is its own index (modulo 256)
+        end
+        initialized = 1;
+    end
 
     always @(posedge clk or posedge reset) begin
         if (reset) begin
@@ -33,10 +41,6 @@ module memory_module (
             cycle_count <= 0;
             out_mem_ready <= 0;
             out_mem_read_data <= 128'b0;
-            // Initialize memory if needed
-            for (integer i = 0; i < MEM_SIZE*16; i++) begin
-                memory[i] <= 8'h00;
-            end
         end
         else begin
             case (state)

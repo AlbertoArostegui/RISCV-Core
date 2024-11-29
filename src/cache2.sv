@@ -180,8 +180,8 @@ module cache #(
                         valid[set_index][way_to_replace] <= 1;
                         tags[set_index][way_to_replace] <= tag;
                         
-                        state <= IDLE;
                         out_busy <= 0;
+                        state <= IDLE;
                     end
                 end
             endcase
