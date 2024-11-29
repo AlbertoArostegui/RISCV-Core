@@ -93,7 +93,10 @@ module cache #(
             case(state)
                 IDLE: begin
                     out_hit <= 0;
-                    if (in_read_en | in_write_en) begin
+                    out_busy <= 0;
+                    out_mem_read_en <= 0;
+                    out_mem_write_en <= 0;
+                    if (in_read_en || in_write_en) begin
                         for (int i = 0; i < NUM_WAYS; i++) begin //Comparators for all the ways in the set
                             if (valid[set_index][i] && tags[set_index][i] == tag) begin
                                 out_hit <= 1;
@@ -156,9 +159,7 @@ module cache #(
                     end
                 end
                 MEM_READ: begin
-                    $display("MEM_READ1\n");
                     if (in_mem_ready) begin
-                        $display("MEM_READ2\n");
                         out_mem_read_en <= 0;
                         way_to_replace <= lru[set_index] == 2'b10 ? 0 : 1;
 
