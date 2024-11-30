@@ -10,8 +10,8 @@ The following are the intended features to be implemented on this processor.
 - [X] Bypass ALU
 - [X] Bypass memory
 - [ ] ptw
-- [ ] LB, LH, LW
-- [ ] SB, SH, SW
+- [X] LB, LH, LW
+- [X] SB, SH, SW
 - [ ] Store Buffer
 - [ ] Common Memory
 - [ ] ROB
