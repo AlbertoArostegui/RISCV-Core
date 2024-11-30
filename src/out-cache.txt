@@ -15,8 +15,8 @@ Memory around 0x100:
 0x00000100: 00 01 02 03 04 05 06 07 08 09 0a 0b 0c 0d 0e 0f 
 0x00000110: 10 11 12 13 14 15 16 17 18 19 1a 1b 1c 1d 1e 1f 
 Memory at 0x200:
-0x00000200: 00 01 02 03 04 05 06 07 08 09 0a 0b 0c 0d 0e 0f 
-0x00000210: 10 11 12 13 14 15 16 17 18 19 1a 1b 1c 1d 1e 1f 
+0x00000200: 00 01 02 03 04 05 06 07 aa bb cc dd ee ff 11 22 
+0x00000210: 33 44 55 66 77 88 99 00 18 19 1a 1b 1c 1d 1e 1f 
 
 === Clock Cycle: 0 ===
 State:
@@ -58,7 +58,7 @@ Full address: 0x00000000000000000000000000000000
     Dirty: x
     Tag: 0xxxxxxxxxxxxxxxxxxxxx
     Data: 0xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx
-    LRU: xx
+    LRU: x
   Set 1 Way 0:
     Valid: x
     Dirty: x
@@ -69,9 +69,9 @@ Full address: 0x00000000000000000000000000000000
     Dirty: x
     Tag: 0xxxxxxxxxxxxxxxxxxxxx
     Data: 0xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx
-    LRU: xx
+    LRU: x
 
-=== Clock Cycle: 0 ===
+=== Clock Cycle: 1 ===
 State:
   Reset: 1
   Cache State:      IDLE
@@ -111,7 +111,7 @@ Full address: 0x00000000000000000000000000000000
     Dirty: 0
     Tag: 0x00000000000000000000
     Data: 0xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx
-    LRU: 00
+    LRU: 0
   Set 1 Way 0:
     Valid: 0
     Dirty: 0
@@ -122,9 +122,9 @@ Full address: 0x00000000000000000000000000000000
     Dirty: 0
     Tag: 0x00000000000000000000
     Data: 0xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx
-    LRU: 00
+    LRU: 0
 
-=== Clock Cycle: 0 ===
+=== Clock Cycle: 2 ===
 State:
   Reset: 1
   Cache State:      IDLE
@@ -164,7 +164,7 @@ Full address: 0x00000000000000000000000000000000
     Dirty: 0
     Tag: 0x00000000000000000000
     Data: 0xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx
-    LRU: 00
+    LRU: 0
   Set 1 Way 0:
     Valid: 0
     Dirty: 0
@@ -175,9 +175,9 @@ Full address: 0x00000000000000000000000000000000
     Dirty: 0
     Tag: 0x00000000000000000000
     Data: 0xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx
-    LRU: 00
+    LRU: 0
 
-=== Clock Cycle: 0 ===
+=== Clock Cycle: 3 ===
 State:
   Reset: 1
   Cache State:      IDLE
@@ -217,7 +217,7 @@ Full address: 0x00000000000000000000000000000000
     Dirty: 0
     Tag: 0x00000000000000000000
     Data: 0xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx
-    LRU: 00
+    LRU: 0
   Set 1 Way 0:
     Valid: 0
     Dirty: 0
@@ -228,9 +228,9 @@ Full address: 0x00000000000000000000000000000000
     Dirty: 0
     Tag: 0x00000000000000000000
     Data: 0xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx
-    LRU: 00
+    LRU: 0
 
-=== Clock Cycle: 0 ===
+=== Clock Cycle: 4 ===
 State:
   Reset: 1
   Cache State:      IDLE
@@ -270,7 +270,7 @@ Full address: 0x00000000000000000000000000000000
     Dirty: 0
     Tag: 0x00000000000000000000
     Data: 0xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx
-    LRU: 00
+    LRU: 0
   Set 1 Way 0:
     Valid: 0
     Dirty: 0
@@ -281,9 +281,9 @@ Full address: 0x00000000000000000000000000000000
     Dirty: 0
     Tag: 0x00000000000000000000
     Data: 0xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx
-    LRU: 00
+    LRU: 0
 
-=== Clock Cycle: 1 ===
+=== Clock Cycle: 5 ===
 State:
   Reset: 0
   Cache State:      IDLE
@@ -313,8 +313,7 @@ Full address: 0x00000000000000000000000000000000
   Tag: 0x000000000000000000000000000
   Word Offset: 00
   Byte Offset: 00
-
-=== Test 1: Read from 0x00000100 ===
+in_write_en: 0, out_hit: 0
   Set 0 Way 0:
     Valid: 0
     Dirty: 0
@@ -325,7 +324,7 @@ Full address: 0x00000000000000000000000000000000
     Dirty: 0
     Tag: 0x00000000000000000000
     Data: 0xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx
-    LRU: 00
+    LRU: 0
   Set 1 Way 0:
     Valid: 0
     Dirty: 0
@@ -336,9 +335,9 @@ Full address: 0x00000000000000000000000000000000
     Dirty: 0
     Tag: 0x00000000000000000000
     Data: 0xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx
-    LRU: 00
+    LRU: 0
 
-=== Clock Cycle: 1 ===
+=== Clock Cycle: 6 ===
 State:
   Reset: 0
   Cache State:      IDLE
@@ -368,6 +367,7 @@ Full address: 0x00000000000000000000000000000000
   Tag: 0x000000000000000000000000000
   Word Offset: 00
   Byte Offset: 00
+in_write_en: 0, out_hit: 0
   Set 0 Way 0:
     Valid: 0
     Dirty: 0
@@ -378,7 +378,7 @@ Full address: 0x00000000000000000000000000000000
     Dirty: 0
     Tag: 0x00000000000000000000
     Data: 0xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx
-    LRU: 00
+    LRU: 0
   Set 1 Way 0:
     Valid: 0
     Dirty: 0
@@ -389,9 +389,63 @@ Full address: 0x00000000000000000000000000000000
     Dirty: 0
     Tag: 0x00000000000000000000
     Data: 0xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx
-    LRU: 00
+    LRU: 0
 
-=== Clock Cycle: 1 ===
+=== Clock Cycle: 7 ===
+State:
+  Reset: 0
+  Cache State:      IDLE
+
+Inputs:
+  Address: 0x00000100
+  Read Enable: 1
+  Write Enable: 0
+  Write Data: 0x00000000
+  Funct3: 010
+
+Cache Status:
+  Hit: 0
+  Busy: 1
+  Read Data: 0x00000000
+
+Memory Interface:
+  Memory Read Enable: 0
+  Memory Write Enable: 0
+  Memory Address: 0xxxxxxxxx
+  Memory Read Data: 0x00000000000000000000000000000000
+  Memory Ready: 0
+
+Cache Internals:
+Full address: 0x00000000000000000000000100000000
+  Set Index: 0
+  Tag: 0x000000000000000000000001000
+  Word Offset: 00
+  Byte Offset: 00
+in_write_en: 0, out_hit: 0
+  Set 0 Way 0:
+    Valid: 0
+    Dirty: 0
+    Tag: 0x00000000000000000000
+    Data: 0xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx
+  Set 0 Way 1:
+    Valid: 0
+    Dirty: 0
+    Tag: 0x00000000000000000000
+    Data: 0xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx
+    LRU: 0
+  Set 1 Way 0:
+    Valid: 0
+    Dirty: 0
+    Tag: 0x00000000000000000000
+    Data: 0xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx
+  Set 1 Way 1:
+    Valid: 0
+    Dirty: 0
+    Tag: 0x00000000000000000000
+    Data: 0xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx
+    LRU: 0
+
+=== Clock Cycle: 8 ===
 State:
   Reset: 0
   Cache State:  MEM_READ
@@ -411,7 +465,7 @@ Cache Status:
 Memory Interface:
   Memory Read Enable: 1
   Memory Write Enable: 0
-  Memory Address: 0x00000000
+  Memory Address: 0x00000100
   Memory Read Data: 0x00000000000000000000000000000000
   Memory Ready: 0
 
@@ -431,7 +485,7 @@ Full address: 0x00000000000000000000000100000000
     Dirty: 0
     Tag: 0x00000000000000000000
     Data: 0xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx
-    LRU: 00
+    LRU: 0
   Set 1 Way 0:
     Valid: 0
     Dirty: 0
@@ -442,9 +496,9 @@ Full address: 0x00000000000000000000000100000000
     Dirty: 0
     Tag: 0x00000000000000000000
     Data: 0xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx
-    LRU: 00
+    LRU: 0
 
-=== Clock Cycle: 1 ===
+=== Clock Cycle: 9 ===
 State:
   Reset: 0
   Cache State:  MEM_READ
@@ -464,7 +518,7 @@ Cache Status:
 Memory Interface:
   Memory Read Enable: 1
   Memory Write Enable: 0
-  Memory Address: 0x00000000
+  Memory Address: 0x00000100
   Memory Read Data: 0x00000000000000000000000000000000
   Memory Ready: 0
 
@@ -484,7 +538,7 @@ Full address: 0x00000000000000000000000100000000
     Dirty: 0
     Tag: 0x00000000000000000000
     Data: 0xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx
-    LRU: 00
+    LRU: 0
   Set 1 Way 0:
     Valid: 0
     Dirty: 0
@@ -495,9 +549,9 @@ Full address: 0x00000000000000000000000100000000
     Dirty: 0
     Tag: 0x00000000000000000000
     Data: 0xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx
-    LRU: 00
+    LRU: 0
 
-=== Clock Cycle: 1 ===
+=== Clock Cycle: 10 ===
 State:
   Reset: 0
   Cache State:  MEM_READ
@@ -517,7 +571,7 @@ Cache Status:
 Memory Interface:
   Memory Read Enable: 1
   Memory Write Enable: 0
-  Memory Address: 0x00000000
+  Memory Address: 0x00000100
   Memory Read Data: 0x00000000000000000000000000000000
   Memory Ready: 0
 
@@ -537,7 +591,7 @@ Full address: 0x00000000000000000000000100000000
     Dirty: 0
     Tag: 0x00000000000000000000
     Data: 0xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx
-    LRU: 00
+    LRU: 0
   Set 1 Way 0:
     Valid: 0
     Dirty: 0
@@ -548,9 +602,9 @@ Full address: 0x00000000000000000000000100000000
     Dirty: 0
     Tag: 0x00000000000000000000
     Data: 0xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx
-    LRU: 00
+    LRU: 0
 
-=== Clock Cycle: 2 ===
+=== Clock Cycle: 11 ===
 State:
   Reset: 0
   Cache State:  MEM_READ
@@ -570,7 +624,7 @@ Cache Status:
 Memory Interface:
   Memory Read Enable: 1
   Memory Write Enable: 0
-  Memory Address: 0x00000000
+  Memory Address: 0x00000100
   Memory Read Data: 0x00000000000000000000000000000000
   Memory Ready: 0
 
@@ -590,7 +644,7 @@ Full address: 0x00000000000000000000000100000000
     Dirty: 0
     Tag: 0x00000000000000000000
     Data: 0xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx
-    LRU: 00
+    LRU: 0
   Set 1 Way 0:
     Valid: 0
     Dirty: 0
@@ -601,9 +655,9 @@ Full address: 0x00000000000000000000000100000000
     Dirty: 0
     Tag: 0x00000000000000000000
     Data: 0xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx
-    LRU: 00
+    LRU: 0
 
-=== Clock Cycle: 2 ===
+=== Clock Cycle: 12 ===
 State:
   Reset: 0
   Cache State:  MEM_READ
@@ -623,7 +677,7 @@ Cache Status:
 Memory Interface:
   Memory Read Enable: 1
   Memory Write Enable: 0
-  Memory Address: 0x00000000
+  Memory Address: 0x00000100
   Memory Read Data: 0x00000000000000000000000000000000
   Memory Ready: 0
 
@@ -643,7 +697,7 @@ Full address: 0x00000000000000000000000100000000
     Dirty: 0
     Tag: 0x00000000000000000000
     Data: 0xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx
-    LRU: 00
+    LRU: 0
   Set 1 Way 0:
     Valid: 0
     Dirty: 0
@@ -654,9 +708,9 @@ Full address: 0x00000000000000000000000100000000
     Dirty: 0
     Tag: 0x00000000000000000000
     Data: 0xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx
-    LRU: 00
+    LRU: 0
 
-=== Clock Cycle: 2 ===
+=== Clock Cycle: 13 ===
 State:
   Reset: 0
   Cache State:  MEM_READ
@@ -676,7 +730,7 @@ Cache Status:
 Memory Interface:
   Memory Read Enable: 1
   Memory Write Enable: 0
-  Memory Address: 0x00000000
+  Memory Address: 0x00000100
   Memory Read Data: 0x00000000000000000000000000000000
   Memory Ready: 0
 
@@ -696,7 +750,7 @@ Full address: 0x00000000000000000000000100000000
     Dirty: 0
     Tag: 0x00000000000000000000
     Data: 0xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx
-    LRU: 00
+    LRU: 0
   Set 1 Way 0:
     Valid: 0
     Dirty: 0
@@ -707,9 +761,9 @@ Full address: 0x00000000000000000000000100000000
     Dirty: 0
     Tag: 0x00000000000000000000
     Data: 0xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx
-    LRU: 00
+    LRU: 0
 
-=== Clock Cycle: 2 ===
+=== Clock Cycle: 14 ===
 State:
   Reset: 0
   Cache State:  MEM_READ
@@ -729,7 +783,7 @@ Cache Status:
 Memory Interface:
   Memory Read Enable: 1
   Memory Write Enable: 0
-  Memory Address: 0x00000000
+  Memory Address: 0x00000100
   Memory Read Data: 0x00000000000000000000000000000000
   Memory Ready: 0
 
@@ -749,7 +803,7 @@ Full address: 0x00000000000000000000000100000000
     Dirty: 0
     Tag: 0x00000000000000000000
     Data: 0xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx
-    LRU: 00
+    LRU: 0
   Set 1 Way 0:
     Valid: 0
     Dirty: 0
@@ -760,9 +814,9 @@ Full address: 0x00000000000000000000000100000000
     Dirty: 0
     Tag: 0x00000000000000000000
     Data: 0xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx
-    LRU: 00
+    LRU: 0
 
-=== Clock Cycle: 2 ===
+=== Clock Cycle: 15 ===
 State:
   Reset: 0
   Cache State:  MEM_READ
@@ -782,7 +836,7 @@ Cache Status:
 Memory Interface:
   Memory Read Enable: 1
   Memory Write Enable: 0
-  Memory Address: 0x00000000
+  Memory Address: 0x00000100
   Memory Read Data: 0x00000000000000000000000000000000
   Memory Ready: 0
 
@@ -802,7 +856,7 @@ Full address: 0x00000000000000000000000100000000
     Dirty: 0
     Tag: 0x00000000000000000000
     Data: 0xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx
-    LRU: 00
+    LRU: 0
   Set 1 Way 0:
     Valid: 0
     Dirty: 0
@@ -813,9 +867,9 @@ Full address: 0x00000000000000000000000100000000
     Dirty: 0
     Tag: 0x00000000000000000000
     Data: 0xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx
-    LRU: 00
+    LRU: 0
 
-=== Clock Cycle: 3 ===
+=== Clock Cycle: 16 ===
 State:
   Reset: 0
   Cache State:  MEM_READ
@@ -835,7 +889,7 @@ Cache Status:
 Memory Interface:
   Memory Read Enable: 1
   Memory Write Enable: 0
-  Memory Address: 0x00000000
+  Memory Address: 0x00000100
   Memory Read Data: 0x00000000000000000000000000000000
   Memory Ready: 0
 
@@ -855,7 +909,7 @@ Full address: 0x00000000000000000000000100000000
     Dirty: 0
     Tag: 0x00000000000000000000
     Data: 0xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx
-    LRU: 00
+    LRU: 0
   Set 1 Way 0:
     Valid: 0
     Dirty: 0
@@ -866,9 +920,9 @@ Full address: 0x00000000000000000000000100000000
     Dirty: 0
     Tag: 0x00000000000000000000
     Data: 0xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx
-    LRU: 00
+    LRU: 0
 
-=== Clock Cycle: 3 ===
+=== Clock Cycle: 17 ===
 State:
   Reset: 0
   Cache State:  MEM_READ
@@ -888,7 +942,7 @@ Cache Status:
 Memory Interface:
   Memory Read Enable: 1
   Memory Write Enable: 0
-  Memory Address: 0x00000000
+  Memory Address: 0x00000100
   Memory Read Data: 0x00000000000000000000000000000000
   Memory Ready: 0
 
@@ -908,7 +962,7 @@ Full address: 0x00000000000000000000000100000000
     Dirty: 0
     Tag: 0x00000000000000000000
     Data: 0xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx
-    LRU: 00
+    LRU: 0
   Set 1 Way 0:
     Valid: 0
     Dirty: 0
@@ -919,9 +973,9 @@ Full address: 0x00000000000000000000000100000000
     Dirty: 0
     Tag: 0x00000000000000000000
     Data: 0xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx
-    LRU: 00
+    LRU: 0
 
-=== Clock Cycle: 3 ===
+=== Clock Cycle: 18 ===
 State:
   Reset: 0
   Cache State:  MEM_READ
@@ -941,7 +995,7 @@ Cache Status:
 Memory Interface:
   Memory Read Enable: 1
   Memory Write Enable: 0
-  Memory Address: 0x00000000
+  Memory Address: 0x00000100
   Memory Read Data: 0x00000000000000000000000000000000
   Memory Ready: 0
 
@@ -961,7 +1015,7 @@ Full address: 0x00000000000000000000000100000000
     Dirty: 0
     Tag: 0x00000000000000000000
     Data: 0xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx
-    LRU: 00
+    LRU: 0
   Set 1 Way 0:
     Valid: 0
     Dirty: 0
@@ -972,9 +1026,9 @@ Full address: 0x00000000000000000000000100000000
     Dirty: 0
     Tag: 0x00000000000000000000
     Data: 0xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx
-    LRU: 00
+    LRU: 0
 
-=== Clock Cycle: 3 ===
+=== Clock Cycle: 19 ===
 State:
   Reset: 0
   Cache State:  MEM_READ
@@ -994,7 +1048,7 @@ Cache Status:
 Memory Interface:
   Memory Read Enable: 0
   Memory Write Enable: 0
-  Memory Address: 0x00000000
+  Memory Address: 0x00000100
   Memory Read Data: 0x0f0e0d0c0b0a09080706050403020100
   Memory Ready: 1
 
@@ -1014,7 +1068,7 @@ Full address: 0x00000000000000000000000100000000
     Dirty: 0
     Tag: 0x00000000000000000000
     Data: 0xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx
-    LRU: 00
+    LRU: 0
   Set 1 Way 0:
     Valid: 0
     Dirty: 0
@@ -1025,9 +1079,9 @@ Full address: 0x00000000000000000000000100000000
     Dirty: 0
     Tag: 0x00000000000000000000
     Data: 0xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx
-    LRU: 00
+    LRU: 0
 
-=== Clock Cycle: 3 ===
+=== Clock Cycle: 20 ===
 State:
   Reset: 0
   Cache State:      IDLE
@@ -1047,7 +1101,7 @@ Cache Status:
 Memory Interface:
   Memory Read Enable: 0
   Memory Write Enable: 0
-  Memory Address: 0x00000000
+  Memory Address: 0x00000100
   Memory Read Data: 0x0f0e0d0c0b0a09080706050403020100
   Memory Ready: 0
 
@@ -1057,19 +1111,18 @@ Full address: 0x00000000000000000000000100000000
   Tag: 0x000000000000000000000001000
   Word Offset: 00
   Byte Offset: 00
-
-=== Test 2: Read from 0x00000104 (same cache line) ===
+in_write_en: 0, out_hit: 1
   Set 0 Way 0:
-    Valid: 0
-    Dirty: 0
-    Tag: 0x00000000000000000000
-    Data: 0xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx
-  Set 0 Way 1:
     Valid: 1
     Dirty: 0
     Tag: 0x00000000000000001000
     Data: 0x0f0e0d0c0b0a09080706050403020100
-    LRU: 00
+  Set 0 Way 1:
+    Valid: 0
+    Dirty: 0
+    Tag: 0x00000000000000000000
+    Data: 0xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx
+    LRU: 1
   Set 1 Way 0:
     Valid: 0
     Dirty: 0
@@ -1080,51 +1133,50 @@ Full address: 0x00000000000000000000000100000000
     Dirty: 0
     Tag: 0x00000000000000000000
     Data: 0xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx
-    LRU: 00
+    LRU: 0
 
-=== Clock Cycle: 4 ===
+=== Clock Cycle: 21 ===
 State:
   Reset: 0
   Cache State:      IDLE
 
 Inputs:
-  Address: 0x00000104
-  Read Enable: 1
-  Write Enable: 0
-  Write Data: 0x00000000
+  Address: 0x00000204
+  Read Enable: 0
+  Write Enable: 1
+  Write Data: 0x00011000
   Funct3: 010
 
 Cache Status:
-  Hit: 1
-  Busy: 0
-  Read Data: 0x07060504
+  Hit: 0
+  Busy: 1
+  Read Data: 0x00000000
 
 Memory Interface:
   Memory Read Enable: 0
   Memory Write Enable: 0
-  Memory Address: 0x00000000
+  Memory Address: 0x00000100
   Memory Read Data: 0x0f0e0d0c0b0a09080706050403020100
   Memory Ready: 0
 
 Cache Internals:
-Full address: 0x00000000000000000000000100000100
+Full address: 0x00000000000000000000001000000100
   Set Index: 0
-  Tag: 0x000000000000000000000001000
+  Tag: 0x000000000000000000000010000
   Word Offset: 01
   Byte Offset: 00
-
-=== Test 3: Read from 0x00000210 ===
+in_write_en: 1, out_hit: 0
   Set 0 Way 0:
-    Valid: 0
-    Dirty: 0
-    Tag: 0x00000000000000000000
-    Data: 0xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx
-  Set 0 Way 1:
     Valid: 1
     Dirty: 0
     Tag: 0x00000000000000001000
     Data: 0x0f0e0d0c0b0a09080706050403020100
-    LRU: 00
+  Set 0 Way 1:
+    Valid: 0
+    Dirty: 0
+    Tag: 0x00000000000000000000
+    Data: 0xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx
+    LRU: 1
   Set 1 Way 0:
     Valid: 0
     Dirty: 0
@@ -1135,18 +1187,601 @@ Full address: 0x00000000000000000000000100000100
     Dirty: 0
     Tag: 0x00000000000000000000
     Data: 0xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx
-    LRU: 00
+    LRU: 0
 
-=== Clock Cycle: 4 ===
+=== Clock Cycle: 22 ===
 State:
   Reset: 0
-  Cache State:      IDLE
+  Cache State:  MEM_READ
 
 Inputs:
-  Address: 0x00000210
-  Read Enable: 1
-  Write Enable: 0
-  Write Data: 0x00000000
+  Address: 0x00000204
+  Read Enable: 0
+  Write Enable: 1
+  Write Data: 0x00011000
+  Funct3: 010
+
+Cache Status:
+  Hit: 0
+  Busy: 1
+  Read Data: 0x00000000
+
+Memory Interface:
+  Memory Read Enable: 1
+  Memory Write Enable: 0
+  Memory Address: 0x00000200
+  Memory Read Data: 0x0f0e0d0c0b0a09080706050403020100
+  Memory Ready: 0
+
+Cache Internals:
+Full address: 0x00000000000000000000001000000100
+  Set Index: 0
+  Tag: 0x000000000000000000000010000
+  Word Offset: 01
+  Byte Offset: 00
+  Set 0 Way 0:
+    Valid: 1
+    Dirty: 0
+    Tag: 0x00000000000000001000
+    Data: 0x0f0e0d0c0b0a09080706050403020100
+  Set 0 Way 1:
+    Valid: 0
+    Dirty: 0
+    Tag: 0x00000000000000000000
+    Data: 0xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx
+    LRU: 1
+  Set 1 Way 0:
+    Valid: 0
+    Dirty: 0
+    Tag: 0x00000000000000000000
+    Data: 0xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx
+  Set 1 Way 1:
+    Valid: 0
+    Dirty: 0
+    Tag: 0x00000000000000000000
+    Data: 0xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx
+    LRU: 0
+
+=== Clock Cycle: 23 ===
+State:
+  Reset: 0
+  Cache State:  MEM_READ
+
+Inputs:
+  Address: 0x00000204
+  Read Enable: 0
+  Write Enable: 1
+  Write Data: 0x00011000
+  Funct3: 010
+
+Cache Status:
+  Hit: 0
+  Busy: 1
+  Read Data: 0x00000000
+
+Memory Interface:
+  Memory Read Enable: 1
+  Memory Write Enable: 0
+  Memory Address: 0x00000200
+  Memory Read Data: 0x0f0e0d0c0b0a09080706050403020100
+  Memory Ready: 0
+
+Cache Internals:
+Full address: 0x00000000000000000000001000000100
+  Set Index: 0
+  Tag: 0x000000000000000000000010000
+  Word Offset: 01
+  Byte Offset: 00
+  Set 0 Way 0:
+    Valid: 1
+    Dirty: 0
+    Tag: 0x00000000000000001000
+    Data: 0x0f0e0d0c0b0a09080706050403020100
+  Set 0 Way 1:
+    Valid: 0
+    Dirty: 0
+    Tag: 0x00000000000000000000
+    Data: 0xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx
+    LRU: 1
+  Set 1 Way 0:
+    Valid: 0
+    Dirty: 0
+    Tag: 0x00000000000000000000
+    Data: 0xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx
+  Set 1 Way 1:
+    Valid: 0
+    Dirty: 0
+    Tag: 0x00000000000000000000
+    Data: 0xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx
+    LRU: 0
+
+=== Clock Cycle: 24 ===
+State:
+  Reset: 0
+  Cache State:  MEM_READ
+
+Inputs:
+  Address: 0x00000204
+  Read Enable: 0
+  Write Enable: 1
+  Write Data: 0x00011000
+  Funct3: 010
+
+Cache Status:
+  Hit: 0
+  Busy: 1
+  Read Data: 0x00000000
+
+Memory Interface:
+  Memory Read Enable: 1
+  Memory Write Enable: 0
+  Memory Address: 0x00000200
+  Memory Read Data: 0x0f0e0d0c0b0a09080706050403020100
+  Memory Ready: 0
+
+Cache Internals:
+Full address: 0x00000000000000000000001000000100
+  Set Index: 0
+  Tag: 0x000000000000000000000010000
+  Word Offset: 01
+  Byte Offset: 00
+  Set 0 Way 0:
+    Valid: 1
+    Dirty: 0
+    Tag: 0x00000000000000001000
+    Data: 0x0f0e0d0c0b0a09080706050403020100
+  Set 0 Way 1:
+    Valid: 0
+    Dirty: 0
+    Tag: 0x00000000000000000000
+    Data: 0xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx
+    LRU: 1
+  Set 1 Way 0:
+    Valid: 0
+    Dirty: 0
+    Tag: 0x00000000000000000000
+    Data: 0xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx
+  Set 1 Way 1:
+    Valid: 0
+    Dirty: 0
+    Tag: 0x00000000000000000000
+    Data: 0xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx
+    LRU: 0
+
+=== Clock Cycle: 25 ===
+State:
+  Reset: 0
+  Cache State:  MEM_READ
+
+Inputs:
+  Address: 0x00000204
+  Read Enable: 0
+  Write Enable: 1
+  Write Data: 0x00011000
+  Funct3: 010
+
+Cache Status:
+  Hit: 0
+  Busy: 1
+  Read Data: 0x00000000
+
+Memory Interface:
+  Memory Read Enable: 1
+  Memory Write Enable: 0
+  Memory Address: 0x00000200
+  Memory Read Data: 0x0f0e0d0c0b0a09080706050403020100
+  Memory Ready: 0
+
+Cache Internals:
+Full address: 0x00000000000000000000001000000100
+  Set Index: 0
+  Tag: 0x000000000000000000000010000
+  Word Offset: 01
+  Byte Offset: 00
+  Set 0 Way 0:
+    Valid: 1
+    Dirty: 0
+    Tag: 0x00000000000000001000
+    Data: 0x0f0e0d0c0b0a09080706050403020100
+  Set 0 Way 1:
+    Valid: 0
+    Dirty: 0
+    Tag: 0x00000000000000000000
+    Data: 0xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx
+    LRU: 1
+  Set 1 Way 0:
+    Valid: 0
+    Dirty: 0
+    Tag: 0x00000000000000000000
+    Data: 0xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx
+  Set 1 Way 1:
+    Valid: 0
+    Dirty: 0
+    Tag: 0x00000000000000000000
+    Data: 0xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx
+    LRU: 0
+
+=== Clock Cycle: 26 ===
+State:
+  Reset: 0
+  Cache State:  MEM_READ
+
+Inputs:
+  Address: 0x00000204
+  Read Enable: 0
+  Write Enable: 1
+  Write Data: 0x00011000
+  Funct3: 010
+
+Cache Status:
+  Hit: 0
+  Busy: 1
+  Read Data: 0x00000000
+
+Memory Interface:
+  Memory Read Enable: 1
+  Memory Write Enable: 0
+  Memory Address: 0x00000200
+  Memory Read Data: 0x0f0e0d0c0b0a09080706050403020100
+  Memory Ready: 0
+
+Cache Internals:
+Full address: 0x00000000000000000000001000000100
+  Set Index: 0
+  Tag: 0x000000000000000000000010000
+  Word Offset: 01
+  Byte Offset: 00
+  Set 0 Way 0:
+    Valid: 1
+    Dirty: 0
+    Tag: 0x00000000000000001000
+    Data: 0x0f0e0d0c0b0a09080706050403020100
+  Set 0 Way 1:
+    Valid: 0
+    Dirty: 0
+    Tag: 0x00000000000000000000
+    Data: 0xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx
+    LRU: 1
+  Set 1 Way 0:
+    Valid: 0
+    Dirty: 0
+    Tag: 0x00000000000000000000
+    Data: 0xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx
+  Set 1 Way 1:
+    Valid: 0
+    Dirty: 0
+    Tag: 0x00000000000000000000
+    Data: 0xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx
+    LRU: 0
+
+=== Clock Cycle: 27 ===
+State:
+  Reset: 0
+  Cache State:  MEM_READ
+
+Inputs:
+  Address: 0x00000204
+  Read Enable: 0
+  Write Enable: 1
+  Write Data: 0x00011000
+  Funct3: 010
+
+Cache Status:
+  Hit: 0
+  Busy: 1
+  Read Data: 0x00000000
+
+Memory Interface:
+  Memory Read Enable: 1
+  Memory Write Enable: 0
+  Memory Address: 0x00000200
+  Memory Read Data: 0x0f0e0d0c0b0a09080706050403020100
+  Memory Ready: 0
+
+Cache Internals:
+Full address: 0x00000000000000000000001000000100
+  Set Index: 0
+  Tag: 0x000000000000000000000010000
+  Word Offset: 01
+  Byte Offset: 00
+  Set 0 Way 0:
+    Valid: 1
+    Dirty: 0
+    Tag: 0x00000000000000001000
+    Data: 0x0f0e0d0c0b0a09080706050403020100
+  Set 0 Way 1:
+    Valid: 0
+    Dirty: 0
+    Tag: 0x00000000000000000000
+    Data: 0xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx
+    LRU: 1
+  Set 1 Way 0:
+    Valid: 0
+    Dirty: 0
+    Tag: 0x00000000000000000000
+    Data: 0xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx
+  Set 1 Way 1:
+    Valid: 0
+    Dirty: 0
+    Tag: 0x00000000000000000000
+    Data: 0xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx
+    LRU: 0
+
+=== Clock Cycle: 28 ===
+State:
+  Reset: 0
+  Cache State:  MEM_READ
+
+Inputs:
+  Address: 0x00000204
+  Read Enable: 0
+  Write Enable: 1
+  Write Data: 0x00011000
+  Funct3: 010
+
+Cache Status:
+  Hit: 0
+  Busy: 1
+  Read Data: 0x00000000
+
+Memory Interface:
+  Memory Read Enable: 1
+  Memory Write Enable: 0
+  Memory Address: 0x00000200
+  Memory Read Data: 0x0f0e0d0c0b0a09080706050403020100
+  Memory Ready: 0
+
+Cache Internals:
+Full address: 0x00000000000000000000001000000100
+  Set Index: 0
+  Tag: 0x000000000000000000000010000
+  Word Offset: 01
+  Byte Offset: 00
+  Set 0 Way 0:
+    Valid: 1
+    Dirty: 0
+    Tag: 0x00000000000000001000
+    Data: 0x0f0e0d0c0b0a09080706050403020100
+  Set 0 Way 1:
+    Valid: 0
+    Dirty: 0
+    Tag: 0x00000000000000000000
+    Data: 0xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx
+    LRU: 1
+  Set 1 Way 0:
+    Valid: 0
+    Dirty: 0
+    Tag: 0x00000000000000000000
+    Data: 0xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx
+  Set 1 Way 1:
+    Valid: 0
+    Dirty: 0
+    Tag: 0x00000000000000000000
+    Data: 0xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx
+    LRU: 0
+
+=== Clock Cycle: 29 ===
+State:
+  Reset: 0
+  Cache State:  MEM_READ
+
+Inputs:
+  Address: 0x00000204
+  Read Enable: 0
+  Write Enable: 1
+  Write Data: 0x00011000
+  Funct3: 010
+
+Cache Status:
+  Hit: 0
+  Busy: 1
+  Read Data: 0x00000000
+
+Memory Interface:
+  Memory Read Enable: 1
+  Memory Write Enable: 0
+  Memory Address: 0x00000200
+  Memory Read Data: 0x0f0e0d0c0b0a09080706050403020100
+  Memory Ready: 0
+
+Cache Internals:
+Full address: 0x00000000000000000000001000000100
+  Set Index: 0
+  Tag: 0x000000000000000000000010000
+  Word Offset: 01
+  Byte Offset: 00
+  Set 0 Way 0:
+    Valid: 1
+    Dirty: 0
+    Tag: 0x00000000000000001000
+    Data: 0x0f0e0d0c0b0a09080706050403020100
+  Set 0 Way 1:
+    Valid: 0
+    Dirty: 0
+    Tag: 0x00000000000000000000
+    Data: 0xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx
+    LRU: 1
+  Set 1 Way 0:
+    Valid: 0
+    Dirty: 0
+    Tag: 0x00000000000000000000
+    Data: 0xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx
+  Set 1 Way 1:
+    Valid: 0
+    Dirty: 0
+    Tag: 0x00000000000000000000
+    Data: 0xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx
+    LRU: 0
+
+=== Clock Cycle: 30 ===
+State:
+  Reset: 0
+  Cache State:  MEM_READ
+
+Inputs:
+  Address: 0x00000204
+  Read Enable: 0
+  Write Enable: 1
+  Write Data: 0x00011000
+  Funct3: 010
+
+Cache Status:
+  Hit: 0
+  Busy: 1
+  Read Data: 0x00000000
+
+Memory Interface:
+  Memory Read Enable: 1
+  Memory Write Enable: 0
+  Memory Address: 0x00000200
+  Memory Read Data: 0x0f0e0d0c0b0a09080706050403020100
+  Memory Ready: 0
+
+Cache Internals:
+Full address: 0x00000000000000000000001000000100
+  Set Index: 0
+  Tag: 0x000000000000000000000010000
+  Word Offset: 01
+  Byte Offset: 00
+  Set 0 Way 0:
+    Valid: 1
+    Dirty: 0
+    Tag: 0x00000000000000001000
+    Data: 0x0f0e0d0c0b0a09080706050403020100
+  Set 0 Way 1:
+    Valid: 0
+    Dirty: 0
+    Tag: 0x00000000000000000000
+    Data: 0xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx
+    LRU: 1
+  Set 1 Way 0:
+    Valid: 0
+    Dirty: 0
+    Tag: 0x00000000000000000000
+    Data: 0xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx
+  Set 1 Way 1:
+    Valid: 0
+    Dirty: 0
+    Tag: 0x00000000000000000000
+    Data: 0xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx
+    LRU: 0
+
+=== Clock Cycle: 31 ===
+State:
+  Reset: 0
+  Cache State:  MEM_READ
+
+Inputs:
+  Address: 0x00000204
+  Read Enable: 0
+  Write Enable: 1
+  Write Data: 0x00011000
+  Funct3: 010
+
+Cache Status:
+  Hit: 0
+  Busy: 1
+  Read Data: 0x00000000
+
+Memory Interface:
+  Memory Read Enable: 1
+  Memory Write Enable: 0
+  Memory Address: 0x00000200
+  Memory Read Data: 0x0f0e0d0c0b0a09080706050403020100
+  Memory Ready: 0
+
+Cache Internals:
+Full address: 0x00000000000000000000001000000100
+  Set Index: 0
+  Tag: 0x000000000000000000000010000
+  Word Offset: 01
+  Byte Offset: 00
+  Set 0 Way 0:
+    Valid: 1
+    Dirty: 0
+    Tag: 0x00000000000000001000
+    Data: 0x0f0e0d0c0b0a09080706050403020100
+  Set 0 Way 1:
+    Valid: 0
+    Dirty: 0
+    Tag: 0x00000000000000000000
+    Data: 0xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx
+    LRU: 1
+  Set 1 Way 0:
+    Valid: 0
+    Dirty: 0
+    Tag: 0x00000000000000000000
+    Data: 0xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx
+  Set 1 Way 1:
+    Valid: 0
+    Dirty: 0
+    Tag: 0x00000000000000000000
+    Data: 0xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx
+    LRU: 0
+
+=== Clock Cycle: 32 ===
+State:
+  Reset: 0
+  Cache State:  MEM_READ
+
+Inputs:
+  Address: 0x00000204
+  Read Enable: 0
+  Write Enable: 1
+  Write Data: 0x00011000
+  Funct3: 010
+
+Cache Status:
+  Hit: 0
+  Busy: 1
+  Read Data: 0x00000000
+
+Memory Interface:
+  Memory Read Enable: 1
+  Memory Write Enable: 0
+  Memory Address: 0x00000200
+  Memory Read Data: 0x0f0e0d0c0b0a09080706050403020100
+  Memory Ready: 0
+
+Cache Internals:
+Full address: 0x00000000000000000000001000000100
+  Set Index: 0
+  Tag: 0x000000000000000000000010000
+  Word Offset: 01
+  Byte Offset: 00
+  Set 0 Way 0:
+    Valid: 1
+    Dirty: 0
+    Tag: 0x00000000000000001000
+    Data: 0x0f0e0d0c0b0a09080706050403020100
+  Set 0 Way 1:
+    Valid: 0
+    Dirty: 0
+    Tag: 0x00000000000000000000
+    Data: 0xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx
+    LRU: 1
+  Set 1 Way 0:
+    Valid: 0
+    Dirty: 0
+    Tag: 0x00000000000000000000
+    Data: 0xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx
+  Set 1 Way 1:
+    Valid: 0
+    Dirty: 0
+    Tag: 0x00000000000000000000
+    Data: 0xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx
+    LRU: 0
+
+=== Clock Cycle: 33 ===
+State:
+  Reset: 0
+  Cache State:  MEM_READ
+
+Inputs:
+  Address: 0x00000204
+  Read Enable: 0
+  Write Enable: 1
+  Write Data: 0x00011000
   Funct3: 010
 
 Cache Status:
@@ -1157,663 +1792,27 @@ Cache Status:
 Memory Interface:
   Memory Read Enable: 0
   Memory Write Enable: 0
-  Memory Address: 0x00000000
-  Memory Read Data: 0x0f0e0d0c0b0a09080706050403020100
-  Memory Ready: 0
-
-Cache Internals:
-Full address: 0x00000000000000000000001000010000
-  Set Index: 1
-  Tag: 0x000000000000000000000010000
-  Word Offset: 00
-  Byte Offset: 00
-  Set 0 Way 0:
-    Valid: 0
-    Dirty: 0
-    Tag: 0x00000000000000000000
-    Data: 0xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx
-  Set 0 Way 1:
-    Valid: 1
-    Dirty: 0
-    Tag: 0x00000000000000001000
-    Data: 0x0f0e0d0c0b0a09080706050403020100
-    LRU: 00
-  Set 1 Way 0:
-    Valid: 0
-    Dirty: 0
-    Tag: 0x00000000000000000000
-    Data: 0xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx
-  Set 1 Way 1:
-    Valid: 0
-    Dirty: 0
-    Tag: 0x00000000000000000000
-    Data: 0xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx
-    LRU: 00
-
-=== Clock Cycle: 4 ===
-State:
-  Reset: 0
-  Cache State:  MEM_READ
-
-Inputs:
-  Address: 0x00000210
-  Read Enable: 1
-  Write Enable: 0
-  Write Data: 0x00000000
-  Funct3: 010
-
-Cache Status:
-  Hit: 0
-  Busy: 1
-  Read Data: 0x00000000
-
-Memory Interface:
-  Memory Read Enable: 1
-  Memory Write Enable: 0
-  Memory Address: 0x00000210
-  Memory Read Data: 0x0f0e0d0c0b0a09080706050403020100
-  Memory Ready: 0
-
-Cache Internals:
-Full address: 0x00000000000000000000001000010000
-  Set Index: 1
-  Tag: 0x000000000000000000000010000
-  Word Offset: 00
-  Byte Offset: 00
-  Set 0 Way 0:
-    Valid: 0
-    Dirty: 0
-    Tag: 0x00000000000000000000
-    Data: 0xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx
-  Set 0 Way 1:
-    Valid: 1
-    Dirty: 0
-    Tag: 0x00000000000000001000
-    Data: 0x0f0e0d0c0b0a09080706050403020100
-    LRU: 00
-  Set 1 Way 0:
-    Valid: 0
-    Dirty: 0
-    Tag: 0x00000000000000000000
-    Data: 0xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx
-  Set 1 Way 1:
-    Valid: 0
-    Dirty: 0
-    Tag: 0x00000000000000000000
-    Data: 0xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx
-    LRU: 00
-
-=== Clock Cycle: 4 ===
-State:
-  Reset: 0
-  Cache State:  MEM_READ
-
-Inputs:
-  Address: 0x00000210
-  Read Enable: 1
-  Write Enable: 0
-  Write Data: 0x00000000
-  Funct3: 010
-
-Cache Status:
-  Hit: 0
-  Busy: 1
-  Read Data: 0x00000000
-
-Memory Interface:
-  Memory Read Enable: 1
-  Memory Write Enable: 0
-  Memory Address: 0x00000210
-  Memory Read Data: 0x0f0e0d0c0b0a09080706050403020100
-  Memory Ready: 0
-
-Cache Internals:
-Full address: 0x00000000000000000000001000010000
-  Set Index: 1
-  Tag: 0x000000000000000000000010000
-  Word Offset: 00
-  Byte Offset: 00
-  Set 0 Way 0:
-    Valid: 0
-    Dirty: 0
-    Tag: 0x00000000000000000000
-    Data: 0xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx
-  Set 0 Way 1:
-    Valid: 1
-    Dirty: 0
-    Tag: 0x00000000000000001000
-    Data: 0x0f0e0d0c0b0a09080706050403020100
-    LRU: 00
-  Set 1 Way 0:
-    Valid: 0
-    Dirty: 0
-    Tag: 0x00000000000000000000
-    Data: 0xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx
-  Set 1 Way 1:
-    Valid: 0
-    Dirty: 0
-    Tag: 0x00000000000000000000
-    Data: 0xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx
-    LRU: 00
-
-=== Clock Cycle: 4 ===
-State:
-  Reset: 0
-  Cache State:  MEM_READ
-
-Inputs:
-  Address: 0x00000210
-  Read Enable: 1
-  Write Enable: 0
-  Write Data: 0x00000000
-  Funct3: 010
-
-Cache Status:
-  Hit: 0
-  Busy: 1
-  Read Data: 0x00000000
-
-Memory Interface:
-  Memory Read Enable: 1
-  Memory Write Enable: 0
-  Memory Address: 0x00000210
-  Memory Read Data: 0x0f0e0d0c0b0a09080706050403020100
-  Memory Ready: 0
-
-Cache Internals:
-Full address: 0x00000000000000000000001000010000
-  Set Index: 1
-  Tag: 0x000000000000000000000010000
-  Word Offset: 00
-  Byte Offset: 00
-  Set 0 Way 0:
-    Valid: 0
-    Dirty: 0
-    Tag: 0x00000000000000000000
-    Data: 0xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx
-  Set 0 Way 1:
-    Valid: 1
-    Dirty: 0
-    Tag: 0x00000000000000001000
-    Data: 0x0f0e0d0c0b0a09080706050403020100
-    LRU: 00
-  Set 1 Way 0:
-    Valid: 0
-    Dirty: 0
-    Tag: 0x00000000000000000000
-    Data: 0xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx
-  Set 1 Way 1:
-    Valid: 0
-    Dirty: 0
-    Tag: 0x00000000000000000000
-    Data: 0xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx
-    LRU: 00
-
-=== Clock Cycle: 5 ===
-State:
-  Reset: 0
-  Cache State:  MEM_READ
-
-Inputs:
-  Address: 0x00000210
-  Read Enable: 1
-  Write Enable: 0
-  Write Data: 0x00000000
-  Funct3: 010
-
-Cache Status:
-  Hit: 0
-  Busy: 1
-  Read Data: 0x00000000
-
-Memory Interface:
-  Memory Read Enable: 1
-  Memory Write Enable: 0
-  Memory Address: 0x00000210
-  Memory Read Data: 0x0f0e0d0c0b0a09080706050403020100
-  Memory Ready: 0
-
-Cache Internals:
-Full address: 0x00000000000000000000001000010000
-  Set Index: 1
-  Tag: 0x000000000000000000000010000
-  Word Offset: 00
-  Byte Offset: 00
-  Set 0 Way 0:
-    Valid: 0
-    Dirty: 0
-    Tag: 0x00000000000000000000
-    Data: 0xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx
-  Set 0 Way 1:
-    Valid: 1
-    Dirty: 0
-    Tag: 0x00000000000000001000
-    Data: 0x0f0e0d0c0b0a09080706050403020100
-    LRU: 00
-  Set 1 Way 0:
-    Valid: 0
-    Dirty: 0
-    Tag: 0x00000000000000000000
-    Data: 0xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx
-  Set 1 Way 1:
-    Valid: 0
-    Dirty: 0
-    Tag: 0x00000000000000000000
-    Data: 0xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx
-    LRU: 00
-
-=== Clock Cycle: 5 ===
-State:
-  Reset: 0
-  Cache State:  MEM_READ
-
-Inputs:
-  Address: 0x00000210
-  Read Enable: 1
-  Write Enable: 0
-  Write Data: 0x00000000
-  Funct3: 010
-
-Cache Status:
-  Hit: 0
-  Busy: 1
-  Read Data: 0x00000000
-
-Memory Interface:
-  Memory Read Enable: 1
-  Memory Write Enable: 0
-  Memory Address: 0x00000210
-  Memory Read Data: 0x0f0e0d0c0b0a09080706050403020100
-  Memory Ready: 0
-
-Cache Internals:
-Full address: 0x00000000000000000000001000010000
-  Set Index: 1
-  Tag: 0x000000000000000000000010000
-  Word Offset: 00
-  Byte Offset: 00
-  Set 0 Way 0:
-    Valid: 0
-    Dirty: 0
-    Tag: 0x00000000000000000000
-    Data: 0xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx
-  Set 0 Way 1:
-    Valid: 1
-    Dirty: 0
-    Tag: 0x00000000000000001000
-    Data: 0x0f0e0d0c0b0a09080706050403020100
-    LRU: 00
-  Set 1 Way 0:
-    Valid: 0
-    Dirty: 0
-    Tag: 0x00000000000000000000
-    Data: 0xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx
-  Set 1 Way 1:
-    Valid: 0
-    Dirty: 0
-    Tag: 0x00000000000000000000
-    Data: 0xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx
-    LRU: 00
-
-=== Clock Cycle: 5 ===
-State:
-  Reset: 0
-  Cache State:  MEM_READ
-
-Inputs:
-  Address: 0x00000210
-  Read Enable: 1
-  Write Enable: 0
-  Write Data: 0x00000000
-  Funct3: 010
-
-Cache Status:
-  Hit: 0
-  Busy: 1
-  Read Data: 0x00000000
-
-Memory Interface:
-  Memory Read Enable: 1
-  Memory Write Enable: 0
-  Memory Address: 0x00000210
-  Memory Read Data: 0x0f0e0d0c0b0a09080706050403020100
-  Memory Ready: 0
-
-Cache Internals:
-Full address: 0x00000000000000000000001000010000
-  Set Index: 1
-  Tag: 0x000000000000000000000010000
-  Word Offset: 00
-  Byte Offset: 00
-  Set 0 Way 0:
-    Valid: 0
-    Dirty: 0
-    Tag: 0x00000000000000000000
-    Data: 0xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx
-  Set 0 Way 1:
-    Valid: 1
-    Dirty: 0
-    Tag: 0x00000000000000001000
-    Data: 0x0f0e0d0c0b0a09080706050403020100
-    LRU: 00
-  Set 1 Way 0:
-    Valid: 0
-    Dirty: 0
-    Tag: 0x00000000000000000000
-    Data: 0xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx
-  Set 1 Way 1:
-    Valid: 0
-    Dirty: 0
-    Tag: 0x00000000000000000000
-    Data: 0xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx
-    LRU: 00
-
-=== Clock Cycle: 5 ===
-State:
-  Reset: 0
-  Cache State:  MEM_READ
-
-Inputs:
-  Address: 0x00000210
-  Read Enable: 1
-  Write Enable: 0
-  Write Data: 0x00000000
-  Funct3: 010
-
-Cache Status:
-  Hit: 0
-  Busy: 1
-  Read Data: 0x00000000
-
-Memory Interface:
-  Memory Read Enable: 1
-  Memory Write Enable: 0
-  Memory Address: 0x00000210
-  Memory Read Data: 0x0f0e0d0c0b0a09080706050403020100
-  Memory Ready: 0
-
-Cache Internals:
-Full address: 0x00000000000000000000001000010000
-  Set Index: 1
-  Tag: 0x000000000000000000000010000
-  Word Offset: 00
-  Byte Offset: 00
-  Set 0 Way 0:
-    Valid: 0
-    Dirty: 0
-    Tag: 0x00000000000000000000
-    Data: 0xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx
-  Set 0 Way 1:
-    Valid: 1
-    Dirty: 0
-    Tag: 0x00000000000000001000
-    Data: 0x0f0e0d0c0b0a09080706050403020100
-    LRU: 00
-  Set 1 Way 0:
-    Valid: 0
-    Dirty: 0
-    Tag: 0x00000000000000000000
-    Data: 0xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx
-  Set 1 Way 1:
-    Valid: 0
-    Dirty: 0
-    Tag: 0x00000000000000000000
-    Data: 0xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx
-    LRU: 00
-
-=== Clock Cycle: 5 ===
-State:
-  Reset: 0
-  Cache State:  MEM_READ
-
-Inputs:
-  Address: 0x00000210
-  Read Enable: 1
-  Write Enable: 0
-  Write Data: 0x00000000
-  Funct3: 010
-
-Cache Status:
-  Hit: 0
-  Busy: 1
-  Read Data: 0x00000000
-
-Memory Interface:
-  Memory Read Enable: 1
-  Memory Write Enable: 0
-  Memory Address: 0x00000210
-  Memory Read Data: 0x0f0e0d0c0b0a09080706050403020100
-  Memory Ready: 0
-
-Cache Internals:
-Full address: 0x00000000000000000000001000010000
-  Set Index: 1
-  Tag: 0x000000000000000000000010000
-  Word Offset: 00
-  Byte Offset: 00
-  Set 0 Way 0:
-    Valid: 0
-    Dirty: 0
-    Tag: 0x00000000000000000000
-    Data: 0xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx
-  Set 0 Way 1:
-    Valid: 1
-    Dirty: 0
-    Tag: 0x00000000000000001000
-    Data: 0x0f0e0d0c0b0a09080706050403020100
-    LRU: 00
-  Set 1 Way 0:
-    Valid: 0
-    Dirty: 0
-    Tag: 0x00000000000000000000
-    Data: 0xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx
-  Set 1 Way 1:
-    Valid: 0
-    Dirty: 0
-    Tag: 0x00000000000000000000
-    Data: 0xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx
-    LRU: 00
-
-=== Clock Cycle: 6 ===
-State:
-  Reset: 0
-  Cache State:  MEM_READ
-
-Inputs:
-  Address: 0x00000210
-  Read Enable: 1
-  Write Enable: 0
-  Write Data: 0x00000000
-  Funct3: 010
-
-Cache Status:
-  Hit: 0
-  Busy: 1
-  Read Data: 0x00000000
-
-Memory Interface:
-  Memory Read Enable: 1
-  Memory Write Enable: 0
-  Memory Address: 0x00000210
-  Memory Read Data: 0x0f0e0d0c0b0a09080706050403020100
-  Memory Ready: 0
-
-Cache Internals:
-Full address: 0x00000000000000000000001000010000
-  Set Index: 1
-  Tag: 0x000000000000000000000010000
-  Word Offset: 00
-  Byte Offset: 00
-  Set 0 Way 0:
-    Valid: 0
-    Dirty: 0
-    Tag: 0x00000000000000000000
-    Data: 0xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx
-  Set 0 Way 1:
-    Valid: 1
-    Dirty: 0
-    Tag: 0x00000000000000001000
-    Data: 0x0f0e0d0c0b0a09080706050403020100
-    LRU: 00
-  Set 1 Way 0:
-    Valid: 0
-    Dirty: 0
-    Tag: 0x00000000000000000000
-    Data: 0xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx
-  Set 1 Way 1:
-    Valid: 0
-    Dirty: 0
-    Tag: 0x00000000000000000000
-    Data: 0xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx
-    LRU: 00
-
-=== Clock Cycle: 6 ===
-State:
-  Reset: 0
-  Cache State:  MEM_READ
-
-Inputs:
-  Address: 0x00000210
-  Read Enable: 1
-  Write Enable: 0
-  Write Data: 0x00000000
-  Funct3: 010
-
-Cache Status:
-  Hit: 0
-  Busy: 1
-  Read Data: 0x00000000
-
-Memory Interface:
-  Memory Read Enable: 1
-  Memory Write Enable: 0
-  Memory Address: 0x00000210
-  Memory Read Data: 0x0f0e0d0c0b0a09080706050403020100
-  Memory Ready: 0
-
-Cache Internals:
-Full address: 0x00000000000000000000001000010000
-  Set Index: 1
-  Tag: 0x000000000000000000000010000
-  Word Offset: 00
-  Byte Offset: 00
-  Set 0 Way 0:
-    Valid: 0
-    Dirty: 0
-    Tag: 0x00000000000000000000
-    Data: 0xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx
-  Set 0 Way 1:
-    Valid: 1
-    Dirty: 0
-    Tag: 0x00000000000000001000
-    Data: 0x0f0e0d0c0b0a09080706050403020100
-    LRU: 00
-  Set 1 Way 0:
-    Valid: 0
-    Dirty: 0
-    Tag: 0x00000000000000000000
-    Data: 0xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx
-  Set 1 Way 1:
-    Valid: 0
-    Dirty: 0
-    Tag: 0x00000000000000000000
-    Data: 0xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx
-    LRU: 00
-
-=== Clock Cycle: 6 ===
-State:
-  Reset: 0
-  Cache State:  MEM_READ
-
-Inputs:
-  Address: 0x00000210
-  Read Enable: 1
-  Write Enable: 0
-  Write Data: 0x00000000
-  Funct3: 010
-
-Cache Status:
-  Hit: 0
-  Busy: 1
-  Read Data: 0x00000000
-
-Memory Interface:
-  Memory Read Enable: 1
-  Memory Write Enable: 0
-  Memory Address: 0x00000210
-  Memory Read Data: 0x0f0e0d0c0b0a09080706050403020100
-  Memory Ready: 0
-
-Cache Internals:
-Full address: 0x00000000000000000000001000010000
-  Set Index: 1
-  Tag: 0x000000000000000000000010000
-  Word Offset: 00
-  Byte Offset: 00
-  Set 0 Way 0:
-    Valid: 0
-    Dirty: 0
-    Tag: 0x00000000000000000000
-    Data: 0xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx
-  Set 0 Way 1:
-    Valid: 1
-    Dirty: 0
-    Tag: 0x00000000000000001000
-    Data: 0x0f0e0d0c0b0a09080706050403020100
-    LRU: 00
-  Set 1 Way 0:
-    Valid: 0
-    Dirty: 0
-    Tag: 0x00000000000000000000
-    Data: 0xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx
-  Set 1 Way 1:
-    Valid: 0
-    Dirty: 0
-    Tag: 0x00000000000000000000
-    Data: 0xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx
-    LRU: 00
-
-=== Clock Cycle: 6 ===
-State:
-  Reset: 0
-  Cache State:  MEM_READ
-
-Inputs:
-  Address: 0x00000210
-  Read Enable: 1
-  Write Enable: 0
-  Write Data: 0x00000000
-  Funct3: 010
-
-Cache Status:
-  Hit: 0
-  Busy: 1
-  Read Data: 0x00000000
-
-Memory Interface:
-  Memory Read Enable: 0
-  Memory Write Enable: 0
-  Memory Address: 0x00000210
-  Memory Read Data: 0x1f1e1d1c1b1a19181716151413121110
+  Memory Address: 0x00000200
+  Memory Read Data: 0x2211ffeeddccbbaa0706050403020100
   Memory Ready: 1
 
 Cache Internals:
-Full address: 0x00000000000000000000001000010000
-  Set Index: 1
+Full address: 0x00000000000000000000001000000100
+  Set Index: 0
   Tag: 0x000000000000000000000010000
-  Word Offset: 00
+  Word Offset: 01
   Byte Offset: 00
   Set 0 Way 0:
-    Valid: 0
-    Dirty: 0
-    Tag: 0x00000000000000000000
-    Data: 0xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx
-  Set 0 Way 1:
     Valid: 1
     Dirty: 0
     Tag: 0x00000000000000001000
     Data: 0x0f0e0d0c0b0a09080706050403020100
-    LRU: 00
+  Set 0 Way 1:
+    Valid: 0
+    Dirty: 0
+    Tag: 0x00000000000000000000
+    Data: 0xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx
+    LRU: 1
   Set 1 Way 0:
     Valid: 0
     Dirty: 0
@@ -1824,15 +1823,759 @@ Full address: 0x00000000000000000000001000010000
     Dirty: 0
     Tag: 0x00000000000000000000
     Data: 0xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx
-    LRU: 00
+    LRU: 0
 
-=== Clock Cycle: 6 ===
+=== Clock Cycle: 34 ===
 State:
   Reset: 0
   Cache State:      IDLE
 
 Inputs:
-  Address: 0x00000210
+  Address: 0x00000204
+  Read Enable: 0
+  Write Enable: 1
+  Write Data: 0x00011000
+  Funct3: 010
+
+Cache Status:
+  Hit: 1
+  Busy: 0
+  Read Data: 0x00000000
+
+Memory Interface:
+  Memory Read Enable: 0
+  Memory Write Enable: 0
+  Memory Address: 0x00000200
+  Memory Read Data: 0x2211ffeeddccbbaa0706050403020100
+  Memory Ready: 0
+
+Cache Internals:
+Full address: 0x00000000000000000000001000000100
+  Set Index: 0
+  Tag: 0x000000000000000000000010000
+  Word Offset: 01
+  Byte Offset: 00
+in_write_en: 1, out_hit: 1
+  Set 0 Way 0:
+    Valid: 1
+    Dirty: 0
+    Tag: 0x00000000000000001000
+    Data: 0x0f0e0d0c0b0a09080706050403020100
+  Set 0 Way 1:
+    Valid: 1
+    Dirty: 1
+    Tag: 0x00000000000000010000
+    Data: 0x2211ffeeddccbbaa0706050403020100
+    LRU: 0
+  Set 1 Way 0:
+    Valid: 0
+    Dirty: 0
+    Tag: 0x00000000000000000000
+    Data: 0xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx
+  Set 1 Way 1:
+    Valid: 0
+    Dirty: 0
+    Tag: 0x00000000000000000000
+    Data: 0xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx
+    LRU: 0
+
+=== Clock Cycle: 35 ===
+State:
+  Reset: 0
+  Cache State:      IDLE
+
+Inputs:
+  Address: 0x00000120
+  Read Enable: 1
+  Write Enable: 0
+  Write Data: 0x00000000
+  Funct3: 010
+
+Cache Status:
+  Hit: 0
+  Busy: 1
+  Read Data: 0x00000000
+
+Memory Interface:
+  Memory Read Enable: 0
+  Memory Write Enable: 0
+  Memory Address: 0x00000200
+  Memory Read Data: 0x2211ffeeddccbbaa0706050403020100
+  Memory Ready: 0
+
+Cache Internals:
+Full address: 0x00000000000000000000000100100000
+  Set Index: 0
+  Tag: 0x000000000000000000000001001
+  Word Offset: 00
+  Byte Offset: 00
+in_write_en: 0, out_hit: 0
+  Set 0 Way 0:
+    Valid: 1
+    Dirty: 0
+    Tag: 0x00000000000000001000
+    Data: 0x0f0e0d0c0b0a09080706050403020100
+  Set 0 Way 1:
+    Valid: 1
+    Dirty: 1
+    Tag: 0x00000000000000010000
+    Data: 0x2211ffeeddccbbaa0001100003020100
+    LRU: 0
+  Set 1 Way 0:
+    Valid: 0
+    Dirty: 0
+    Tag: 0x00000000000000000000
+    Data: 0xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx
+  Set 1 Way 1:
+    Valid: 0
+    Dirty: 0
+    Tag: 0x00000000000000000000
+    Data: 0xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx
+    LRU: 0
+
+=== Clock Cycle: 36 ===
+State:
+  Reset: 0
+  Cache State:  MEM_READ
+
+Inputs:
+  Address: 0x00000120
+  Read Enable: 1
+  Write Enable: 0
+  Write Data: 0x00000000
+  Funct3: 010
+
+Cache Status:
+  Hit: 0
+  Busy: 1
+  Read Data: 0x00000000
+
+Memory Interface:
+  Memory Read Enable: 1
+  Memory Write Enable: 0
+  Memory Address: 0x00000120
+  Memory Read Data: 0x2211ffeeddccbbaa0706050403020100
+  Memory Ready: 0
+
+Cache Internals:
+Full address: 0x00000000000000000000000100100000
+  Set Index: 0
+  Tag: 0x000000000000000000000001001
+  Word Offset: 00
+  Byte Offset: 00
+  Set 0 Way 0:
+    Valid: 1
+    Dirty: 0
+    Tag: 0x00000000000000001000
+    Data: 0x0f0e0d0c0b0a09080706050403020100
+  Set 0 Way 1:
+    Valid: 1
+    Dirty: 1
+    Tag: 0x00000000000000010000
+    Data: 0x2211ffeeddccbbaa0001100003020100
+    LRU: 0
+  Set 1 Way 0:
+    Valid: 0
+    Dirty: 0
+    Tag: 0x00000000000000000000
+    Data: 0xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx
+  Set 1 Way 1:
+    Valid: 0
+    Dirty: 0
+    Tag: 0x00000000000000000000
+    Data: 0xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx
+    LRU: 0
+
+=== Clock Cycle: 37 ===
+State:
+  Reset: 0
+  Cache State:  MEM_READ
+
+Inputs:
+  Address: 0x00000120
+  Read Enable: 1
+  Write Enable: 0
+  Write Data: 0x00000000
+  Funct3: 010
+
+Cache Status:
+  Hit: 0
+  Busy: 1
+  Read Data: 0x00000000
+
+Memory Interface:
+  Memory Read Enable: 1
+  Memory Write Enable: 0
+  Memory Address: 0x00000120
+  Memory Read Data: 0x2211ffeeddccbbaa0706050403020100
+  Memory Ready: 0
+
+Cache Internals:
+Full address: 0x00000000000000000000000100100000
+  Set Index: 0
+  Tag: 0x000000000000000000000001001
+  Word Offset: 00
+  Byte Offset: 00
+  Set 0 Way 0:
+    Valid: 1
+    Dirty: 0
+    Tag: 0x00000000000000001000
+    Data: 0x0f0e0d0c0b0a09080706050403020100
+  Set 0 Way 1:
+    Valid: 1
+    Dirty: 1
+    Tag: 0x00000000000000010000
+    Data: 0x2211ffeeddccbbaa0001100003020100
+    LRU: 0
+  Set 1 Way 0:
+    Valid: 0
+    Dirty: 0
+    Tag: 0x00000000000000000000
+    Data: 0xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx
+  Set 1 Way 1:
+    Valid: 0
+    Dirty: 0
+    Tag: 0x00000000000000000000
+    Data: 0xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx
+    LRU: 0
+
+=== Clock Cycle: 38 ===
+State:
+  Reset: 0
+  Cache State:  MEM_READ
+
+Inputs:
+  Address: 0x00000120
+  Read Enable: 1
+  Write Enable: 0
+  Write Data: 0x00000000
+  Funct3: 010
+
+Cache Status:
+  Hit: 0
+  Busy: 1
+  Read Data: 0x00000000
+
+Memory Interface:
+  Memory Read Enable: 1
+  Memory Write Enable: 0
+  Memory Address: 0x00000120
+  Memory Read Data: 0x2211ffeeddccbbaa0706050403020100
+  Memory Ready: 0
+
+Cache Internals:
+Full address: 0x00000000000000000000000100100000
+  Set Index: 0
+  Tag: 0x000000000000000000000001001
+  Word Offset: 00
+  Byte Offset: 00
+  Set 0 Way 0:
+    Valid: 1
+    Dirty: 0
+    Tag: 0x00000000000000001000
+    Data: 0x0f0e0d0c0b0a09080706050403020100
+  Set 0 Way 1:
+    Valid: 1
+    Dirty: 1
+    Tag: 0x00000000000000010000
+    Data: 0x2211ffeeddccbbaa0001100003020100
+    LRU: 0
+  Set 1 Way 0:
+    Valid: 0
+    Dirty: 0
+    Tag: 0x00000000000000000000
+    Data: 0xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx
+  Set 1 Way 1:
+    Valid: 0
+    Dirty: 0
+    Tag: 0x00000000000000000000
+    Data: 0xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx
+    LRU: 0
+
+=== Clock Cycle: 39 ===
+State:
+  Reset: 0
+  Cache State:  MEM_READ
+
+Inputs:
+  Address: 0x00000120
+  Read Enable: 1
+  Write Enable: 0
+  Write Data: 0x00000000
+  Funct3: 010
+
+Cache Status:
+  Hit: 0
+  Busy: 1
+  Read Data: 0x00000000
+
+Memory Interface:
+  Memory Read Enable: 1
+  Memory Write Enable: 0
+  Memory Address: 0x00000120
+  Memory Read Data: 0x2211ffeeddccbbaa0706050403020100
+  Memory Ready: 0
+
+Cache Internals:
+Full address: 0x00000000000000000000000100100000
+  Set Index: 0
+  Tag: 0x000000000000000000000001001
+  Word Offset: 00
+  Byte Offset: 00
+  Set 0 Way 0:
+    Valid: 1
+    Dirty: 0
+    Tag: 0x00000000000000001000
+    Data: 0x0f0e0d0c0b0a09080706050403020100
+  Set 0 Way 1:
+    Valid: 1
+    Dirty: 1
+    Tag: 0x00000000000000010000
+    Data: 0x2211ffeeddccbbaa0001100003020100
+    LRU: 0
+  Set 1 Way 0:
+    Valid: 0
+    Dirty: 0
+    Tag: 0x00000000000000000000
+    Data: 0xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx
+  Set 1 Way 1:
+    Valid: 0
+    Dirty: 0
+    Tag: 0x00000000000000000000
+    Data: 0xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx
+    LRU: 0
+
+=== Clock Cycle: 40 ===
+State:
+  Reset: 0
+  Cache State:  MEM_READ
+
+Inputs:
+  Address: 0x00000120
+  Read Enable: 1
+  Write Enable: 0
+  Write Data: 0x00000000
+  Funct3: 010
+
+Cache Status:
+  Hit: 0
+  Busy: 1
+  Read Data: 0x00000000
+
+Memory Interface:
+  Memory Read Enable: 1
+  Memory Write Enable: 0
+  Memory Address: 0x00000120
+  Memory Read Data: 0x2211ffeeddccbbaa0706050403020100
+  Memory Ready: 0
+
+Cache Internals:
+Full address: 0x00000000000000000000000100100000
+  Set Index: 0
+  Tag: 0x000000000000000000000001001
+  Word Offset: 00
+  Byte Offset: 00
+  Set 0 Way 0:
+    Valid: 1
+    Dirty: 0
+    Tag: 0x00000000000000001000
+    Data: 0x0f0e0d0c0b0a09080706050403020100
+  Set 0 Way 1:
+    Valid: 1
+    Dirty: 1
+    Tag: 0x00000000000000010000
+    Data: 0x2211ffeeddccbbaa0001100003020100
+    LRU: 0
+  Set 1 Way 0:
+    Valid: 0
+    Dirty: 0
+    Tag: 0x00000000000000000000
+    Data: 0xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx
+  Set 1 Way 1:
+    Valid: 0
+    Dirty: 0
+    Tag: 0x00000000000000000000
+    Data: 0xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx
+    LRU: 0
+
+=== Clock Cycle: 41 ===
+State:
+  Reset: 0
+  Cache State:  MEM_READ
+
+Inputs:
+  Address: 0x00000120
+  Read Enable: 1
+  Write Enable: 0
+  Write Data: 0x00000000
+  Funct3: 010
+
+Cache Status:
+  Hit: 0
+  Busy: 1
+  Read Data: 0x00000000
+
+Memory Interface:
+  Memory Read Enable: 1
+  Memory Write Enable: 0
+  Memory Address: 0x00000120
+  Memory Read Data: 0x2211ffeeddccbbaa0706050403020100
+  Memory Ready: 0
+
+Cache Internals:
+Full address: 0x00000000000000000000000100100000
+  Set Index: 0
+  Tag: 0x000000000000000000000001001
+  Word Offset: 00
+  Byte Offset: 00
+  Set 0 Way 0:
+    Valid: 1
+    Dirty: 0
+    Tag: 0x00000000000000001000
+    Data: 0x0f0e0d0c0b0a09080706050403020100
+  Set 0 Way 1:
+    Valid: 1
+    Dirty: 1
+    Tag: 0x00000000000000010000
+    Data: 0x2211ffeeddccbbaa0001100003020100
+    LRU: 0
+  Set 1 Way 0:
+    Valid: 0
+    Dirty: 0
+    Tag: 0x00000000000000000000
+    Data: 0xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx
+  Set 1 Way 1:
+    Valid: 0
+    Dirty: 0
+    Tag: 0x00000000000000000000
+    Data: 0xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx
+    LRU: 0
+
+=== Clock Cycle: 42 ===
+State:
+  Reset: 0
+  Cache State:  MEM_READ
+
+Inputs:
+  Address: 0x00000120
+  Read Enable: 1
+  Write Enable: 0
+  Write Data: 0x00000000
+  Funct3: 010
+
+Cache Status:
+  Hit: 0
+  Busy: 1
+  Read Data: 0x00000000
+
+Memory Interface:
+  Memory Read Enable: 1
+  Memory Write Enable: 0
+  Memory Address: 0x00000120
+  Memory Read Data: 0x2211ffeeddccbbaa0706050403020100
+  Memory Ready: 0
+
+Cache Internals:
+Full address: 0x00000000000000000000000100100000
+  Set Index: 0
+  Tag: 0x000000000000000000000001001
+  Word Offset: 00
+  Byte Offset: 00
+  Set 0 Way 0:
+    Valid: 1
+    Dirty: 0
+    Tag: 0x00000000000000001000
+    Data: 0x0f0e0d0c0b0a09080706050403020100
+  Set 0 Way 1:
+    Valid: 1
+    Dirty: 1
+    Tag: 0x00000000000000010000
+    Data: 0x2211ffeeddccbbaa0001100003020100
+    LRU: 0
+  Set 1 Way 0:
+    Valid: 0
+    Dirty: 0
+    Tag: 0x00000000000000000000
+    Data: 0xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx
+  Set 1 Way 1:
+    Valid: 0
+    Dirty: 0
+    Tag: 0x00000000000000000000
+    Data: 0xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx
+    LRU: 0
+
+=== Clock Cycle: 43 ===
+State:
+  Reset: 0
+  Cache State:  MEM_READ
+
+Inputs:
+  Address: 0x00000120
+  Read Enable: 1
+  Write Enable: 0
+  Write Data: 0x00000000
+  Funct3: 010
+
+Cache Status:
+  Hit: 0
+  Busy: 1
+  Read Data: 0x00000000
+
+Memory Interface:
+  Memory Read Enable: 1
+  Memory Write Enable: 0
+  Memory Address: 0x00000120
+  Memory Read Data: 0x2211ffeeddccbbaa0706050403020100
+  Memory Ready: 0
+
+Cache Internals:
+Full address: 0x00000000000000000000000100100000
+  Set Index: 0
+  Tag: 0x000000000000000000000001001
+  Word Offset: 00
+  Byte Offset: 00
+  Set 0 Way 0:
+    Valid: 1
+    Dirty: 0
+    Tag: 0x00000000000000001000
+    Data: 0x0f0e0d0c0b0a09080706050403020100
+  Set 0 Way 1:
+    Valid: 1
+    Dirty: 1
+    Tag: 0x00000000000000010000
+    Data: 0x2211ffeeddccbbaa0001100003020100
+    LRU: 0
+  Set 1 Way 0:
+    Valid: 0
+    Dirty: 0
+    Tag: 0x00000000000000000000
+    Data: 0xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx
+  Set 1 Way 1:
+    Valid: 0
+    Dirty: 0
+    Tag: 0x00000000000000000000
+    Data: 0xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx
+    LRU: 0
+
+=== Clock Cycle: 44 ===
+State:
+  Reset: 0
+  Cache State:  MEM_READ
+
+Inputs:
+  Address: 0x00000120
+  Read Enable: 1
+  Write Enable: 0
+  Write Data: 0x00000000
+  Funct3: 010
+
+Cache Status:
+  Hit: 0
+  Busy: 1
+  Read Data: 0x00000000
+
+Memory Interface:
+  Memory Read Enable: 1
+  Memory Write Enable: 0
+  Memory Address: 0x00000120
+  Memory Read Data: 0x2211ffeeddccbbaa0706050403020100
+  Memory Ready: 0
+
+Cache Internals:
+Full address: 0x00000000000000000000000100100000
+  Set Index: 0
+  Tag: 0x000000000000000000000001001
+  Word Offset: 00
+  Byte Offset: 00
+  Set 0 Way 0:
+    Valid: 1
+    Dirty: 0
+    Tag: 0x00000000000000001000
+    Data: 0x0f0e0d0c0b0a09080706050403020100
+  Set 0 Way 1:
+    Valid: 1
+    Dirty: 1
+    Tag: 0x00000000000000010000
+    Data: 0x2211ffeeddccbbaa0001100003020100
+    LRU: 0
+  Set 1 Way 0:
+    Valid: 0
+    Dirty: 0
+    Tag: 0x00000000000000000000
+    Data: 0xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx
+  Set 1 Way 1:
+    Valid: 0
+    Dirty: 0
+    Tag: 0x00000000000000000000
+    Data: 0xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx
+    LRU: 0
+
+=== Clock Cycle: 45 ===
+State:
+  Reset: 0
+  Cache State:  MEM_READ
+
+Inputs:
+  Address: 0x00000120
+  Read Enable: 1
+  Write Enable: 0
+  Write Data: 0x00000000
+  Funct3: 010
+
+Cache Status:
+  Hit: 0
+  Busy: 1
+  Read Data: 0x00000000
+
+Memory Interface:
+  Memory Read Enable: 1
+  Memory Write Enable: 0
+  Memory Address: 0x00000120
+  Memory Read Data: 0x2211ffeeddccbbaa0706050403020100
+  Memory Ready: 0
+
+Cache Internals:
+Full address: 0x00000000000000000000000100100000
+  Set Index: 0
+  Tag: 0x000000000000000000000001001
+  Word Offset: 00
+  Byte Offset: 00
+  Set 0 Way 0:
+    Valid: 1
+    Dirty: 0
+    Tag: 0x00000000000000001000
+    Data: 0x0f0e0d0c0b0a09080706050403020100
+  Set 0 Way 1:
+    Valid: 1
+    Dirty: 1
+    Tag: 0x00000000000000010000
+    Data: 0x2211ffeeddccbbaa0001100003020100
+    LRU: 0
+  Set 1 Way 0:
+    Valid: 0
+    Dirty: 0
+    Tag: 0x00000000000000000000
+    Data: 0xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx
+  Set 1 Way 1:
+    Valid: 0
+    Dirty: 0
+    Tag: 0x00000000000000000000
+    Data: 0xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx
+    LRU: 0
+
+=== Clock Cycle: 46 ===
+State:
+  Reset: 0
+  Cache State:  MEM_READ
+
+Inputs:
+  Address: 0x00000120
+  Read Enable: 1
+  Write Enable: 0
+  Write Data: 0x00000000
+  Funct3: 010
+
+Cache Status:
+  Hit: 0
+  Busy: 1
+  Read Data: 0x00000000
+
+Memory Interface:
+  Memory Read Enable: 1
+  Memory Write Enable: 0
+  Memory Address: 0x00000120
+  Memory Read Data: 0x2211ffeeddccbbaa0706050403020100
+  Memory Ready: 0
+
+Cache Internals:
+Full address: 0x00000000000000000000000100100000
+  Set Index: 0
+  Tag: 0x000000000000000000000001001
+  Word Offset: 00
+  Byte Offset: 00
+  Set 0 Way 0:
+    Valid: 1
+    Dirty: 0
+    Tag: 0x00000000000000001000
+    Data: 0x0f0e0d0c0b0a09080706050403020100
+  Set 0 Way 1:
+    Valid: 1
+    Dirty: 1
+    Tag: 0x00000000000000010000
+    Data: 0x2211ffeeddccbbaa0001100003020100
+    LRU: 0
+  Set 1 Way 0:
+    Valid: 0
+    Dirty: 0
+    Tag: 0x00000000000000000000
+    Data: 0xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx
+  Set 1 Way 1:
+    Valid: 0
+    Dirty: 0
+    Tag: 0x00000000000000000000
+    Data: 0xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx
+    LRU: 0
+
+=== Clock Cycle: 47 ===
+State:
+  Reset: 0
+  Cache State:  MEM_READ
+
+Inputs:
+  Address: 0x00000120
+  Read Enable: 1
+  Write Enable: 0
+  Write Data: 0x00000000
+  Funct3: 010
+
+Cache Status:
+  Hit: 0
+  Busy: 1
+  Read Data: 0x00000000
+
+Memory Interface:
+  Memory Read Enable: 0
+  Memory Write Enable: 0
+  Memory Address: 0x00000120
+  Memory Read Data: 0x2f2e2d2c2b2a29282726252423222120
+  Memory Ready: 1
+
+Cache Internals:
+Full address: 0x00000000000000000000000100100000
+  Set Index: 0
+  Tag: 0x000000000000000000000001001
+  Word Offset: 00
+  Byte Offset: 00
+  Set 0 Way 0:
+    Valid: 1
+    Dirty: 0
+    Tag: 0x00000000000000001000
+    Data: 0x0f0e0d0c0b0a09080706050403020100
+  Set 0 Way 1:
+    Valid: 1
+    Dirty: 1
+    Tag: 0x00000000000000010000
+    Data: 0x2211ffeeddccbbaa0001100003020100
+    LRU: 0
+  Set 1 Way 0:
+    Valid: 0
+    Dirty: 0
+    Tag: 0x00000000000000000000
+    Data: 0xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx
+  Set 1 Way 1:
+    Valid: 0
+    Dirty: 0
+    Tag: 0x00000000000000000000
+    Data: 0xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx
+    LRU: 0
+
+=== Clock Cycle: 48 ===
+State:
+  Reset: 0
+  Cache State:      IDLE
+
+Inputs:
+  Address: 0x00000120
   Read Enable: 1
   Write Enable: 0
   Write Data: 0x00000000
@@ -1841,51 +2584,52 @@ Inputs:
 Cache Status:
   Hit: 1
   Busy: 0
-  Read Data: 0x13121110
+  Read Data: 0x23222120
 
 Memory Interface:
   Memory Read Enable: 0
   Memory Write Enable: 0
-  Memory Address: 0x00000210
-  Memory Read Data: 0x1f1e1d1c1b1a19181716151413121110
+  Memory Address: 0x00000120
+  Memory Read Data: 0x2f2e2d2c2b2a29282726252423222120
   Memory Ready: 0
 
 Cache Internals:
-Full address: 0x00000000000000000000001000010000
-  Set Index: 1
-  Tag: 0x000000000000000000000010000
+Full address: 0x00000000000000000000000100100000
+  Set Index: 0
+  Tag: 0x000000000000000000000001001
   Word Offset: 00
   Byte Offset: 00
+in_write_en: 0, out_hit: 1
   Set 0 Way 0:
-    Valid: 0
-    Dirty: 0
-    Tag: 0x00000000000000000000
-    Data: 0xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx
+    Valid: 1
+    Dirty: 1
+    Tag: 0x00000000000000001001
+    Data: 0x2f2e2d2c2b2a29282726252423222120
   Set 0 Way 1:
     Valid: 1
-    Dirty: 0
-    Tag: 0x00000000000000001000
-    Data: 0x0f0e0d0c0b0a09080706050403020100
-    LRU: 00
+    Dirty: 1
+    Tag: 0x00000000000000010000
+    Data: 0x2211ffeeddccbbaa0001100003020100
+    LRU: 1
   Set 1 Way 0:
     Valid: 0
     Dirty: 0
     Tag: 0x00000000000000000000
     Data: 0xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx
   Set 1 Way 1:
-    Valid: 1
+    Valid: 0
     Dirty: 0
-    Tag: 0x00000000000000010000
-    Data: 0x1f1e1d1c1b1a19181716151413121110
-    LRU: 00
+    Tag: 0x00000000000000000000
+    Data: 0xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx
+    LRU: 0
 
-=== Clock Cycle: 7 ===
+=== Clock Cycle: 49 ===
 State:
   Reset: 0
   Cache State:      IDLE
 
 Inputs:
-  Address: 0x00000210
+  Address: 0x00000204
   Read Enable: 1
   Write Enable: 0
   Write Data: 0x00000000
@@ -1894,51 +2638,52 @@ Inputs:
 Cache Status:
   Hit: 1
   Busy: 0
-  Read Data: 0x13121110
+  Read Data: 0x00011000
 
 Memory Interface:
   Memory Read Enable: 0
   Memory Write Enable: 0
-  Memory Address: 0x00000210
-  Memory Read Data: 0x1f1e1d1c1b1a19181716151413121110
+  Memory Address: 0x00000120
+  Memory Read Data: 0x2f2e2d2c2b2a29282726252423222120
   Memory Ready: 0
 
 Cache Internals:
-Full address: 0x00000000000000000000001000010000
-  Set Index: 1
+Full address: 0x00000000000000000000001000000100
+  Set Index: 0
   Tag: 0x000000000000000000000010000
-  Word Offset: 00
+  Word Offset: 01
   Byte Offset: 00
+in_write_en: 0, out_hit: 1
   Set 0 Way 0:
-    Valid: 0
-    Dirty: 0
-    Tag: 0x00000000000000000000
-    Data: 0xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx
+    Valid: 1
+    Dirty: 1
+    Tag: 0x00000000000000001001
+    Data: 0x2f2e2d2c2b2a29282726252423222120
   Set 0 Way 1:
     Valid: 1
-    Dirty: 0
-    Tag: 0x00000000000000001000
-    Data: 0x0f0e0d0c0b0a09080706050403020100
-    LRU: 00
+    Dirty: 1
+    Tag: 0x00000000000000010000
+    Data: 0x2211ffeeddccbbaa0001100003020100
+    LRU: 1
   Set 1 Way 0:
     Valid: 0
     Dirty: 0
     Tag: 0x00000000000000000000
     Data: 0xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx
   Set 1 Way 1:
-    Valid: 1
+    Valid: 0
     Dirty: 0
-    Tag: 0x00000000000000010000
-    Data: 0x1f1e1d1c1b1a19181716151413121110
-    LRU: 00
+    Tag: 0x00000000000000000000
+    Data: 0xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx
+    LRU: 0
 
-=== Clock Cycle: 7 ===
+=== Clock Cycle: 50 ===
 State:
   Reset: 0
   Cache State:      IDLE
 
 Inputs:
-  Address: 0x00000210
+  Address: 0x00000204
   Read Enable: 1
   Write Enable: 0
   Write Data: 0x00000000
@@ -1947,233 +2692,1804 @@ Inputs:
 Cache Status:
   Hit: 1
   Busy: 0
-  Read Data: 0x13121110
+  Read Data: 0x00011000
 
 Memory Interface:
   Memory Read Enable: 0
   Memory Write Enable: 0
-  Memory Address: 0x00000210
-  Memory Read Data: 0x1f1e1d1c1b1a19181716151413121110
+  Memory Address: 0x00000120
+  Memory Read Data: 0x2f2e2d2c2b2a29282726252423222120
   Memory Ready: 0
 
 Cache Internals:
-Full address: 0x00000000000000000000001000010000
-  Set Index: 1
+Full address: 0x00000000000000000000001000000100
+  Set Index: 0
   Tag: 0x000000000000000000000010000
-  Word Offset: 00
+  Word Offset: 01
   Byte Offset: 00
+in_write_en: 0, out_hit: 1
   Set 0 Way 0:
-    Valid: 0
-    Dirty: 0
-    Tag: 0x00000000000000000000
-    Data: 0xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx
+    Valid: 1
+    Dirty: 1
+    Tag: 0x00000000000000001001
+    Data: 0x2f2e2d2c2b2a29282726252423222120
   Set 0 Way 1:
     Valid: 1
-    Dirty: 0
-    Tag: 0x00000000000000001000
-    Data: 0x0f0e0d0c0b0a09080706050403020100
-    LRU: 00
+    Dirty: 1
+    Tag: 0x00000000000000010000
+    Data: 0x2211ffeeddccbbaa0001100003020100
+    LRU: 1
   Set 1 Way 0:
     Valid: 0
     Dirty: 0
     Tag: 0x00000000000000000000
     Data: 0xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx
   Set 1 Way 1:
-    Valid: 1
+    Valid: 0
     Dirty: 0
-    Tag: 0x00000000000000010000
-    Data: 0x1f1e1d1c1b1a19181716151413121110
-    LRU: 00
+    Tag: 0x00000000000000000000
+    Data: 0xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx
+    LRU: 0
 
-=== Clock Cycle: 7 ===
+=== Clock Cycle: 51 ===
 State:
   Reset: 0
   Cache State:      IDLE
 
 Inputs:
-  Address: 0x00000210
-  Read Enable: 0
+  Address: 0x00000204
+  Read Enable: 1
   Write Enable: 0
   Write Data: 0x00000000
   Funct3: 010
 
 Cache Status:
-  Hit: 0
+  Hit: 1
   Busy: 0
-  Read Data: 0x00000000
+  Read Data: 0x00011000
 
 Memory Interface:
   Memory Read Enable: 0
   Memory Write Enable: 0
-  Memory Address: 0x00000210
-  Memory Read Data: 0x1f1e1d1c1b1a19181716151413121110
+  Memory Address: 0x00000120
+  Memory Read Data: 0x2f2e2d2c2b2a29282726252423222120
   Memory Ready: 0
 
 Cache Internals:
-Full address: 0x00000000000000000000001000010000
-  Set Index: 1
+Full address: 0x00000000000000000000001000000100
+  Set Index: 0
   Tag: 0x000000000000000000000010000
-  Word Offset: 00
+  Word Offset: 01
   Byte Offset: 00
+in_write_en: 0, out_hit: 1
   Set 0 Way 0:
-    Valid: 0
-    Dirty: 0
-    Tag: 0x00000000000000000000
-    Data: 0xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx
+    Valid: 1
+    Dirty: 1
+    Tag: 0x00000000000000001001
+    Data: 0x2f2e2d2c2b2a29282726252423222120
   Set 0 Way 1:
     Valid: 1
-    Dirty: 0
-    Tag: 0x00000000000000001000
-    Data: 0x0f0e0d0c0b0a09080706050403020100
-    LRU: 00
+    Dirty: 1
+    Tag: 0x00000000000000010000
+    Data: 0x2211ffeeddccbbaa0001100003020100
+    LRU: 1
   Set 1 Way 0:
     Valid: 0
     Dirty: 0
     Tag: 0x00000000000000000000
     Data: 0xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx
   Set 1 Way 1:
-    Valid: 1
+    Valid: 0
     Dirty: 0
-    Tag: 0x00000000000000010000
-    Data: 0x1f1e1d1c1b1a19181716151413121110
-    LRU: 00
+    Tag: 0x00000000000000000000
+    Data: 0xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx
+    LRU: 0
 
-=== Clock Cycle: 7 ===
+=== Clock Cycle: 52 ===
 State:
   Reset: 0
   Cache State:      IDLE
 
 Inputs:
-  Address: 0x00000210
-  Read Enable: 0
+  Address: 0x00000204
+  Read Enable: 1
   Write Enable: 0
   Write Data: 0x00000000
   Funct3: 010
 
 Cache Status:
-  Hit: 0
+  Hit: 1
   Busy: 0
-  Read Data: 0x00000000
+  Read Data: 0x00011000
 
 Memory Interface:
   Memory Read Enable: 0
   Memory Write Enable: 0
-  Memory Address: 0x00000210
-  Memory Read Data: 0x1f1e1d1c1b1a19181716151413121110
+  Memory Address: 0x00000120
+  Memory Read Data: 0x2f2e2d2c2b2a29282726252423222120
   Memory Ready: 0
 
 Cache Internals:
-Full address: 0x00000000000000000000001000010000
-  Set Index: 1
+Full address: 0x00000000000000000000001000000100
+  Set Index: 0
   Tag: 0x000000000000000000000010000
-  Word Offset: 00
+  Word Offset: 01
   Byte Offset: 00
+in_write_en: 0, out_hit: 1
   Set 0 Way 0:
-    Valid: 0
-    Dirty: 0
-    Tag: 0x00000000000000000000
-    Data: 0xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx
+    Valid: 1
+    Dirty: 1
+    Tag: 0x00000000000000001001
+    Data: 0x2f2e2d2c2b2a29282726252423222120
   Set 0 Way 1:
     Valid: 1
-    Dirty: 0
-    Tag: 0x00000000000000001000
-    Data: 0x0f0e0d0c0b0a09080706050403020100
-    LRU: 00
+    Dirty: 1
+    Tag: 0x00000000000000010000
+    Data: 0x2211ffeeddccbbaa0001100003020100
+    LRU: 1
   Set 1 Way 0:
     Valid: 0
     Dirty: 0
     Tag: 0x00000000000000000000
     Data: 0xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx
   Set 1 Way 1:
-    Valid: 1
+    Valid: 0
     Dirty: 0
-    Tag: 0x00000000000000010000
-    Data: 0x1f1e1d1c1b1a19181716151413121110
-    LRU: 00
+    Tag: 0x00000000000000000000
+    Data: 0xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx
+    LRU: 0
 
-=== Clock Cycle: 7 ===
+=== Clock Cycle: 53 ===
 State:
   Reset: 0
   Cache State:      IDLE
 
 Inputs:
-  Address: 0x00000210
-  Read Enable: 0
+  Address: 0x00000204
+  Read Enable: 1
   Write Enable: 0
   Write Data: 0x00000000
   Funct3: 010
 
 Cache Status:
-  Hit: 0
+  Hit: 1
   Busy: 0
-  Read Data: 0x00000000
+  Read Data: 0x00011000
 
 Memory Interface:
   Memory Read Enable: 0
   Memory Write Enable: 0
-  Memory Address: 0x00000210
-  Memory Read Data: 0x1f1e1d1c1b1a19181716151413121110
+  Memory Address: 0x00000120
+  Memory Read Data: 0x2f2e2d2c2b2a29282726252423222120
   Memory Ready: 0
 
 Cache Internals:
-Full address: 0x00000000000000000000001000010000
-  Set Index: 1
+Full address: 0x00000000000000000000001000000100
+  Set Index: 0
   Tag: 0x000000000000000000000010000
-  Word Offset: 00
+  Word Offset: 01
   Byte Offset: 00
+in_write_en: 0, out_hit: 1
   Set 0 Way 0:
-    Valid: 0
-    Dirty: 0
-    Tag: 0x00000000000000000000
-    Data: 0xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx
+    Valid: 1
+    Dirty: 1
+    Tag: 0x00000000000000001001
+    Data: 0x2f2e2d2c2b2a29282726252423222120
   Set 0 Way 1:
     Valid: 1
-    Dirty: 0
-    Tag: 0x00000000000000001000
-    Data: 0x0f0e0d0c0b0a09080706050403020100
-    LRU: 00
+    Dirty: 1
+    Tag: 0x00000000000000010000
+    Data: 0x2211ffeeddccbbaa0001100003020100
+    LRU: 1
   Set 1 Way 0:
     Valid: 0
     Dirty: 0
     Tag: 0x00000000000000000000
     Data: 0xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx
   Set 1 Way 1:
-    Valid: 1
+    Valid: 0
     Dirty: 0
-    Tag: 0x00000000000000010000
-    Data: 0x1f1e1d1c1b1a19181716151413121110
-    LRU: 00
+    Tag: 0x00000000000000000000
+    Data: 0xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx
+    LRU: 0
 
-=== Clock Cycle: 8 ===
+=== Clock Cycle: 54 ===
 State:
   Reset: 0
   Cache State:      IDLE
 
 Inputs:
-  Address: 0x00000210
-  Read Enable: 0
+  Address: 0x00000204
+  Read Enable: 1
   Write Enable: 0
   Write Data: 0x00000000
   Funct3: 010
 
 Cache Status:
-  Hit: 0
+  Hit: 1
   Busy: 0
-  Read Data: 0x00000000
+  Read Data: 0x00011000
 
 Memory Interface:
   Memory Read Enable: 0
   Memory Write Enable: 0
-  Memory Address: 0x00000210
-  Memory Read Data: 0x1f1e1d1c1b1a19181716151413121110
+  Memory Address: 0x00000120
+  Memory Read Data: 0x2f2e2d2c2b2a29282726252423222120
   Memory Ready: 0
 
 Cache Internals:
-Full address: 0x00000000000000000000001000010000
-  Set Index: 1
+Full address: 0x00000000000000000000001000000100
+  Set Index: 0
   Tag: 0x000000000000000000000010000
-  Word Offset: 00
+  Word Offset: 01
   Byte Offset: 00
-tests/cache_testbench.sv:148: $finish called at 81 (1s)
+in_write_en: 0, out_hit: 1
+  Set 0 Way 0:
+    Valid: 1
+    Dirty: 1
+    Tag: 0x00000000000000001001
+    Data: 0x2f2e2d2c2b2a29282726252423222120
+  Set 0 Way 1:
+    Valid: 1
+    Dirty: 1
+    Tag: 0x00000000000000010000
+    Data: 0x2211ffeeddccbbaa0001100003020100
+    LRU: 1
+  Set 1 Way 0:
+    Valid: 0
+    Dirty: 0
+    Tag: 0x00000000000000000000
+    Data: 0xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx
+  Set 1 Way 1:
+    Valid: 0
+    Dirty: 0
+    Tag: 0x00000000000000000000
+    Data: 0xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx
+    LRU: 0
+
+=== Clock Cycle: 55 ===
+State:
+  Reset: 0
+  Cache State:      IDLE
+
+Inputs:
+  Address: 0x00000204
+  Read Enable: 1
+  Write Enable: 0
+  Write Data: 0x00000000
+  Funct3: 010
+
+Cache Status:
+  Hit: 1
+  Busy: 0
+  Read Data: 0x00011000
+
+Memory Interface:
+  Memory Read Enable: 0
+  Memory Write Enable: 0
+  Memory Address: 0x00000120
+  Memory Read Data: 0x2f2e2d2c2b2a29282726252423222120
+  Memory Ready: 0
+
+Cache Internals:
+Full address: 0x00000000000000000000001000000100
+  Set Index: 0
+  Tag: 0x000000000000000000000010000
+  Word Offset: 01
+  Byte Offset: 00
+in_write_en: 0, out_hit: 1
+  Set 0 Way 0:
+    Valid: 1
+    Dirty: 1
+    Tag: 0x00000000000000001001
+    Data: 0x2f2e2d2c2b2a29282726252423222120
+  Set 0 Way 1:
+    Valid: 1
+    Dirty: 1
+    Tag: 0x00000000000000010000
+    Data: 0x2211ffeeddccbbaa0001100003020100
+    LRU: 1
+  Set 1 Way 0:
+    Valid: 0
+    Dirty: 0
+    Tag: 0x00000000000000000000
+    Data: 0xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx
+  Set 1 Way 1:
+    Valid: 0
+    Dirty: 0
+    Tag: 0x00000000000000000000
+    Data: 0xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx
+    LRU: 0
+
+=== Clock Cycle: 56 ===
+State:
+  Reset: 0
+  Cache State:      IDLE
+
+Inputs:
+  Address: 0x00000204
+  Read Enable: 1
+  Write Enable: 0
+  Write Data: 0x00000000
+  Funct3: 010
+
+Cache Status:
+  Hit: 1
+  Busy: 0
+  Read Data: 0x00011000
+
+Memory Interface:
+  Memory Read Enable: 0
+  Memory Write Enable: 0
+  Memory Address: 0x00000120
+  Memory Read Data: 0x2f2e2d2c2b2a29282726252423222120
+  Memory Ready: 0
+
+Cache Internals:
+Full address: 0x00000000000000000000001000000100
+  Set Index: 0
+  Tag: 0x000000000000000000000010000
+  Word Offset: 01
+  Byte Offset: 00
+in_write_en: 0, out_hit: 1
+  Set 0 Way 0:
+    Valid: 1
+    Dirty: 1
+    Tag: 0x00000000000000001001
+    Data: 0x2f2e2d2c2b2a29282726252423222120
+  Set 0 Way 1:
+    Valid: 1
+    Dirty: 1
+    Tag: 0x00000000000000010000
+    Data: 0x2211ffeeddccbbaa0001100003020100
+    LRU: 1
+  Set 1 Way 0:
+    Valid: 0
+    Dirty: 0
+    Tag: 0x00000000000000000000
+    Data: 0xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx
+  Set 1 Way 1:
+    Valid: 0
+    Dirty: 0
+    Tag: 0x00000000000000000000
+    Data: 0xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx
+    LRU: 0
+
+=== Clock Cycle: 57 ===
+State:
+  Reset: 0
+  Cache State:      IDLE
+
+Inputs:
+  Address: 0x00000204
+  Read Enable: 1
+  Write Enable: 0
+  Write Data: 0x00000000
+  Funct3: 010
+
+Cache Status:
+  Hit: 1
+  Busy: 0
+  Read Data: 0x00011000
+
+Memory Interface:
+  Memory Read Enable: 0
+  Memory Write Enable: 0
+  Memory Address: 0x00000120
+  Memory Read Data: 0x2f2e2d2c2b2a29282726252423222120
+  Memory Ready: 0
+
+Cache Internals:
+Full address: 0x00000000000000000000001000000100
+  Set Index: 0
+  Tag: 0x000000000000000000000010000
+  Word Offset: 01
+  Byte Offset: 00
+in_write_en: 0, out_hit: 1
+  Set 0 Way 0:
+    Valid: 1
+    Dirty: 1
+    Tag: 0x00000000000000001001
+    Data: 0x2f2e2d2c2b2a29282726252423222120
+  Set 0 Way 1:
+    Valid: 1
+    Dirty: 1
+    Tag: 0x00000000000000010000
+    Data: 0x2211ffeeddccbbaa0001100003020100
+    LRU: 1
+  Set 1 Way 0:
+    Valid: 0
+    Dirty: 0
+    Tag: 0x00000000000000000000
+    Data: 0xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx
+  Set 1 Way 1:
+    Valid: 0
+    Dirty: 0
+    Tag: 0x00000000000000000000
+    Data: 0xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx
+    LRU: 0
+
+=== Clock Cycle: 58 ===
+State:
+  Reset: 0
+  Cache State:      IDLE
+
+Inputs:
+  Address: 0x00000204
+  Read Enable: 1
+  Write Enable: 0
+  Write Data: 0x00000000
+  Funct3: 010
+
+Cache Status:
+  Hit: 1
+  Busy: 0
+  Read Data: 0x00011000
+
+Memory Interface:
+  Memory Read Enable: 0
+  Memory Write Enable: 0
+  Memory Address: 0x00000120
+  Memory Read Data: 0x2f2e2d2c2b2a29282726252423222120
+  Memory Ready: 0
+
+Cache Internals:
+Full address: 0x00000000000000000000001000000100
+  Set Index: 0
+  Tag: 0x000000000000000000000010000
+  Word Offset: 01
+  Byte Offset: 00
+in_write_en: 0, out_hit: 1
+  Set 0 Way 0:
+    Valid: 1
+    Dirty: 1
+    Tag: 0x00000000000000001001
+    Data: 0x2f2e2d2c2b2a29282726252423222120
+  Set 0 Way 1:
+    Valid: 1
+    Dirty: 1
+    Tag: 0x00000000000000010000
+    Data: 0x2211ffeeddccbbaa0001100003020100
+    LRU: 1
+  Set 1 Way 0:
+    Valid: 0
+    Dirty: 0
+    Tag: 0x00000000000000000000
+    Data: 0xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx
+  Set 1 Way 1:
+    Valid: 0
+    Dirty: 0
+    Tag: 0x00000000000000000000
+    Data: 0xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx
+    LRU: 0
+
+=== Clock Cycle: 59 ===
+State:
+  Reset: 0
+  Cache State:      IDLE
+
+Inputs:
+  Address: 0x00000204
+  Read Enable: 1
+  Write Enable: 0
+  Write Data: 0x00000000
+  Funct3: 010
+
+Cache Status:
+  Hit: 1
+  Busy: 0
+  Read Data: 0x00011000
+
+Memory Interface:
+  Memory Read Enable: 0
+  Memory Write Enable: 0
+  Memory Address: 0x00000120
+  Memory Read Data: 0x2f2e2d2c2b2a29282726252423222120
+  Memory Ready: 0
+
+Cache Internals:
+Full address: 0x00000000000000000000001000000100
+  Set Index: 0
+  Tag: 0x000000000000000000000010000
+  Word Offset: 01
+  Byte Offset: 00
+in_write_en: 0, out_hit: 1
+  Set 0 Way 0:
+    Valid: 1
+    Dirty: 1
+    Tag: 0x00000000000000001001
+    Data: 0x2f2e2d2c2b2a29282726252423222120
+  Set 0 Way 1:
+    Valid: 1
+    Dirty: 1
+    Tag: 0x00000000000000010000
+    Data: 0x2211ffeeddccbbaa0001100003020100
+    LRU: 1
+  Set 1 Way 0:
+    Valid: 0
+    Dirty: 0
+    Tag: 0x00000000000000000000
+    Data: 0xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx
+  Set 1 Way 1:
+    Valid: 0
+    Dirty: 0
+    Tag: 0x00000000000000000000
+    Data: 0xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx
+    LRU: 0
+
+=== Clock Cycle: 60 ===
+State:
+  Reset: 0
+  Cache State:      IDLE
+
+Inputs:
+  Address: 0x00000204
+  Read Enable: 1
+  Write Enable: 0
+  Write Data: 0x00000000
+  Funct3: 010
+
+Cache Status:
+  Hit: 1
+  Busy: 0
+  Read Data: 0x00011000
+
+Memory Interface:
+  Memory Read Enable: 0
+  Memory Write Enable: 0
+  Memory Address: 0x00000120
+  Memory Read Data: 0x2f2e2d2c2b2a29282726252423222120
+  Memory Ready: 0
+
+Cache Internals:
+Full address: 0x00000000000000000000001000000100
+  Set Index: 0
+  Tag: 0x000000000000000000000010000
+  Word Offset: 01
+  Byte Offset: 00
+in_write_en: 0, out_hit: 1
+  Set 0 Way 0:
+    Valid: 1
+    Dirty: 1
+    Tag: 0x00000000000000001001
+    Data: 0x2f2e2d2c2b2a29282726252423222120
+  Set 0 Way 1:
+    Valid: 1
+    Dirty: 1
+    Tag: 0x00000000000000010000
+    Data: 0x2211ffeeddccbbaa0001100003020100
+    LRU: 1
+  Set 1 Way 0:
+    Valid: 0
+    Dirty: 0
+    Tag: 0x00000000000000000000
+    Data: 0xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx
+  Set 1 Way 1:
+    Valid: 0
+    Dirty: 0
+    Tag: 0x00000000000000000000
+    Data: 0xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx
+    LRU: 0
+
+=== Clock Cycle: 61 ===
+State:
+  Reset: 0
+  Cache State:      IDLE
+
+Inputs:
+  Address: 0x00000204
+  Read Enable: 1
+  Write Enable: 0
+  Write Data: 0x00000000
+  Funct3: 010
+
+Cache Status:
+  Hit: 1
+  Busy: 0
+  Read Data: 0x00011000
+
+Memory Interface:
+  Memory Read Enable: 0
+  Memory Write Enable: 0
+  Memory Address: 0x00000120
+  Memory Read Data: 0x2f2e2d2c2b2a29282726252423222120
+  Memory Ready: 0
+
+Cache Internals:
+Full address: 0x00000000000000000000001000000100
+  Set Index: 0
+  Tag: 0x000000000000000000000010000
+  Word Offset: 01
+  Byte Offset: 00
+in_write_en: 0, out_hit: 1
+  Set 0 Way 0:
+    Valid: 1
+    Dirty: 1
+    Tag: 0x00000000000000001001
+    Data: 0x2f2e2d2c2b2a29282726252423222120
+  Set 0 Way 1:
+    Valid: 1
+    Dirty: 1
+    Tag: 0x00000000000000010000
+    Data: 0x2211ffeeddccbbaa0001100003020100
+    LRU: 1
+  Set 1 Way 0:
+    Valid: 0
+    Dirty: 0
+    Tag: 0x00000000000000000000
+    Data: 0xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx
+  Set 1 Way 1:
+    Valid: 0
+    Dirty: 0
+    Tag: 0x00000000000000000000
+    Data: 0xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx
+    LRU: 0
+
+=== Clock Cycle: 62 ===
+State:
+  Reset: 0
+  Cache State:      IDLE
+
+Inputs:
+  Address: 0x00000204
+  Read Enable: 1
+  Write Enable: 0
+  Write Data: 0x00000000
+  Funct3: 010
+
+Cache Status:
+  Hit: 1
+  Busy: 0
+  Read Data: 0x00011000
+
+Memory Interface:
+  Memory Read Enable: 0
+  Memory Write Enable: 0
+  Memory Address: 0x00000120
+  Memory Read Data: 0x2f2e2d2c2b2a29282726252423222120
+  Memory Ready: 0
+
+Cache Internals:
+Full address: 0x00000000000000000000001000000100
+  Set Index: 0
+  Tag: 0x000000000000000000000010000
+  Word Offset: 01
+  Byte Offset: 00
+in_write_en: 0, out_hit: 1
+  Set 0 Way 0:
+    Valid: 1
+    Dirty: 1
+    Tag: 0x00000000000000001001
+    Data: 0x2f2e2d2c2b2a29282726252423222120
+  Set 0 Way 1:
+    Valid: 1
+    Dirty: 1
+    Tag: 0x00000000000000010000
+    Data: 0x2211ffeeddccbbaa0001100003020100
+    LRU: 1
+  Set 1 Way 0:
+    Valid: 0
+    Dirty: 0
+    Tag: 0x00000000000000000000
+    Data: 0xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx
+  Set 1 Way 1:
+    Valid: 0
+    Dirty: 0
+    Tag: 0x00000000000000000000
+    Data: 0xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx
+    LRU: 0
+
+=== Clock Cycle: 63 ===
+State:
+  Reset: 0
+  Cache State:      IDLE
+
+Inputs:
+  Address: 0x00000204
+  Read Enable: 1
+  Write Enable: 0
+  Write Data: 0x00000000
+  Funct3: 010
+
+Cache Status:
+  Hit: 1
+  Busy: 0
+  Read Data: 0x00011000
+
+Memory Interface:
+  Memory Read Enable: 0
+  Memory Write Enable: 0
+  Memory Address: 0x00000120
+  Memory Read Data: 0x2f2e2d2c2b2a29282726252423222120
+  Memory Ready: 0
+
+Cache Internals:
+Full address: 0x00000000000000000000001000000100
+  Set Index: 0
+  Tag: 0x000000000000000000000010000
+  Word Offset: 01
+  Byte Offset: 00
+in_write_en: 0, out_hit: 1
+  Set 0 Way 0:
+    Valid: 1
+    Dirty: 1
+    Tag: 0x00000000000000001001
+    Data: 0x2f2e2d2c2b2a29282726252423222120
+  Set 0 Way 1:
+    Valid: 1
+    Dirty: 1
+    Tag: 0x00000000000000010000
+    Data: 0x2211ffeeddccbbaa0001100003020100
+    LRU: 1
+  Set 1 Way 0:
+    Valid: 0
+    Dirty: 0
+    Tag: 0x00000000000000000000
+    Data: 0xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx
+  Set 1 Way 1:
+    Valid: 0
+    Dirty: 0
+    Tag: 0x00000000000000000000
+    Data: 0xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx
+    LRU: 0
+
+=== Clock Cycle: 64 ===
+State:
+  Reset: 0
+  Cache State:      IDLE
+
+Inputs:
+  Address: 0x00000204
+  Read Enable: 1
+  Write Enable: 0
+  Write Data: 0x00000000
+  Funct3: 010
+
+Cache Status:
+  Hit: 1
+  Busy: 0
+  Read Data: 0x00011000
+
+Memory Interface:
+  Memory Read Enable: 0
+  Memory Write Enable: 0
+  Memory Address: 0x00000120
+  Memory Read Data: 0x2f2e2d2c2b2a29282726252423222120
+  Memory Ready: 0
+
+Cache Internals:
+Full address: 0x00000000000000000000001000000100
+  Set Index: 0
+  Tag: 0x000000000000000000000010000
+  Word Offset: 01
+  Byte Offset: 00
+in_write_en: 0, out_hit: 1
+  Set 0 Way 0:
+    Valid: 1
+    Dirty: 1
+    Tag: 0x00000000000000001001
+    Data: 0x2f2e2d2c2b2a29282726252423222120
+  Set 0 Way 1:
+    Valid: 1
+    Dirty: 1
+    Tag: 0x00000000000000010000
+    Data: 0x2211ffeeddccbbaa0001100003020100
+    LRU: 1
+  Set 1 Way 0:
+    Valid: 0
+    Dirty: 0
+    Tag: 0x00000000000000000000
+    Data: 0xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx
+  Set 1 Way 1:
+    Valid: 0
+    Dirty: 0
+    Tag: 0x00000000000000000000
+    Data: 0xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx
+    LRU: 0
+
+=== Clock Cycle: 65 ===
+State:
+  Reset: 0
+  Cache State:      IDLE
+
+Inputs:
+  Address: 0x00000204
+  Read Enable: 1
+  Write Enable: 0
+  Write Data: 0x00000000
+  Funct3: 010
+
+Cache Status:
+  Hit: 1
+  Busy: 0
+  Read Data: 0x00011000
+
+Memory Interface:
+  Memory Read Enable: 0
+  Memory Write Enable: 0
+  Memory Address: 0x00000120
+  Memory Read Data: 0x2f2e2d2c2b2a29282726252423222120
+  Memory Ready: 0
+
+Cache Internals:
+Full address: 0x00000000000000000000001000000100
+  Set Index: 0
+  Tag: 0x000000000000000000000010000
+  Word Offset: 01
+  Byte Offset: 00
+in_write_en: 0, out_hit: 1
+  Set 0 Way 0:
+    Valid: 1
+    Dirty: 1
+    Tag: 0x00000000000000001001
+    Data: 0x2f2e2d2c2b2a29282726252423222120
+  Set 0 Way 1:
+    Valid: 1
+    Dirty: 1
+    Tag: 0x00000000000000010000
+    Data: 0x2211ffeeddccbbaa0001100003020100
+    LRU: 1
+  Set 1 Way 0:
+    Valid: 0
+    Dirty: 0
+    Tag: 0x00000000000000000000
+    Data: 0xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx
+  Set 1 Way 1:
+    Valid: 0
+    Dirty: 0
+    Tag: 0x00000000000000000000
+    Data: 0xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx
+    LRU: 0
+
+=== Clock Cycle: 66 ===
+State:
+  Reset: 0
+  Cache State:      IDLE
+
+Inputs:
+  Address: 0x00000204
+  Read Enable: 1
+  Write Enable: 0
+  Write Data: 0x00000000
+  Funct3: 010
+
+Cache Status:
+  Hit: 1
+  Busy: 0
+  Read Data: 0x00011000
+
+Memory Interface:
+  Memory Read Enable: 0
+  Memory Write Enable: 0
+  Memory Address: 0x00000120
+  Memory Read Data: 0x2f2e2d2c2b2a29282726252423222120
+  Memory Ready: 0
+
+Cache Internals:
+Full address: 0x00000000000000000000001000000100
+  Set Index: 0
+  Tag: 0x000000000000000000000010000
+  Word Offset: 01
+  Byte Offset: 00
+in_write_en: 0, out_hit: 1
+  Set 0 Way 0:
+    Valid: 1
+    Dirty: 1
+    Tag: 0x00000000000000001001
+    Data: 0x2f2e2d2c2b2a29282726252423222120
+  Set 0 Way 1:
+    Valid: 1
+    Dirty: 1
+    Tag: 0x00000000000000010000
+    Data: 0x2211ffeeddccbbaa0001100003020100
+    LRU: 1
+  Set 1 Way 0:
+    Valid: 0
+    Dirty: 0
+    Tag: 0x00000000000000000000
+    Data: 0xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx
+  Set 1 Way 1:
+    Valid: 0
+    Dirty: 0
+    Tag: 0x00000000000000000000
+    Data: 0xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx
+    LRU: 0
+
+=== Clock Cycle: 67 ===
+State:
+  Reset: 0
+  Cache State:      IDLE
+
+Inputs:
+  Address: 0x00000204
+  Read Enable: 1
+  Write Enable: 0
+  Write Data: 0x00000000
+  Funct3: 010
+
+Cache Status:
+  Hit: 1
+  Busy: 0
+  Read Data: 0x00011000
+
+Memory Interface:
+  Memory Read Enable: 0
+  Memory Write Enable: 0
+  Memory Address: 0x00000120
+  Memory Read Data: 0x2f2e2d2c2b2a29282726252423222120
+  Memory Ready: 0
+
+Cache Internals:
+Full address: 0x00000000000000000000001000000100
+  Set Index: 0
+  Tag: 0x000000000000000000000010000
+  Word Offset: 01
+  Byte Offset: 00
+in_write_en: 0, out_hit: 1
+  Set 0 Way 0:
+    Valid: 1
+    Dirty: 1
+    Tag: 0x00000000000000001001
+    Data: 0x2f2e2d2c2b2a29282726252423222120
+  Set 0 Way 1:
+    Valid: 1
+    Dirty: 1
+    Tag: 0x00000000000000010000
+    Data: 0x2211ffeeddccbbaa0001100003020100
+    LRU: 1
+  Set 1 Way 0:
+    Valid: 0
+    Dirty: 0
+    Tag: 0x00000000000000000000
+    Data: 0xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx
+  Set 1 Way 1:
+    Valid: 0
+    Dirty: 0
+    Tag: 0x00000000000000000000
+    Data: 0xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx
+    LRU: 0
+
+=== Clock Cycle: 68 ===
+State:
+  Reset: 0
+  Cache State:      IDLE
+
+Inputs:
+  Address: 0x00000204
+  Read Enable: 1
+  Write Enable: 0
+  Write Data: 0x00000000
+  Funct3: 010
+
+Cache Status:
+  Hit: 1
+  Busy: 0
+  Read Data: 0x00011000
+
+Memory Interface:
+  Memory Read Enable: 0
+  Memory Write Enable: 0
+  Memory Address: 0x00000120
+  Memory Read Data: 0x2f2e2d2c2b2a29282726252423222120
+  Memory Ready: 0
+
+Cache Internals:
+Full address: 0x00000000000000000000001000000100
+  Set Index: 0
+  Tag: 0x000000000000000000000010000
+  Word Offset: 01
+  Byte Offset: 00
+in_write_en: 0, out_hit: 1
+  Set 0 Way 0:
+    Valid: 1
+    Dirty: 1
+    Tag: 0x00000000000000001001
+    Data: 0x2f2e2d2c2b2a29282726252423222120
+  Set 0 Way 1:
+    Valid: 1
+    Dirty: 1
+    Tag: 0x00000000000000010000
+    Data: 0x2211ffeeddccbbaa0001100003020100
+    LRU: 1
+  Set 1 Way 0:
+    Valid: 0
+    Dirty: 0
+    Tag: 0x00000000000000000000
+    Data: 0xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx
+  Set 1 Way 1:
+    Valid: 0
+    Dirty: 0
+    Tag: 0x00000000000000000000
+    Data: 0xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx
+    LRU: 0
+
+=== Clock Cycle: 69 ===
+State:
+  Reset: 0
+  Cache State:      IDLE
+
+Inputs:
+  Address: 0x00000204
+  Read Enable: 1
+  Write Enable: 0
+  Write Data: 0x00000000
+  Funct3: 010
+
+Cache Status:
+  Hit: 1
+  Busy: 0
+  Read Data: 0x00011000
+
+Memory Interface:
+  Memory Read Enable: 0
+  Memory Write Enable: 0
+  Memory Address: 0x00000120
+  Memory Read Data: 0x2f2e2d2c2b2a29282726252423222120
+  Memory Ready: 0
+
+Cache Internals:
+Full address: 0x00000000000000000000001000000100
+  Set Index: 0
+  Tag: 0x000000000000000000000010000
+  Word Offset: 01
+  Byte Offset: 00
+in_write_en: 0, out_hit: 1
+  Set 0 Way 0:
+    Valid: 1
+    Dirty: 1
+    Tag: 0x00000000000000001001
+    Data: 0x2f2e2d2c2b2a29282726252423222120
+  Set 0 Way 1:
+    Valid: 1
+    Dirty: 1
+    Tag: 0x00000000000000010000
+    Data: 0x2211ffeeddccbbaa0001100003020100
+    LRU: 1
+  Set 1 Way 0:
+    Valid: 0
+    Dirty: 0
+    Tag: 0x00000000000000000000
+    Data: 0xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx
+  Set 1 Way 1:
+    Valid: 0
+    Dirty: 0
+    Tag: 0x00000000000000000000
+    Data: 0xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx
+    LRU: 0
+
+=== Clock Cycle: 70 ===
+State:
+  Reset: 0
+  Cache State:      IDLE
+
+Inputs:
+  Address: 0x00000204
+  Read Enable: 1
+  Write Enable: 0
+  Write Data: 0x00000000
+  Funct3: 010
+
+Cache Status:
+  Hit: 1
+  Busy: 0
+  Read Data: 0x00011000
+
+Memory Interface:
+  Memory Read Enable: 0
+  Memory Write Enable: 0
+  Memory Address: 0x00000120
+  Memory Read Data: 0x2f2e2d2c2b2a29282726252423222120
+  Memory Ready: 0
+
+Cache Internals:
+Full address: 0x00000000000000000000001000000100
+  Set Index: 0
+  Tag: 0x000000000000000000000010000
+  Word Offset: 01
+  Byte Offset: 00
+in_write_en: 0, out_hit: 1
+  Set 0 Way 0:
+    Valid: 1
+    Dirty: 1
+    Tag: 0x00000000000000001001
+    Data: 0x2f2e2d2c2b2a29282726252423222120
+  Set 0 Way 1:
+    Valid: 1
+    Dirty: 1
+    Tag: 0x00000000000000010000
+    Data: 0x2211ffeeddccbbaa0001100003020100
+    LRU: 1
+  Set 1 Way 0:
+    Valid: 0
+    Dirty: 0
+    Tag: 0x00000000000000000000
+    Data: 0xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx
+  Set 1 Way 1:
+    Valid: 0
+    Dirty: 0
+    Tag: 0x00000000000000000000
+    Data: 0xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx
+    LRU: 0
+
+=== Clock Cycle: 71 ===
+State:
+  Reset: 0
+  Cache State:      IDLE
+
+Inputs:
+  Address: 0x00000204
+  Read Enable: 1
+  Write Enable: 0
+  Write Data: 0x00000000
+  Funct3: 010
+
+Cache Status:
+  Hit: 1
+  Busy: 0
+  Read Data: 0x00011000
+
+Memory Interface:
+  Memory Read Enable: 0
+  Memory Write Enable: 0
+  Memory Address: 0x00000120
+  Memory Read Data: 0x2f2e2d2c2b2a29282726252423222120
+  Memory Ready: 0
+
+Cache Internals:
+Full address: 0x00000000000000000000001000000100
+  Set Index: 0
+  Tag: 0x000000000000000000000010000
+  Word Offset: 01
+  Byte Offset: 00
+in_write_en: 0, out_hit: 1
+  Set 0 Way 0:
+    Valid: 1
+    Dirty: 1
+    Tag: 0x00000000000000001001
+    Data: 0x2f2e2d2c2b2a29282726252423222120
+  Set 0 Way 1:
+    Valid: 1
+    Dirty: 1
+    Tag: 0x00000000000000010000
+    Data: 0x2211ffeeddccbbaa0001100003020100
+    LRU: 1
+  Set 1 Way 0:
+    Valid: 0
+    Dirty: 0
+    Tag: 0x00000000000000000000
+    Data: 0xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx
+  Set 1 Way 1:
+    Valid: 0
+    Dirty: 0
+    Tag: 0x00000000000000000000
+    Data: 0xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx
+    LRU: 0
+
+=== Clock Cycle: 72 ===
+State:
+  Reset: 0
+  Cache State:      IDLE
+
+Inputs:
+  Address: 0x00000204
+  Read Enable: 1
+  Write Enable: 0
+  Write Data: 0x00000000
+  Funct3: 010
+
+Cache Status:
+  Hit: 1
+  Busy: 0
+  Read Data: 0x00011000
+
+Memory Interface:
+  Memory Read Enable: 0
+  Memory Write Enable: 0
+  Memory Address: 0x00000120
+  Memory Read Data: 0x2f2e2d2c2b2a29282726252423222120
+  Memory Ready: 0
+
+Cache Internals:
+Full address: 0x00000000000000000000001000000100
+  Set Index: 0
+  Tag: 0x000000000000000000000010000
+  Word Offset: 01
+  Byte Offset: 00
+in_write_en: 0, out_hit: 1
+  Set 0 Way 0:
+    Valid: 1
+    Dirty: 1
+    Tag: 0x00000000000000001001
+    Data: 0x2f2e2d2c2b2a29282726252423222120
+  Set 0 Way 1:
+    Valid: 1
+    Dirty: 1
+    Tag: 0x00000000000000010000
+    Data: 0x2211ffeeddccbbaa0001100003020100
+    LRU: 1
+  Set 1 Way 0:
+    Valid: 0
+    Dirty: 0
+    Tag: 0x00000000000000000000
+    Data: 0xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx
+  Set 1 Way 1:
+    Valid: 0
+    Dirty: 0
+    Tag: 0x00000000000000000000
+    Data: 0xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx
+    LRU: 0
+
+=== Clock Cycle: 73 ===
+State:
+  Reset: 0
+  Cache State:      IDLE
+
+Inputs:
+  Address: 0x00000204
+  Read Enable: 1
+  Write Enable: 0
+  Write Data: 0x00000000
+  Funct3: 010
+
+Cache Status:
+  Hit: 1
+  Busy: 0
+  Read Data: 0x00011000
+
+Memory Interface:
+  Memory Read Enable: 0
+  Memory Write Enable: 0
+  Memory Address: 0x00000120
+  Memory Read Data: 0x2f2e2d2c2b2a29282726252423222120
+  Memory Ready: 0
+
+Cache Internals:
+Full address: 0x00000000000000000000001000000100
+  Set Index: 0
+  Tag: 0x000000000000000000000010000
+  Word Offset: 01
+  Byte Offset: 00
+in_write_en: 0, out_hit: 1
+  Set 0 Way 0:
+    Valid: 1
+    Dirty: 1
+    Tag: 0x00000000000000001001
+    Data: 0x2f2e2d2c2b2a29282726252423222120
+  Set 0 Way 1:
+    Valid: 1
+    Dirty: 1
+    Tag: 0x00000000000000010000
+    Data: 0x2211ffeeddccbbaa0001100003020100
+    LRU: 1
+  Set 1 Way 0:
+    Valid: 0
+    Dirty: 0
+    Tag: 0x00000000000000000000
+    Data: 0xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx
+  Set 1 Way 1:
+    Valid: 0
+    Dirty: 0
+    Tag: 0x00000000000000000000
+    Data: 0xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx
+    LRU: 0
+
+=== Clock Cycle: 74 ===
+State:
+  Reset: 0
+  Cache State:      IDLE
+
+Inputs:
+  Address: 0x00000204
+  Read Enable: 1
+  Write Enable: 0
+  Write Data: 0x00000000
+  Funct3: 010
+
+Cache Status:
+  Hit: 1
+  Busy: 0
+  Read Data: 0x00011000
+
+Memory Interface:
+  Memory Read Enable: 0
+  Memory Write Enable: 0
+  Memory Address: 0x00000120
+  Memory Read Data: 0x2f2e2d2c2b2a29282726252423222120
+  Memory Ready: 0
+
+Cache Internals:
+Full address: 0x00000000000000000000001000000100
+  Set Index: 0
+  Tag: 0x000000000000000000000010000
+  Word Offset: 01
+  Byte Offset: 00
+in_write_en: 0, out_hit: 1
+  Set 0 Way 0:
+    Valid: 1
+    Dirty: 1
+    Tag: 0x00000000000000001001
+    Data: 0x2f2e2d2c2b2a29282726252423222120
+  Set 0 Way 1:
+    Valid: 1
+    Dirty: 1
+    Tag: 0x00000000000000010000
+    Data: 0x2211ffeeddccbbaa0001100003020100
+    LRU: 1
+  Set 1 Way 0:
+    Valid: 0
+    Dirty: 0
+    Tag: 0x00000000000000000000
+    Data: 0xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx
+  Set 1 Way 1:
+    Valid: 0
+    Dirty: 0
+    Tag: 0x00000000000000000000
+    Data: 0xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx
+    LRU: 0
+
+=== Clock Cycle: 75 ===
+State:
+  Reset: 0
+  Cache State:      IDLE
+
+Inputs:
+  Address: 0x00000204
+  Read Enable: 1
+  Write Enable: 0
+  Write Data: 0x00000000
+  Funct3: 010
+
+Cache Status:
+  Hit: 1
+  Busy: 0
+  Read Data: 0x00011000
+
+Memory Interface:
+  Memory Read Enable: 0
+  Memory Write Enable: 0
+  Memory Address: 0x00000120
+  Memory Read Data: 0x2f2e2d2c2b2a29282726252423222120
+  Memory Ready: 0
+
+Cache Internals:
+Full address: 0x00000000000000000000001000000100
+  Set Index: 0
+  Tag: 0x000000000000000000000010000
+  Word Offset: 01
+  Byte Offset: 00
+in_write_en: 0, out_hit: 1
+  Set 0 Way 0:
+    Valid: 1
+    Dirty: 1
+    Tag: 0x00000000000000001001
+    Data: 0x2f2e2d2c2b2a29282726252423222120
+  Set 0 Way 1:
+    Valid: 1
+    Dirty: 1
+    Tag: 0x00000000000000010000
+    Data: 0x2211ffeeddccbbaa0001100003020100
+    LRU: 1
+  Set 1 Way 0:
+    Valid: 0
+    Dirty: 0
+    Tag: 0x00000000000000000000
+    Data: 0xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx
+  Set 1 Way 1:
+    Valid: 0
+    Dirty: 0
+    Tag: 0x00000000000000000000
+    Data: 0xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx
+    LRU: 0
+
+=== Clock Cycle: 76 ===
+State:
+  Reset: 0
+  Cache State:      IDLE
+
+Inputs:
+  Address: 0x00000204
+  Read Enable: 1
+  Write Enable: 0
+  Write Data: 0x00000000
+  Funct3: 010
+
+Cache Status:
+  Hit: 1
+  Busy: 0
+  Read Data: 0x00011000
+
+Memory Interface:
+  Memory Read Enable: 0
+  Memory Write Enable: 0
+  Memory Address: 0x00000120
+  Memory Read Data: 0x2f2e2d2c2b2a29282726252423222120
+  Memory Ready: 0
+
+Cache Internals:
+Full address: 0x00000000000000000000001000000100
+  Set Index: 0
+  Tag: 0x000000000000000000000010000
+  Word Offset: 01
+  Byte Offset: 00
+in_write_en: 0, out_hit: 1
+  Set 0 Way 0:
+    Valid: 1
+    Dirty: 1
+    Tag: 0x00000000000000001001
+    Data: 0x2f2e2d2c2b2a29282726252423222120
+  Set 0 Way 1:
+    Valid: 1
+    Dirty: 1
+    Tag: 0x00000000000000010000
+    Data: 0x2211ffeeddccbbaa0001100003020100
+    LRU: 1
+  Set 1 Way 0:
+    Valid: 0
+    Dirty: 0
+    Tag: 0x00000000000000000000
+    Data: 0xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx
+  Set 1 Way 1:
+    Valid: 0
+    Dirty: 0
+    Tag: 0x00000000000000000000
+    Data: 0xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx
+    LRU: 0
+
+=== Clock Cycle: 77 ===
+State:
+  Reset: 0
+  Cache State:      IDLE
+
+Inputs:
+  Address: 0x00000204
+  Read Enable: 1
+  Write Enable: 0
+  Write Data: 0x00000000
+  Funct3: 010
+
+Cache Status:
+  Hit: 1
+  Busy: 0
+  Read Data: 0x00011000
+
+Memory Interface:
+  Memory Read Enable: 0
+  Memory Write Enable: 0
+  Memory Address: 0x00000120
+  Memory Read Data: 0x2f2e2d2c2b2a29282726252423222120
+  Memory Ready: 0
+
+Cache Internals:
+Full address: 0x00000000000000000000001000000100
+  Set Index: 0
+  Tag: 0x000000000000000000000010000
+  Word Offset: 01
+  Byte Offset: 00
+in_write_en: 0, out_hit: 1
+  Set 0 Way 0:
+    Valid: 1
+    Dirty: 1
+    Tag: 0x00000000000000001001
+    Data: 0x2f2e2d2c2b2a29282726252423222120
+  Set 0 Way 1:
+    Valid: 1
+    Dirty: 1
+    Tag: 0x00000000000000010000
+    Data: 0x2211ffeeddccbbaa0001100003020100
+    LRU: 1
+  Set 1 Way 0:
+    Valid: 0
+    Dirty: 0
+    Tag: 0x00000000000000000000
+    Data: 0xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx
+  Set 1 Way 1:
+    Valid: 0
+    Dirty: 0
+    Tag: 0x00000000000000000000
+    Data: 0xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx
+    LRU: 0
+
+=== Clock Cycle: 78 ===
+State:
+  Reset: 0
+  Cache State:      IDLE
+
+Inputs:
+  Address: 0x00000204
+  Read Enable: 1
+  Write Enable: 0
+  Write Data: 0x00000000
+  Funct3: 010
+
+Cache Status:
+  Hit: 1
+  Busy: 0
+  Read Data: 0x00011000
+
+Memory Interface:
+  Memory Read Enable: 0
+  Memory Write Enable: 0
+  Memory Address: 0x00000120
+  Memory Read Data: 0x2f2e2d2c2b2a29282726252423222120
+  Memory Ready: 0
+
+Cache Internals:
+Full address: 0x00000000000000000000001000000100
+  Set Index: 0
+  Tag: 0x000000000000000000000010000
+  Word Offset: 01
+  Byte Offset: 00
+in_write_en: 0, out_hit: 1
+  Set 0 Way 0:
+    Valid: 1
+    Dirty: 1
+    Tag: 0x00000000000000001001
+    Data: 0x2f2e2d2c2b2a29282726252423222120
+  Set 0 Way 1:
+    Valid: 1
+    Dirty: 1
+    Tag: 0x00000000000000010000
+    Data: 0x2211ffeeddccbbaa0001100003020100
+    LRU: 1
+  Set 1 Way 0:
+    Valid: 0
+    Dirty: 0
+    Tag: 0x00000000000000000000
+    Data: 0xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx
+  Set 1 Way 1:
+    Valid: 0
+    Dirty: 0
+    Tag: 0x00000000000000000000
+    Data: 0xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx
+    LRU: 0
+
+=== Clock Cycle: 79 ===
+State:
+  Reset: 0
+  Cache State:      IDLE
+
+Inputs:
+  Address: 0x00000204
+  Read Enable: 1
+  Write Enable: 0
+  Write Data: 0x00000000
+  Funct3: 010
+
+Cache Status:
+  Hit: 1
+  Busy: 0
+  Read Data: 0x00011000
+
+Memory Interface:
+  Memory Read Enable: 0
+  Memory Write Enable: 0
+  Memory Address: 0x00000120
+  Memory Read Data: 0x2f2e2d2c2b2a29282726252423222120
+  Memory Ready: 0
+
+Cache Internals:
+Full address: 0x00000000000000000000001000000100
+  Set Index: 0
+  Tag: 0x000000000000000000000010000
+  Word Offset: 01
+  Byte Offset: 00
+in_write_en: 0, out_hit: 1
+  Set 0 Way 0:
+    Valid: 1
+    Dirty: 1
+    Tag: 0x00000000000000001001
+    Data: 0x2f2e2d2c2b2a29282726252423222120
+  Set 0 Way 1:
+    Valid: 1
+    Dirty: 1
+    Tag: 0x00000000000000010000
+    Data: 0x2211ffeeddccbbaa0001100003020100
+    LRU: 1
+  Set 1 Way 0:
+    Valid: 0
+    Dirty: 0
+    Tag: 0x00000000000000000000
+    Data: 0xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx
+  Set 1 Way 1:
+    Valid: 0
+    Dirty: 0
+    Tag: 0x00000000000000000000
+    Data: 0xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx
+    LRU: 0
+
+=== Clock Cycle: 80 ===
+State:
+  Reset: 0
+  Cache State:      IDLE
+
+Inputs:
+  Address: 0x00000204
+  Read Enable: 1
+  Write Enable: 0
+  Write Data: 0x00000000
+  Funct3: 010
+
+Cache Status:
+  Hit: 1
+  Busy: 0
+  Read Data: 0x00011000
+
+Memory Interface:
+  Memory Read Enable: 0
+  Memory Write Enable: 0
+  Memory Address: 0x00000120
+  Memory Read Data: 0x2f2e2d2c2b2a29282726252423222120
+  Memory Ready: 0
+
+Cache Internals:
+Full address: 0x00000000000000000000001000000100
+  Set Index: 0
+  Tag: 0x000000000000000000000010000
+  Word Offset: 01
+  Byte Offset: 00
+in_write_en: 0, out_hit: 1
+  Set 0 Way 0:
+    Valid: 1
+    Dirty: 1
+    Tag: 0x00000000000000001001
+    Data: 0x2f2e2d2c2b2a29282726252423222120
+  Set 0 Way 1:
+    Valid: 1
+    Dirty: 1
+    Tag: 0x00000000000000010000
+    Data: 0x2211ffeeddccbbaa0001100003020100
+    LRU: 1
+  Set 1 Way 0:
+    Valid: 0
+    Dirty: 0
+    Tag: 0x00000000000000000000
+    Data: 0xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx
+  Set 1 Way 1:
+    Valid: 0
+    Dirty: 0
+    Tag: 0x00000000000000000000
+    Data: 0xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx
+    LRU: 0
+
+=== Clock Cycle: 81 ===
+State:
+  Reset: 0
+  Cache State:      IDLE
+
+Inputs:
+  Address: 0x00000204
+  Read Enable: 1
+  Write Enable: 0
+  Write Data: 0x00000000
+  Funct3: 010
+
+Cache Status:
+  Hit: 1
+  Busy: 0
+  Read Data: 0x00011000
+
+Memory Interface:
+  Memory Read Enable: 0
+  Memory Write Enable: 0
+  Memory Address: 0x00000120
+  Memory Read Data: 0x2f2e2d2c2b2a29282726252423222120
+  Memory Ready: 0
+
+Cache Internals:
+Full address: 0x00000000000000000000001000000100
+  Set Index: 0
+  Tag: 0x000000000000000000000010000
+  Word Offset: 01
+  Byte Offset: 00
+in_write_en: 0, out_hit: 1
+  Set 0 Way 0:
+    Valid: 1
+    Dirty: 1
+    Tag: 0x00000000000000001001
+    Data: 0x2f2e2d2c2b2a29282726252423222120
+  Set 0 Way 1:
+    Valid: 1
+    Dirty: 1
+    Tag: 0x00000000000000010000
+    Data: 0x2211ffeeddccbbaa0001100003020100
+    LRU: 1
+  Set 1 Way 0:
+    Valid: 0
+    Dirty: 0
+    Tag: 0x00000000000000000000
+    Data: 0xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx
+  Set 1 Way 1:
+    Valid: 0
+    Dirty: 0
+    Tag: 0x00000000000000000000
+    Data: 0xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx
+    LRU: 0
+
+=== Clock Cycle: 82 ===
+State:
+  Reset: 0
+  Cache State:      IDLE
+
+Inputs:
+  Address: 0x00000204
+  Read Enable: 1
+  Write Enable: 0
+  Write Data: 0x00000000
+  Funct3: 010
+
+Cache Status:
+  Hit: 1
+  Busy: 0
+  Read Data: 0x00011000
+
+Memory Interface:
+  Memory Read Enable: 0
+  Memory Write Enable: 0
+  Memory Address: 0x00000120
+  Memory Read Data: 0x2f2e2d2c2b2a29282726252423222120
+  Memory Ready: 0
+
+Cache Internals:
+Full address: 0x00000000000000000000001000000100
+  Set Index: 0
+  Tag: 0x000000000000000000000010000
+  Word Offset: 01
+  Byte Offset: 00
+in_write_en: 0, out_hit: 1
+  Set 0 Way 0:
+    Valid: 1
+    Dirty: 1
+    Tag: 0x00000000000000001001
+    Data: 0x2f2e2d2c2b2a29282726252423222120
+  Set 0 Way 1:
+    Valid: 1
+    Dirty: 1
+    Tag: 0x00000000000000010000
+    Data: 0x2211ffeeddccbbaa0001100003020100
+    LRU: 1
+  Set 1 Way 0:
+    Valid: 0
+    Dirty: 0
+    Tag: 0x00000000000000000000
+    Data: 0xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx
+  Set 1 Way 1:
+    Valid: 0
+    Dirty: 0
+    Tag: 0x00000000000000000000
+    Data: 0xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx
+    LRU: 0
+
+=== Clock Cycle: 83 ===
+State:
+  Reset: 0
+  Cache State:      IDLE
+
+Inputs:
+  Address: 0x00000204
+  Read Enable: 1
+  Write Enable: 0
+  Write Data: 0x00000000
+  Funct3: 010
+
+Cache Status:
+  Hit: 1
+  Busy: 0
+  Read Data: 0x00011000
+
+Memory Interface:
+  Memory Read Enable: 0
+  Memory Write Enable: 0
+  Memory Address: 0x00000120
+  Memory Read Data: 0x2f2e2d2c2b2a29282726252423222120
+  Memory Ready: 0
+
+Cache Internals:
+Full address: 0x00000000000000000000001000000100
+  Set Index: 0
+  Tag: 0x000000000000000000000010000
+  Word Offset: 01
+  Byte Offset: 00
+in_write_en: 0, out_hit: 1
+tests/cache_testbench.sv:204: $finish called at 167 (1s)
   Set 0 Way 0:
 Test complete. Wave file is in build/cache_testbench.vcd

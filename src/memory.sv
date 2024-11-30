@@ -32,6 +32,7 @@ module memory_module (
         for (integer i = 0; i < MEM_SIZE*16; i++) begin
             memory[i] = i & 8'hFF;  // Each byte is its own index (modulo 256)
         end
+
         initialized = 1;
     end
 

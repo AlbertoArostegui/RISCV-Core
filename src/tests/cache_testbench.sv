@@ -48,6 +48,7 @@ module cache_tb();
         .out_mem_ready(in_mem_ready)
     );
 
+    reg [31:0] clk_count = 0;
     // Clock generation
     initial begin
         clk = 0;
@@ -75,6 +76,24 @@ module cache_tb();
         for (int i = 0; i < 1024*16; i++) begin  // Note: multiplied by 16 for byte addressing
             mem.memory[i] = i & 8'hFF;
         end
+
+        mem.memory['h208] = 8'hAA;
+        mem.memory['h209] = 8'hBB;
+        mem.memory['h20A] = 8'hCC;
+        mem.memory['h20B] = 8'hDD;
+        mem.memory['h20C] = 8'hEE;
+        mem.memory['h20D] = 8'hFF;
+        mem.memory['h20E] = 8'h11;
+        mem.memory['h20F] = 8'h22;
+        mem.memory['h210] = 8'h33;
+        mem.memory['h211] = 8'h44;
+        mem.memory['h212] = 8'h55;
+        mem.memory['h213] = 8'h66;
+        mem.memory['h214] = 8'h77;
+        mem.memory['h215] = 8'h88;
+        mem.memory['h216] = 8'h99;
+        mem.memory['h217] = 8'h00;
+        
 
         // Verify memory initialization
         $display("\n=== Initial Memory Contents ===");
@@ -107,7 +126,7 @@ module cache_tb();
         repeat(4) @(posedge clk);
         reset = 0;
         @(posedge clk);
-        
+        /*
         // Test 1: Read from 0x00000100 (Set 0)
         $display("\n=== Test 1: Read from 0x00000100 ===");
         @(posedge clk);
@@ -129,9 +148,9 @@ module cache_tb();
         @(posedge clk);  // Data should be available next cycle
         if (!out_hit) $display("ERROR: Should be a cache hit!");
 
-        // Test 3: Read from 0x00000200 (Set 1)
-        $display("\n=== Test 3: Read from 0x00000210 ===");
-        in_addr = 32'h00000210;
+        // Test 3: Read from 0x00000208 (Set 0)
+        $display("\n=== Test 3: Read from 0x00000208 ===");
+        in_addr = 32'h00000208;
         in_read_en = 1;  // Set read_en again
         
         // Wait for third operation to complete
@@ -141,16 +160,54 @@ module cache_tb();
         @(posedge clk);
         @(posedge clk);
         in_read_en = 0;  // Clear read_en
+        */
+        // Test 1: Read from 0x00000100 (Set 0)
+        @(posedge clk);
+        in_addr <= 32'h00000100;
+        in_read_en <= 1;
+        in_funct3 <= 3'b010;  // LW
+        
+        do begin
+            @(posedge clk);
+        end while (out_busy);
+        
+        // Test 2: Write to 0x00000204 (Set 0)
+        in_read_en <= 0;
+        in_write_data <= 32'h00011000;
+        in_write_en <= 1;
+        in_addr <= 32'h00000204;
+        in_funct3 <= 3'b010;
+        
+        do begin
+            @(posedge clk);
+        end while (out_busy);
+
+        // Test 3: Read from 0x00000120 (Set 0)
+        in_write_en <= 0;
+        in_read_en <= 1;
+        in_write_data <= 32'h00000000;
+        in_addr <= 32'h00000120;
+        in_funct3 <= 3'b010;
+
+        do begin
+            @(posedge clk);
+        end while (out_busy);
+
+        // Test 4: Read from 0x00000204 (Set 0)
+        in_read_en <= 1;
+        in_addr <= 32'h00000204;
+        in_funct3 <= 3'b010;
         
         // Add some cycles to observe final state
-        repeat(4) @(posedge clk);
+        repeat(35) @(posedge clk);
         
         $finish;
     end
 
     // Monitor cache behavior every clock cycle
     always @(posedge clk) begin
-        $display("\n=== Clock Cycle: %0d ===", $time/10);
+        clk_count <= clk_count + 1;
+        $display("\n=== Clock Cycle: %0d ===", clk_count);
         $display("State:");
         $display("  Reset: %b", reset);
         $display("  Cache State: %s", 

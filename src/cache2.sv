@@ -34,15 +34,15 @@ module cache #(
     localparam LH = 3'b001;
     localparam LW = 3'b010;
 
-    localparam SB = 3'b100;
-    localparam SH = 3'b101;
-    localparam SW = 3'b110;
+    localparam SB = 3'b000;
+    localparam SH = 3'b001;
+    localparam SW = 3'b010;
 
     reg [CACHE_LINE_SIZE-1:0] data [NUM_SETS-1:0][NUM_WAYS-1:0];
     reg [19:0] tags [NUM_SETS-1:0][NUM_WAYS-1:0];  
     reg valid [NUM_SETS-1:0][NUM_WAYS-1:0];        
     reg dirty [NUM_SETS-1:0][NUM_WAYS-1:0];
-    reg [NUM_WAYS-1:0] lru [NUM_SETS-1:0];         
+    reg [NUM_WAYS-1:0] lru;         
 
     /*
     31                              4 3 2 1 0
@@ -73,7 +73,9 @@ module cache #(
     reg [31:0] word_data;
     integer way_to_replace;
 
-    // Combinational hit detection and data read
+    reg [CACHE_LINE_SIZE-1:0] cache_line;
+
+    // Combinational hit detection and data read/write
     always @(*) begin
         // Default values
         out_busy = 0;
@@ -95,19 +97,12 @@ module cache #(
                     end
                 end
             end
-            
-            // If miss, assert busy immediately
-            if (!out_hit) begin
-                out_busy = 1;
-            end
-
-            if (in_mem_ready) begin
-                out_mem_read_en <= 0;
-            end
+            if (!out_hit) out_busy = 1;
+            if (in_mem_ready) out_mem_read_en = 0;
         end
     end
 
-    // Registered state machine for misses and writes
+    // Sequential block only handles misses and state transitions
     always @(posedge clk) begin
         if (reset) begin
             for(int i = 0; i < NUM_SETS; i++) begin
@@ -115,10 +110,10 @@ module cache #(
                     valid[i][j] <= 0;
                     tags[i][j] <= 0;
                     dirty[i][j] <= 0;
-                    lru[i] <= 0;
                     out_mem_read_en <= 0;
                     out_mem_write_en <= 0;
                 end
+                lru[i] <= 0;
             end
             state <= IDLE;
             out_busy <= 0;
@@ -130,7 +125,7 @@ module cache #(
                     out_mem_write_en <= 0;
                     
                     if ((in_read_en || in_write_en) && !out_hit) begin
-                        way_to_replace <= lru[set_index] == 2'b10 ? 0 : 1;
+                        way_to_replace = lru[set_index];
 
                         if (in_write_en) begin
                             pending_store <= 1;
@@ -145,19 +140,24 @@ module cache #(
                             out_mem_read_en <= 1;
                             state <= MEM_READ;
                         end
-                    end else if (in_write_en && out_hit) begin
-                        // Handle write hit
+                    end
+                    $display("in_write_en: %b, out_hit: %b", in_write_en, out_hit);
+                    if (in_write_en && out_hit) begin
                         for (int i = 0; i < NUM_WAYS; i++) begin
                             if (valid[set_index][i] && tags[set_index][i] == tag) begin
-                                word_data = data[set_index][i][word_offset*32 +: 32];
                                 case (in_funct3)
-                                    SB: word_data[byte_offset*8 +: 8] = in_write_data[7:0];
-                                    SH: word_data[byte_offset*16 +: 16] = in_write_data[15:0];
-                                    SW: word_data = in_write_data;
+                                    SB: begin
+                                        data[set_index][i][(word_offset*32) + (byte_offset*8) +: 8] <= in_write_data[7:0];
+                                    end
+                                    SH: begin
+                                        data[set_index][i][(word_offset*32) + (byte_offset*16) +: 16] <= in_write_data[15:0];
+                                    end
+                                    SW: begin
+                                        data[set_index][i][word_offset*32 +: 32] <= in_write_data;
+                                    end
                                 endcase
-                                data[set_index][i][word_offset*32 +: 32] <= word_data;
                                 dirty[set_index][i] <= 1;
-                                lru[set_index] <= i ? 2'b10 : 2'b01;
+                                lru[set_index] <= ~i;
                             end
                         end
                     end
@@ -179,8 +179,6 @@ module cache #(
                 MEM_READ: begin
                     if (in_mem_ready) begin
                         out_mem_read_en <= 0;
-                        way_to_replace <= lru[set_index] == 2'b10 ? 0 : 1;
-
                         data[set_index][way_to_replace] <= in_mem_read_data;
 
                         if (pending_store) begin
@@ -197,6 +195,7 @@ module cache #(
                         end
                         valid[set_index][way_to_replace] <= 1;
                         tags[set_index][way_to_replace] <= tag;
+                        lru[set_index] <= ~way_to_replace;
                         
                         out_busy <= 0;
                         state <= IDLE;
