@@ -68,6 +68,9 @@ module cache_tb();
         $dumpvars(0, dut.byte_offset);
         $dumpvars(0, dut.way_to_replace);
 
+        $dumpvars(0, mem.state);
+        $dumpvars(0, mem.cycle_count);
+
         // Initialize memory with test patterns
         for (int i = 0; i < 1024*16; i++) begin  // Note: multiplied by 16 for byte addressing
             mem.memory[i] = i & 8'hFF;
@@ -80,6 +83,12 @@ module cache_tb();
         for (int i = 0; i < 32; i++) begin
             if (i % 16 == 0) $write("0x%03x: ", 'h100 + i);
             $write("%02h ", mem.memory['h100 + i]);
+            if (i % 16 == 15) $write("\n");
+        end
+        $display("Memory at 0x200:");
+        for (int i = 0; i < 32; i++) begin
+            if (i % 16 == 0) $write("0x%03x: ", 'h200 + i);
+            $write("%02h ", mem.memory['h200 + i]);
             if (i % 16 == 15) $write("\n");
         end
 
@@ -101,47 +110,36 @@ module cache_tb();
         
         // Test 1: Read from 0x00000100 (Set 0)
         $display("\n=== Test 1: Read from 0x00000100 ===");
-        @(negedge clk);  // Change inputs at negedge
+        @(posedge clk);
         in_addr = 32'h00000100;
         in_read_en = 1;
         in_funct3 = 3'b010;  // LW
         
         // Wait for first operation to complete
         do begin
-            @(negedge clk);
+            @(posedge clk);
         end while (out_busy);
-        @(posedge clk);  // Let the result propagate
-        @(negedge clk);  // Change inputs at negedge
-        in_read_en = 0;  // Clear read_en
-        @(posedge clk);
-        @(negedge clk);
-
-        // Test 2: Read from 0x00000104 (Set 0, same cache line)
-        $display("\n=== Test 2: Read from 0x00000104 ===");
-        in_addr = 32'h00000104;
-        in_read_en = 1;  // Set read_en again
         
-        // Wait for second operation to complete
-        do begin
-            @(negedge clk);
-        end while (out_busy);
-        @(posedge clk);
-        @(negedge clk);
-        in_read_en = 0;  // Clear read_en
-        @(posedge clk);
-        @(negedge clk);
+        // Immediately test the next address in same cache line
+        $display("\n=== Test 2: Read from 0x00000104 (same cache line) ===");
+        in_addr = 32'h00000104;
+        // in_read_en is still 1
+        
+        // Should be a hit, so no need to wait for busy
+        @(posedge clk);  // Data should be available next cycle
+        if (!out_hit) $display("ERROR: Should be a cache hit!");
 
         // Test 3: Read from 0x00000200 (Set 1)
-        $display("\n=== Test 3: Read from 0x00000200 ===");
-        in_addr = 32'h00000200;
+        $display("\n=== Test 3: Read from 0x00000210 ===");
+        in_addr = 32'h00000210;
         in_read_en = 1;  // Set read_en again
         
         // Wait for third operation to complete
         do begin
-            @(negedge clk);
+            @(posedge clk);
         end while (out_busy);
         @(posedge clk);
-        @(negedge clk);
+        @(posedge clk);
         in_read_en = 0;  // Clear read_en
         
         // Add some cycles to observe final state

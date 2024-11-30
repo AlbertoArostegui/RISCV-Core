@@ -73,9 +73,43 @@ module cache #(
     reg [31:0] word_data;
     integer way_to_replace;
 
+    // Combinational hit detection and data read
+    always @(*) begin
+        // Default values
+        out_busy = 0;
+        out_hit = 0;
+        out_read_data = 32'b0;
+        
+        if (in_read_en || in_write_en) begin
+            // Check all ways in parallel
+            for (int i = 0; i < NUM_WAYS; i++) begin
+                if (valid[set_index][i] && tags[set_index][i] == tag) begin
+                    out_hit = 1;
+                    if (in_read_en) begin
+                        word_data = data[set_index][i][word_offset*32 +: 32];
+                        case (in_funct3)
+                            LB: out_read_data = sign_extend(word_data[byte_offset*8 +: 8], in_funct3);
+                            LH: out_read_data = sign_extend(word_data[byte_offset*16 +: 16], in_funct3);
+                            LW: out_read_data = word_data;
+                        endcase
+                    end
+                end
+            end
+            
+            // If miss, assert busy immediately
+            if (!out_hit) begin
+                out_busy = 1;
+            end
 
+            if (in_mem_ready) begin
+                out_mem_read_en <= 0;
+            end
+        end
+    end
+
+    // Registered state machine for misses and writes
     always @(posedge clk) begin
-        if (reset) begin    
+        if (reset) begin
             for(int i = 0; i < NUM_SETS; i++) begin
                 for(int j = 0; j < NUM_WAYS; j++) begin
                     valid[i][j] <= 0;
@@ -90,56 +124,40 @@ module cache #(
             out_busy <= 0;
             out_hit <= 0;
         end else begin
-            case(state)
+            case (state)
                 IDLE: begin
-                    out_hit <= 0;
-                    out_busy <= 0;
                     out_mem_read_en <= 0;
                     out_mem_write_en <= 0;
-                    if (in_read_en || in_write_en) begin
-                        for (int i = 0; i < NUM_WAYS; i++) begin //Comparators for all the ways in the set
-                            if (valid[set_index][i] && tags[set_index][i] == tag) begin
-                                out_hit <= 1;
-                                lru[set_index] <= i ? 2'b10 : 2'b01; //We set the opposite of the one we just hit
-                                out_mem_read_en <= 0;
-                                out_mem_write_en <= 0;
+                    
+                    if ((in_read_en || in_write_en) && !out_hit) begin
+                        way_to_replace <= lru[set_index] == 2'b10 ? 0 : 1;
 
-                                if (in_read_en) begin
-                                    word_data = data[set_index][i][word_offset*32 +: 32];
-                                    case (in_funct3)
-                                        LB: out_read_data <= sign_extend(word_data[byte_offset*8 +: 8], in_funct3);
-                                        LH: out_read_data <= sign_extend(word_data[byte_offset*16 +: 16], in_funct3);
-                                        LW: out_read_data <= word_data;
-                                    endcase
-                                end
-                                if (in_write_en) begin
-                                    word_data <= data[set_index][i][word_offset*32 +: 32];
-                                    case (in_funct3)
-                                        SB: word_data[byte_offset*8 +: 8] <= in_write_data[7:0];
-                                        SH: word_data[byte_offset*16 +: 16] <= in_write_data[15:0];
-                                        SW: word_data <= in_write_data;
-                                    endcase 
-                                    data[set_index][i][word_offset*32 +: 32] <= word_data;
-                                    dirty[set_index][i] <= 1;
-                                end
-                            end
+                        if (in_write_en) begin
+                            pending_store <= 1;
+                            pending_store_data <= in_write_data;
+                            pending_funct3 <= in_funct3;
                         end
-                        if (!out_hit) begin
-                            way_to_replace <= lru[set_index] == 2'b10 ? 0 : 1;
-                            out_busy <= 1;
 
-                            if (in_write_en) begin
-                                pending_store <= 1;
-                                pending_store_data <= in_write_data;
-                                pending_funct3 <= in_funct3;
-                            end
-
-                            if (valid[set_index][way_to_replace] && dirty[set_index][way_to_replace]) begin //If dirty, we have to write to memory
-                                state <= MEM_WRITE;
-                            end else begin
-                                out_mem_addr <= {tag, set_index, 4'b0000};
-                                out_mem_read_en <= 1;
-                                state <= MEM_READ;
+                        if (valid[set_index][way_to_replace] && dirty[set_index][way_to_replace]) begin
+                            state <= MEM_WRITE;
+                        end else begin
+                            out_mem_addr <= {tag, set_index, 4'b0000};
+                            out_mem_read_en <= 1;
+                            state <= MEM_READ;
+                        end
+                    end else if (in_write_en && out_hit) begin
+                        // Handle write hit
+                        for (int i = 0; i < NUM_WAYS; i++) begin
+                            if (valid[set_index][i] && tags[set_index][i] == tag) begin
+                                word_data = data[set_index][i][word_offset*32 +: 32];
+                                case (in_funct3)
+                                    SB: word_data[byte_offset*8 +: 8] = in_write_data[7:0];
+                                    SH: word_data[byte_offset*16 +: 16] = in_write_data[15:0];
+                                    SW: word_data = in_write_data;
+                                endcase
+                                data[set_index][i][word_offset*32 +: 32] <= word_data;
+                                dirty[set_index][i] <= 1;
+                                lru[set_index] <= i ? 2'b10 : 2'b01;
                             end
                         end
                     end

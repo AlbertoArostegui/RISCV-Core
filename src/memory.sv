@@ -46,19 +46,18 @@ module memory_module (
             case (state)
                 IDLE: begin
                     out_mem_ready <= 0;
+                    cycle_count <= 0;   
                     if (in_mem_read_en) begin
                         state <= READ;
-                        cycle_count <= 0;
                     end
                     else if (in_mem_write_en) begin
                         state <= WRITE;
-                        cycle_count <= 0;
                     end
                 end
 
                 READ: begin
                     cycle_count <= cycle_count + 1;
-                    if (cycle_count == 10) begin
+                    if (cycle_count == 9) begin
                         // Assemble 128-bit read data from memory
                         out_mem_read_data <= {
                             memory[in_mem_addr + 15],
@@ -85,7 +84,7 @@ module memory_module (
 
                 WRITE: begin
                     cycle_count <= cycle_count + 1;
-                    if (cycle_count == 10) begin
+                    if (cycle_count == 9) begin
                         // Write 128-bit data to memory
                         for (integer i = 0; i < 16; i++) begin
                             memory[in_mem_addr + i] <= in_mem_write_data[i*8 +: 8];
