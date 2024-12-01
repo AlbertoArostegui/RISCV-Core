@@ -9,9 +9,31 @@
 `include "registers4_MEMWB.sv"
 `include "stage5_writeback.sv"
 
-module core (
+module core #(
+    parameter int CACHE_LINE_SIZE = 128,
+) (
     input clk,
-    input reset
+    input reset,
+
+    //INPUT
+        //iCache
+    input [CACHE_LINE_SIZE-1:0] in_imem_read_data,
+    input in_imem_ready,
+        //dCache
+    input [CACHE_LINE_SIZE-1:0] in_dmem_read_data,
+    input in_dmem_ready,
+
+    //OUTPUT
+        //iCache
+    output out_imem_read_en,
+    output out_imem_write_en,
+    output [31:0] out_imem_addr,
+    output [CACHE_LINE_SIZE-1:0] out_imem_write_data,
+        //dCache
+    output out_dmem_read_en,
+    output out_dmem_write_en,
+    output [31:0] out_dmem_addr,
+    output [CACHE_LINE_SIZE-1:0] out_dmem_write_data
 );
 
 //FETCH STAGE
