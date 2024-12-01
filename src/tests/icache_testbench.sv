@@ -1,5 +1,6 @@
+`include "icache.sv"
 
-module icache_tb;
+module icache_testbench;
 
     // Parameters
     parameter CACHE_SIZE = 128;
