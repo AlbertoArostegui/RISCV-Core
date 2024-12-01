@@ -1,5 +1,3 @@
-
-
 module icache #(
     parameter CACHE_SIZE = 128,          // Total size of the cache
     parameter LINE_SIZE = 4,             // Number of words per cache line
@@ -9,8 +7,11 @@ module icache #(
     input reset,                          // Reset signal
     input [31:0] addr,                    // Address from CPU
     input valid,                          // Signal indicating a valid address
+    input [WORD_SIZE-1:0] mem_data,       // Data from memory
     output reg hit,                       // Hit flag
-    output reg [WORD_SIZE-1:0] data       // Data output on a hit
+    output reg [WORD_SIZE-1:0] data,      // Data output on a hit
+    output reg mem_read,                  // Memory read signal
+    output reg [31:0] mem_addr            // Address to read from memory
 );
 
 // Cache data and tag arrays
@@ -33,11 +34,16 @@ always @(posedge clk or posedge reset) begin
     end else if (valid) begin
         // Check for cache hit
         if (cache_valid[index] && cache_tag[index] == tag) begin
-            hit <= 1;                             // Cache hit
-            data <= cache_data[index];            // Read data from cache
+            hit <= 1;                             
+            data <= cache_data[index];            
         end else begin
-            hit <= 0;                             // Cache miss
-            // Load data from memory on a miss (not shown here)
+            hit <= 0;                             
+            mem_read <= 1;                        
+            mem_addr <= addr;                     
+            
+            cache_data[index] <= mem_data;
+            cache_tag[index] <= tag;
+            cache_valid[index] <= 1;
         end
     end
 end
