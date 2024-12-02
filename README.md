@@ -4,8 +4,8 @@ The following are the intended features to be implemented on this processor.
 
 - [ ] iTLB
 - [ ] dTLB
-- [ ] iCache
-- [ ] dCache
+- [ ] iCache            (Almost)
+- [ ] dCache            (Almost)
 - [ ] Branch Prediction
 - [X] Bypass ALU
 - [X] Bypass memory
@@ -18,7 +18,7 @@ The following are the intended features to be implemented on this processor.
 - [ ] iret
 - [ ] csrrw
 - [ ] exceptions
-- [ ] ISA
+- [X] ISA
 - [ ] TLB miss
 - [ ] TLB write
 - [ ] sb drain
