@@ -9,3 +9,6 @@ sim
 svut.out
 build
 out-*.txt
+path/*
+path/
+path

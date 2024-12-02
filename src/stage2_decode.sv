@@ -35,11 +35,11 @@ module stage_decode(
     output WB_write_mem_to_reg,
     output WB_write_enable,
 
-
-    //Output from RF, data
+    //Forwarding
     output [4:0] out_rs1,
     output [4:0] out_rs2,
 
+    //Output from RF, data
     output [31:0] out_data_a,
     output [31:0] out_data_b,
 

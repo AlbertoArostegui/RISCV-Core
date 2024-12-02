@@ -98,7 +98,7 @@ assign alu_operand2 = (forwardB == 2'b10) ? in_EXMEM_alu_out :
                      (forwardB == 2'b01) ? in_MEMWB_out_data :
                      in_data_rs2;
                      
-//IMPORTANT: This is the data that will be stored in the memory. It is also
+//IMPORTANT: This is the data that will be stored in the memory. It also comes
 //from the registers so hazards could happen. It must be after the first MUX
 //(see Patterson Hennessy)
 assign out_mem_in_data = alu_operand2;
