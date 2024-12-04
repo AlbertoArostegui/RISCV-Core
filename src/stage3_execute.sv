@@ -48,6 +48,7 @@ module stage_execute(
     //OUTPUT
     output [31:0] out_alu_out,
     output [31:0] out_PC,
+    output [2:0] out_funct3,
         //Control
     output out_branch_taken,
     output out_flush,
@@ -67,6 +68,7 @@ assign out_mem_read = in_mem_read;
 assign out_branch_inst = in_branch_inst;
 assign out_mem_to_reg = in_mem_to_reg;
 assign out_write_enable = in_write_enable;
+assign out_funct3 = in_funct3;
 
 forwarding_unit forwarding_unit(
     .clk(clk),

@@ -32,6 +32,9 @@ module registers_IDEX(
     //CONTROL
     input in_IDEX_flush,
 
+    //Control - Stall
+    input in_d_cache_stall,
+
     //OUT
     output reg [31:0] out_instruction,
     output reg [31:0] out_PC,
@@ -85,28 +88,30 @@ module registers_IDEX(
             out_mem_to_reg <= 1'b0;
             out_write_enable <= 1'b0;
         end else begin
-            out_instruction <= in_instruction;
-            out_immediate <= in_immediate;
-            out_PC <= in_PC;
+            if (!in_d_cache_stall) begin
+                out_instruction <= in_instruction;
+                out_immediate <= in_immediate;
+                out_PC <= in_PC;
 
-            out_rs1 <= in_rs1;
-            out_rs2 <= in_rs2;
-            out_data_rs1 <= in_data_rs1;
-            out_data_rs2 <= in_data_rs2;
+                out_rs1 <= in_rs1;
+                out_rs2 <= in_rs2;
+                out_data_rs1 <= in_data_rs1;
+                out_data_rs2 <= in_data_rs2;
 
-            out_alu_src <= in_alu_src;
-            out_alu_op <= in_alu_op;
-            out_funct7 <= in_funct7;
-            out_funct3 <= in_funct3;
-            out_opcode <= in_opcode;
-            out_instr_type <= in_instr_type;
+                out_alu_src <= in_alu_src;
+                out_alu_op <= in_alu_op;
+                out_funct7 <= in_funct7;
+                out_funct3 <= in_funct3;
+                out_opcode <= in_opcode;
+                out_instr_type <= in_instr_type;
 
-            out_rd <= in_rd;
-            out_mem_write <= in_mem_write;
-            out_mem_read <= in_mem_read;
-            out_branch_inst <= in_branch_inst;
-            out_mem_to_reg <= in_mem_to_reg;
-            out_write_enable <= in_write_enable;
+                out_rd <= in_rd;
+                out_mem_write <= in_mem_write;
+                out_mem_read <= in_mem_read;
+                out_branch_inst <= in_branch_inst;
+                out_mem_to_reg <= in_mem_to_reg;
+                out_write_enable <= in_write_enable;
+            end
         end
     end
 endmodule

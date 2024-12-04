@@ -6,6 +6,7 @@
 `include "stage3_execute.sv"
 `include "registers3_EXMEM.sv"
 `include "stage4_memory.sv"
+`include "stage4_cache.sv"
 `include "registers4_MEMWB.sv"
 `include "stage5_writeback.sv"
 
@@ -98,7 +99,10 @@ registers_IFID registers_IFID(
     //CONTROL
     .in_IFID_write_disable(IFID_write_disable),
     .in_IFID_flush(flush),
+
+    //Control - Stall
     .in_i_cache_stall(i_cache_stall),
+    .in_d_cache_stall(d_cache_stall),
 
     //OUTPUT
     .out_instruction(IFID_to_decode_instruction),
@@ -260,6 +264,9 @@ registers_IDEX registers_IDEX(
 
     //CONTROL
     .in_IDEX_flush(flush),
+
+    //Control - Stall
+    .in_d_cache_stall(d_cache_stall),
     
     //OUTPUT
     .out_instruction(IDEX_to_execute_inst),
@@ -299,13 +306,15 @@ wire execute_to_registers_mem_read;
 wire execute_to_registers_branch_inst;
 wire execute_to_registers_mem_to_reg;
 wire execute_to_registers_write_enable;
+wire [2:0] execute_to_registers_funct3;
 
 //Forwarding Unit
-wire EXMEM_to_execute_and_memory_write_enable;
 wire EXMEM_to_execute_and_writeback_write_enable;
-wire [4:0] EXMEM_to_execute_and_memory_rd;
 wire [4:0] MEMWB_to_execute_and_writeback_rd;
-wire [31:0] EXMEM_to_execute_and_memory_alu_out; //For EX data hazards
+
+wire EXMEM_to_execute_and_cache_write_enable;
+wire [4:0] EXMEM_to_execute_and_cache_rd;
+wire [31:0] EXMEM_to_execute_and_cache_alu_out; //For EX data hazards
 
 stage_execute execute(
     .clk(clk),
@@ -323,11 +332,11 @@ stage_execute execute(
         //Forwarding Unit
     .in_rs1(IDEX_to_execute_rs1),
     .in_rs2(IDEX_to_execute_rs2),
-    .in_EXMEM_rd(EXMEM_to_execute_and_memory_rd),
+    .in_EXMEM_rd(EXMEM_to_execute_and_cache_rd),
     .in_MEMWB_rd(MEMWB_to_execute_and_writeback_rd),
-    .in_EXMEM_write_enable(EXMEM_to_execute_and_memory_write_enable),
+    .in_EXMEM_write_enable(EXMEM_to_execute_and_cache_write_enable),
     .in_MEMWB_write_enable(MEMWB_to_execute_and_writeback_write_enable),
-    .in_EXMEM_alu_out(EXMEM_to_execute_and_memory_alu_out),
+    .in_EXMEM_alu_out(EXMEM_to_execute_and_cache_alu_out),
     .in_MEMWB_out_data(writeback_to_decode_and_execute_out_data),
 
     .in_alu_src(IDEX_to_execute_alu_src),
@@ -355,6 +364,7 @@ stage_execute execute(
     .out_PC(execute_to_fetch_PC),
     .out_branch_taken(execute_to_fetch_branch_taken),
     .out_flush(flush),
+    .out_funct3(execute_to_registers_funct3),
 
     //CONTROL
 
@@ -367,19 +377,17 @@ stage_execute execute(
 );
 
 //wires for
-//EXMEM Registers --> Memory Stage
-//To Fetch Stage
-wire EXMEM_to_memory_branch_inst;
-
-//Actual memory interaction
-wire [31:0] EXMEM_to_memory_mem_data;
+//EXMEM Registers --> Cache Stage
+wire EXMEM_to_cache_branch_inst;
+wire [31:0] EXMEM_to_cache_mem_data;
 
 //Control
-wire EXMEM_to_memory_mem_write;
-wire EXMEM_to_memory_mem_read;
+wire EXMEM_to_cache_mem_write;
+wire EXMEM_to_cache_mem_read;
+wire [2:0] EXMEM_to_cache_funct3;
 
 //Passing by
-wire EXMEM_to_memory_mem_to_reg;
+wire EXMEM_to_cache_mem_to_reg;
 
 registers_EXMEM registers_EXMEM(
     .clk(clk),
@@ -399,6 +407,10 @@ registers_EXMEM registers_EXMEM(
     .in_branch_inst(execute_to_registers_branch_inst),
     .in_mem_to_reg(execute_to_registers_mem_to_reg),
     .in_write_enable(execute_to_registers_write_enable),
+    .in_funct3(execute_to_registers_funct3),
+
+    //Control - Stall
+    .in_d_cache_stall(d_cache_stall),
 
     //OUTPUT
     //To Fetch Stage
@@ -407,51 +419,68 @@ registers_EXMEM registers_EXMEM(
     .out_branch_inst(EXMEM_to_memory_branch_inst),
 
     //Actual memory interaction
-    .out_alu_out(EXMEM_to_execute_and_memory_alu_out),
-    .out_mem_data(EXMEM_to_memory_mem_data),
+    .out_alu_out(EXMEM_to_execute_and_cache_alu_out),
+    .out_mem_data(EXMEM_to_cache_mem_data),
 
     //Control
-    .out_mem_write(EXMEM_to_memory_mem_write),
-    .out_mem_read(EXMEM_to_memory_mem_read),
+    .out_mem_write(EXMEM_to_cache_cache_write),
+    .out_mem_read(EXMEM_to_cache_cache_read),
+    .out_funct3(EXMEM_to_cache_funct3),
 
     //Passing by    
-    .out_rd(EXMEM_to_execute_and_memory_rd),
-    .out_mem_to_reg(EXMEM_to_memory_mem_to_reg),
-    .out_write_enable(EXMEM_to_execute_and_memory_write_enable)
+    .out_rd(EXMEM_to_execute_and_cache_rd),
+    .out_mem_to_reg(EXMEM_to_cache_mem_to_reg),
+    .out_write_enable(EXMEM_to_execute_and_cache_write_enable)
 );
 
 //wires for
 //Memory Stage --> MEMWB Registers
-wire [31:0] memory_to_MEMWB_alu_out;
-wire [31:0] memory_to_MEMWB_mem_out;
-wire [4:0] memory_to_MEMWB_rd;
-wire memory_to_MEMWB_mem_to_reg;
-wire memory_to_MEMWB_write_enable;
- 
-stage_memory dmemory(
+wire [31:0] cache_to_MEMWB_alu_out;
+wire [31:0] cache_to_MEMWB_cache_out;
+wire [4:0] cache_to_MEMWB_rd;
+wire cache_to_MEMWB_mem_to_reg;
+wire cache_to_MEMWB_write_enable;
+
+stage_cache cache(
     .clk(clk),
     .reset(reset),
 
     //INPUT
-    //Actual memory interaction
-    .in_alu_out(EXMEM_to_execute_and_memory_alu_out),
-    .in_mem_data(EXMEM_to_memory_mem_data),
+    .in_alu_out(EXMEM_to_execute_and_cache_alu_out),
+    .in_write_data(EXMEM_to_cache_mem_data),
 
     //Control
-    .in_mem_write(EXMEM_to_memory_mem_write),
-    .in_mem_read(EXMEM_to_memory_mem_read),
+    .in_write_en(EXMEM_to_cache_cache_write),
+    .in_read_en(EXMEM_to_cache_cache_read),
+    .in_funct3(EXMEM_to_cache_funct3),
 
-    //Passing by
-    .in_rd(EXMEM_to_execute_and_memory_rd),
-    .in_mem_to_reg(EXMEM_to_memory_mem_to_reg),
-    .in_write_enable(EXMEM_to_execute_and_memory_write_enable),
+    //Control passing by
+    .in_rd(EXMEM_to_execute_and_cache_rd),
+    .in_mem_to_reg(EXMEM_to_cache_mem_to_reg),
+    .in_write_enable(EXMEM_to_execute_and_cache_write_enable), //Regs write enable/
+
+    //MEM IFACE
+    .in_mem_read_data(in_dmem_read_data),
+    .in_mem_ready(in_dmem_ready),
+
 
     //OUTPUT
-    .out_alu_out(memory_to_MEMWB_alu_out),
-    .out_mem_out(memory_to_MEMWB_mem_out),
-    .out_rd(memory_to_MEMWB_rd),
-    .out_mem_to_reg(memory_to_MEMWB_mem_to_reg),
-    .out_write_enable(memory_to_MEMWB_write_enable)
+    .out_alu_out(cache_to_MEMWB_alu_out),
+    .out_read_data(cache_to_MEMWB_cache_out),
+
+    //Control - Stall
+    .out_stall(d_cache_stall),
+
+    //Control passing by
+    .out_rd(cache_to_MEMWB_rd),
+    .out_mem_to_reg(cache_to_MEMWB_mem_to_reg),
+    .out_write_enable(cache_to_MEMWB_write_enable),
+
+    //MEM IFACE
+    .out_mem_read_en(out_dmem_read_en),
+    .out_mem_write_en(out_dmem_write_en),
+    .out_mem_addr(out_dmem_addr),
+    .out_mem_write_data(out_dmem_write_data)
 );
 
 //wires for
@@ -467,12 +496,12 @@ registers_MEMWB registers_MEMWB(
     .reset(reset),
 
     //INPUT
-    .in_alu_out(memory_to_MEMWB_alu_out),
-    .in_mem_out(memory_to_MEMWB_mem_out),
+    .in_alu_out(cache_to_MEMWB_alu_out),
+    .in_mem_out(cache_to_MEMWB_cache_out),
 
-    .in_rd(memory_to_MEMWB_rd),
-    .in_mem_to_reg(memory_to_MEMWB_mem_to_reg),
-    .in_write_enable(memory_to_MEMWB_write_enable),
+    .in_rd(cache_to_MEMWB_rd),
+    .in_mem_to_reg(cache_to_MEMWB_mem_to_reg),
+    .in_write_enable(cache_to_MEMWB_write_enable),
 
     //OUTPUT
     .out_alu_out(MEMWB_to_writeback_alu_out),

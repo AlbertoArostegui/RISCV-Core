@@ -28,14 +28,13 @@ reg [1:0] store_counter;
 reg [1:0] oldest;
 
 wire stall = in_store_inst && store_counter == 2'b11;
-
+/*
 always @(*) begin
     //Case full and new store enters -> Stall
     if (stall) begin
         out_stall <= 1;
     //Case not full store
     end else if (in_store_inst) begin
-        
     end else if () begin
         
     end
@@ -52,5 +51,5 @@ always @(posedge clk) begin
         end
     end
 end
-
+*/
 endmodule
