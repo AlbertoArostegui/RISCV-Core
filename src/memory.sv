@@ -21,11 +21,9 @@ module memory (
     output reg out_dmem_ready
 );
 
-    // Define memory size (e.g., 1024 lines of 128 bits)
-    localparam MEM_SIZE = 1024;
-    reg [7:0] memory [0:MEM_SIZE*16-1]; // 128 bits = 16 bytes
+    localparam MEM_SIZE = 2048;
+    reg [31:0] memory [0:MEM_SIZE-1];
 
-    // State machine for memory operations
     typedef enum logic [1:0] {
         IDLE = 2'b00,
         READ = 2'b01,
@@ -34,15 +32,9 @@ module memory (
 
     state_t imem_state, dmem_state;
     integer imem_cycle_count, dmem_cycle_count;
-    bit initialized = 0;
 
-    initial begin
-        for (integer i = 0; i < MEM_SIZE*16; i++) begin
-            memory[i] = i & 8'hFF;  // Each byte is its own index (modulo 256)
-        end
-
-        initialized = 1;
-    end
+    reg [29:0] i_addr;
+    reg [29:0] d_addr;
 
     always @(posedge clk or posedge reset) begin
         if (reset) begin
@@ -61,7 +53,7 @@ module memory (
                     out_imem_ready <= 0;
                     imem_cycle_count <= 0;   
                     if (in_imem_read_en) begin
-                        state <= READ;
+                        imem_state <= READ;
                     end
                     else if (in_imem_write_en) begin
                         imem_state <= WRITE;
@@ -71,24 +63,12 @@ module memory (
                 READ: begin
                     imem_cycle_count <= imem_cycle_count + 1;
                     if (imem_cycle_count == 9) begin
-                        // Assemble 128-bit read data from memory
+                        i_addr = in_imem_addr[31:2];
                         out_imem_read_data <= {
-                            memory[in_imem_addr + 15],
-                            memory[in_imem_addr + 14],
-                            memory[in_imem_addr + 13],
-                            memory[in_imem_addr + 12],
-                            memory[in_imem_addr + 11],
-                            memory[in_imem_addr + 10],
-                            memory[in_imem_addr + 9],
-                            memory[in_imem_addr + 8],
-                            memory[in_imem_addr + 7],
-                            memory[in_imem_addr + 6],
-                            memory[in_imem_addr + 5],
-                            memory[in_imem_addr + 4],
-                            memory[in_imem_addr + 3],
-                            memory[in_imem_addr + 2],
-                            memory[in_imem_addr + 1],
-                            memory[in_imem_addr]
+                            memory[i_addr+3],
+                            memory[i_addr+2],
+                            memory[i_addr+1],
+                            memory[i_addr]
                         };
                         out_imem_ready <= 1;
                         imem_state <= IDLE;
@@ -98,10 +78,10 @@ module memory (
                 WRITE: begin
                     imem_cycle_count <= imem_cycle_count + 1;
                     if (imem_cycle_count == 9) begin
-                        // Write 128-bit data to memory
-                        for (integer i = 0; i < 16; i++) begin
-                            memory[in_imem_addr + i] <= in_imem_write_data[i*8 +: 8];
-                        end
+                        memory[in_imem_addr >> 2]       <= in_imem_write_data[31:0];
+                        memory[in_imem_addr >> 2 + 1]   <= in_imem_write_data[63:32];
+                        memory[in_imem_addr >> 2 + 2]   <= in_imem_write_data[95:64];
+                        memory[in_imem_addr >> 2 + 3]   <= in_imem_write_data[127:96];
                         out_imem_ready <= 1;
                         imem_state <= IDLE;
                     end
@@ -124,24 +104,12 @@ module memory (
                 READ: begin
                     dmem_cycle_count <= dmem_cycle_count + 1;
                     if (dmem_cycle_count == 9) begin
-                        // Assemble 128-bit read data from memory
+                        d_addr = in_dmem_addr[31:2];
                         out_dmem_read_data <= {
-                            memory[in_dmem_addr + 15],
-                            memory[in_dmem_addr + 14],
-                            memory[in_dmem_addr + 13],
-                            memory[in_dmem_addr + 12],
-                            memory[in_dmem_addr + 11],
-                            memory[in_dmem_addr + 10],
-                            memory[in_dmem_addr + 9],
-                            memory[in_dmem_addr + 8],
-                            memory[in_dmem_addr + 7],
-                            memory[in_dmem_addr + 6],
-                            memory[in_dmem_addr + 5],
-                            memory[in_dmem_addr + 4],
-                            memory[in_dmem_addr + 3],
-                            memory[in_dmem_addr + 2],
-                            memory[in_dmem_addr + 1],
-                            memory[in_dmem_addr]
+                            memory[d_addr+3],
+                            memory[d_addr+2],
+                            memory[d_addr+1],
+                            memory[d_addr]
                         };
                         out_dmem_ready <= 1;
                         dmem_state <= IDLE;
@@ -151,10 +119,10 @@ module memory (
                 WRITE: begin
                     dmem_cycle_count <= dmem_cycle_count + 1;
                     if (dmem_cycle_count == 9) begin
-                        // Write 128-bit data to memory
-                        for (integer i = 0; i < 16; i++) begin
-                            memory[in_dmem_addr + i] <= in_dmem_write_data[i*8 +: 8];
-                        end
+                        memory[in_dmem_addr >> 2]       <= in_dmem_write_data[31:0];
+                        memory[in_dmem_addr >> 2 + 1]   <= in_dmem_write_data[63:32];
+                        memory[in_dmem_addr >> 2 + 2]   <= in_dmem_write_data[95:64];
+                        memory[in_dmem_addr >> 2 + 3]   <= in_dmem_write_data[127:96];
                         out_dmem_ready <= 1;
                         dmem_state <= IDLE;
                     end

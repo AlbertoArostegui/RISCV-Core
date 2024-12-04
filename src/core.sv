@@ -10,7 +10,7 @@
 `include "stage5_writeback.sv"
 
 module core #(
-    parameter int CACHE_LINE_SIZE = 128,
+    parameter int CACHE_LINE_SIZE = 128
 ) (
     input clk,
     input reset,
@@ -48,12 +48,9 @@ wire execute_to_fetch_branch_taken;
 wire [31:0] execute_to_fetch_PC;
 wire flush;
 
-/*
-Otra manera
-wire [31:0] EXMEM_to_fetch_PC;
-wire EXMEM_to_fetch_branch_taken;
-wire flush = EXMEM_to_fetch_branch_taken;
-*/
+//Stalls
+wire i_cache_stall;
+wire d_cache_stall;
 
 stage_fetch fetch(
     .clk(clk),    
@@ -64,9 +61,20 @@ stage_fetch fetch(
     .new_pc(execute_to_fetch_PC),
     .pc_write_disable(pc_write_disable),
 
+    //MEM IFACE
+    .in_mem_read_data(in_imem_read_data),
+    .in_mem_ready(in_imem_ready),
+
     //OUTPUT
     .out_PC(fetch_to_registers_pc),
-    .out_instruction(fetch_to_registers_inst)
+    .out_instruction(fetch_to_registers_inst),
+    .out_stall(i_cache_stall),
+
+    //MEM IFACE
+    .out_mem_read_en(out_imem_read_en),
+    .out_mem_write_en(out_imem_write_en),
+    .out_mem_addr(out_imem_addr),
+    .out_mem_write_data(out_imem_write_data)
 );
 
 //wires for
@@ -86,10 +94,11 @@ registers_IFID registers_IFID(
     //INPUT
     .in_instruction(fetch_to_registers_inst),
     .in_PC(fetch_to_registers_pc),
-    .in_IFID_flush(flush),
 
     //CONTROL
     .in_IFID_write_disable(IFID_write_disable),
+    .in_IFID_flush(flush),
+    .in_i_cache_stall(i_cache_stall),
 
     //OUTPUT
     .out_instruction(IFID_to_decode_instruction),
@@ -393,8 +402,8 @@ registers_EXMEM registers_EXMEM(
 
     //OUTPUT
     //To Fetch Stage
-    .out_new_PC(EXMEM_to_fetch_PC),
-    .out_branch_taken(EXMEM_to_fetch_branch_taken),
+    //.out_new_PC(EXMEM_to_fetch_PC),
+    //.out_branch_taken(EXMEM_to_fetch_branch_taken),
     .out_branch_inst(EXMEM_to_memory_branch_inst),
 
     //Actual memory interaction

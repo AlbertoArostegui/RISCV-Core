@@ -1,7 +1,8 @@
 `include "cache.sv"
 //Here everything should be a wire (its comb. logic)
 module stage_fetch #(
-    parameter CACHE_LINE_SIZE = 128
+    parameter CACHE_LINE_SIZE = 128,
+    parameter INIT_ADDR = 32'h200
 ) (
     input clk,
     input reset,
@@ -17,7 +18,8 @@ module stage_fetch #(
 
     //OUTPUT
     output [31:0] out_PC,
-    output [31:0] out_instruction
+    output [31:0] out_instruction,
+    output out_stall,
 
     //MEM IFACE
     output out_mem_read_en,
@@ -27,40 +29,33 @@ module stage_fetch #(
 );
 
 reg [31:0] PC;
-reg [31:0] init;
 
 assign out_PC = PC;
 
 initial begin 
-    init = 32'h0;
     PC = 32'h0;
 end
 
 always @(posedge clk or posedge reset) begin
     if (reset) 
-        PC <= init;
+        PC <= INIT_ADDR;
     else if (!pc_write_disable) begin
         if (branch_taken)
             PC <= new_pc;
-        else
+        else if (!out_stall)
             PC <= PC + 4;
     end
 end
 
-wire [31:0] mem_addr = PC >> 2; //The aim is to select the word address
+wire [31:0] mem_addr = PC; //The aim is to select the word address
+wire [31:0] in_write_data;      //Placeholder so there's no warning, but we are not going to write to the icache
 
-imemory imemory(
-    .clk(clk),
-    .mem_addr(mem_addr),
-    .inst_out(out_instruction)
-);
-
-cache cache(
+cache icache(
     .clk(clk),
     .reset(reset),
 
     //INPUT
-    .in_read_en(in_read_en),
+    .in_read_en(1'b1),
     .in_write_en(in_write_en),
     .in_addr(mem_addr),
     .in_write_data(in_write_data),
@@ -71,7 +66,7 @@ cache cache(
     .in_mem_ready(in_mem_ready),
     //OUTPUT
     .out_read_data(out_instruction),
-    .out_busy(out_busy),
+    .out_busy(out_stall),
     .out_hit(),
 
     //MEM IFACE

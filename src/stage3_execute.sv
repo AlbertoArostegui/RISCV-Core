@@ -1,4 +1,5 @@
 `include "alu.sv"
+`include "forwarding_unit.sv"
 
 module stage_execute(
     input clk,

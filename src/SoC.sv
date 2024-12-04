@@ -1,7 +1,9 @@
 `include "core.sv"
 `include "memory.sv"
 
-module SoC (
+module SoC #(
+    parameter CACHE_LINE_SIZE = 128
+) (
     input clk,
     input reset
 );

@@ -27,6 +27,10 @@ module core_testbench();
     // Clock and reset generation
     initial begin
         $display("Starting simulation...");
+
+        $dumpfile("core_testbench.vcd");
+        $dumpvars(0, core_testbench);
+        $dumpvars(0, dut);
         
         // Initialize
         clk = 0;

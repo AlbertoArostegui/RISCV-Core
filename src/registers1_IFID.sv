@@ -7,6 +7,7 @@ module registers_IFID(
     //CONTROL
     input in_IFID_write_disable,
     input in_IFID_flush,
+    input in_i_cache_stall,
 
     //OUTPUT
     output reg [31:0] out_instruction,
@@ -19,7 +20,7 @@ module registers_IFID(
     end
 
     always @(posedge clk) begin
-        if (reset || in_IFID_flush) begin
+        if (reset || in_IFID_flush || in_i_cache_stall) begin
             out_instruction <= 32'b0;
             out_PC <= 32'b0;
         end else if (!in_IFID_write_disable) begin

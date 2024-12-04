@@ -104,6 +104,7 @@ module cache #(
 
     // Sequential block only handles misses and state transitions
     always @(posedge clk) begin
+        //display_cache_state(); //This displays the cache state each cycle
         if (reset) begin
             for(int i = 0; i < NUM_SETS; i++) begin
                 for(int j = 0; j < NUM_WAYS; j++) begin
@@ -216,4 +217,27 @@ module cache #(
             endcase
         end
     endfunction
-endmodule;
+    task automatic display_cache_state;
+    string line = "┌────────┬────────────┬──────────────────────────────────┬───────┬───────┐";
+    string header = "│ Set/Way│    Tag     │               Data               │ Valid │ Dirty │";
+    
+    $display("\n%c[1;36m==== Cache State Display ====%c[0m", 27, 27);
+    $display(line);
+    $display(header);
+    $display(line);
+    
+    for(int i = 0; i < NUM_SETS; i++) begin
+        for(int j = 0; j < NUM_WAYS; j++) begin
+            $display("│ %1d/%1d    │ %07h    │ %032h │   %b   │   %b   │", 
+                    i, j, 
+                    tags[i][j], 
+                    data[i][j], 
+                    valid[i][j], 
+                    dirty[i][j]);
+        end
+        if (i != NUM_SETS-1) $display("├────────┼────────────┼──────────────────────────────────┼───────┼───────┤");
+    end
+    $display("└────────┴────────────┴──────────────────────────────────┴───────┴───────┘");
+    $display("LRU States: Set0=%0d, Set1=%0d\n", lru[0], lru[1]);
+    endtask
+endmodule
