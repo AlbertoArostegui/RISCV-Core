@@ -20,6 +20,9 @@ module stage_decode(
     input [4:0] in_IDEX_rd,
     input in_IDEX_mem_read,
 
+    //Exception
+    input [2:0] in_exception_vector,
+
     //OUTPUT
     //CONTROL    
     //For EX
@@ -55,7 +58,10 @@ module stage_decode(
     output [2:0] out_instr_type,
 
     output out_pc_write_disable,
-    output out_IFID_write_disable
+    output out_IFID_write_disable,
+
+    //Exception
+    output [2:0] out_exception_vector
 );
 
 wire [4:0] decoder_to_rf_rs1;
@@ -63,6 +69,7 @@ wire [4:0] decoder_to_rf_rs2;
 
 assign out_instruction = in_instruction;
 assign out_PC = in_PC;
+assign out_exception_vector = in_exception_vector;
 
 decoder decoder(
     .instr(in_instruction),     //In
