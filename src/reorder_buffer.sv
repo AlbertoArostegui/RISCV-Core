@@ -39,9 +39,8 @@ module reorder_buffer #(
     output wire [3:0]   out_alloc_idx
 );
 
-reg [3:0] head;
-reg [3:0] tail;
-reg [3:0] count;
+/*We should take decisions according to instr_type. We should have at least
+* ALU, STORE/LOAD and MUL*/
 
 typedef struct packed {
     reg [31:0]  PC;                     //Faulting instruction PC
@@ -51,13 +50,32 @@ typedef struct packed {
     reg         valid;                  //Valid entry?
     reg         complete;               //Instruction completed?
     reg [2:0]   exception;              //Exception vector
-    reg [2:0]   instr_type;              //Instruction type
+    reg [2:0]   instr_type;             //Instruction type
 } rob_entry;
 
 rob_entry [ROB_SIZE-1:0] entries;
 
+reg [3:0] head;
+reg [3:0] tail;
+reg [3:0] count;
+
 assign out_full = (count == ROB_SIZE);
 assign out_alloc_idx = tail;
+
+always @(*) begin
+    //Case we complete an instruction
+    if (entries[head].complete && entries[head].valid) begin
+        if (entries[head].exception != 3'b0) begin
+            exception();
+        end else begin
+            out_ready <= entries[head].complete;
+            out_value <= entries[head].value;
+            out_rd <= entries[head].rd;
+            out_exception <= entries[head].exception;
+            out_instr_type <= entries[head].instr_type;
+        end
+    end    
+end
 
 always @(posedge clk) begin
     if (reset) begin                //Reset or exception --> Nuke the ROB
@@ -72,7 +90,7 @@ always @(posedge clk) begin
         end
     end
     else begin
-        // Allocation. From decode
+        // Allocation. From decode. Only on non stalled cycles
         if (in_allocate && !out_full && !in_stall) begin
             entries[tail].PC <= in_PC;
             entries[tail].addr_miss <= in_addr_miss;            //TODO: TLB Miss
@@ -86,8 +104,8 @@ always @(posedge clk) begin
             count <= count + 1;
         end
         
-        // Completion
-        if (in_complete && !in_stall) begin
+        // Completion. Even on stalled cycles (for now)
+        if (in_complete) begin
             entries[in_complete_idx].value <= in_complete_value;
             entries[in_complete_idx].complete <= 1;
             entries[in_complete_idx].exception <= in_exception;
@@ -118,7 +136,7 @@ always @(posedge clk) begin
     end
 end
 
-task automatic nuke_rob;
+task automatic exception;                                                    //This should only be fired on an exception
     if (entries[head].valid && entries[head].exception) begin
         out_PC <= entries[head].PC;
         out_miss_addr <= entries[head].addr_miss;

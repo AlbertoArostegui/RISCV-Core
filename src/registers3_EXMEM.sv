@@ -37,7 +37,8 @@ module registers_EXMEM(
     output reg out_write_enable,
 
     //ROB
-    output reg [3:0] out_rob_idx
+    output reg [3:0] out_complete_idx,
+    output reg [31:0] out_complete_value
 );
 
 initial begin
