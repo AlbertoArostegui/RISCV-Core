@@ -1,4 +1,3 @@
-
 module registers_EXMEM(
     input clk,
     input reset,
@@ -20,6 +19,9 @@ module registers_EXMEM(
     //Control - Stall
     input in_d_cache_stall,
 
+    //ROB
+    input [3:0] in_rob_idx,
+
     //OUTPUT
     output reg [31:0] out_alu_out,
     output reg [31:0] out_new_PC,
@@ -32,7 +34,11 @@ module registers_EXMEM(
     output reg out_mem_read,
     output reg out_branch_inst,
     output reg out_mem_to_reg,
-    output reg out_write_enable
+    output reg out_write_enable,
+
+    //ROB
+    output reg [3:0] out_complete_idx,
+    output reg [31:0] out_complete_value
 );
 
 initial begin
@@ -44,6 +50,7 @@ initial begin
     out_mem_read = 0;
     out_mem_to_reg = 0;
     out_write_enable = 0;
+    out_rob_tail = 0;
 end
 
 always @(posedge clk) begin
@@ -64,6 +71,8 @@ always @(posedge clk) begin
         out_branch_inst <= in_branch_inst;
         out_mem_to_reg <= in_mem_to_reg;
         out_write_enable <= in_write_enable;
+
+        out_rob_idx <= in_rob_idx;
     end
 end
 

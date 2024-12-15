@@ -44,6 +44,9 @@ module stage_execute(
     input in_mem_to_reg,
     input in_write_enable,
 
+    //Exception vector
+    input [2:0] in_exception_vector,
+
 
     //OUTPUT
     output [31:0] out_alu_out,
@@ -59,7 +62,10 @@ module stage_execute(
     output out_mem_read,
     output out_branch_inst,
     output out_mem_to_reg,
-    output out_write_enable
+    output out_write_enable,
+
+    //Exception
+    output [2:0] out_exception_vector
 );
 
 assign out_rd = in_IDEX_rd;
@@ -69,6 +75,7 @@ assign out_branch_inst = in_branch_inst;
 assign out_mem_to_reg = in_mem_to_reg;
 assign out_write_enable = in_write_enable;
 assign out_funct3 = in_funct3;
+assign out_exception_vector = in_exception_vector; //TODO: Exception handling. Here should be divide by zero
 
 forwarding_unit forwarding_unit(
     .clk(clk),

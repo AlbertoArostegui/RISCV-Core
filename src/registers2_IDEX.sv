@@ -35,7 +35,13 @@ module registers_IDEX(
     //Control - Stall
     input in_d_cache_stall,
 
-    //OUT
+    //ROB
+    input [3:0] in_rob_idx,
+
+    //Exception vector
+    input [2:0] in_exception_vector,
+
+    //OUTPUT
     output reg [31:0] out_instruction,
     output reg [31:0] out_PC,
     output reg [31:0] out_immediate,
@@ -61,7 +67,13 @@ module registers_IDEX(
     output reg out_mem_read,
     output reg out_branch_inst,
     output reg out_mem_to_reg,
-    output reg out_write_enable
+    output reg out_write_enable,
+
+    //ROB
+    output reg [3:0] out_rob_idx,
+
+    //Exception vector
+    output reg [2:0] out_exception_vector
 );
 
     always @(posedge clk) begin
@@ -87,6 +99,10 @@ module registers_IDEX(
             out_branch_inst <= 1'b0;
             out_mem_to_reg <= 1'b0;
             out_write_enable <= 1'b0;
+            //ROB
+            out_rob_idx <= 4'b0;
+            //Exception
+            out_exception_vector <= 3'b0;
         end else begin
             if (!in_d_cache_stall) begin
                 out_instruction <= in_instruction;
@@ -111,6 +127,10 @@ module registers_IDEX(
                 out_branch_inst <= in_branch_inst;
                 out_mem_to_reg <= in_mem_to_reg;
                 out_write_enable <= in_write_enable;
+
+                out_rob_idx <= in_rob_idx;
+
+                out_exception_vector <= in_exception_vector;
             end
         end
     end

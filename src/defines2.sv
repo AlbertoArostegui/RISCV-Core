@@ -27,7 +27,6 @@
 `define OPCODE_NOP      7'b0000000
 
 
-//TODO meter todos funt3 y funct7 de funciones alu y aluimm
 `define OR_FUNCT3       3'b110 
 `define AND_FUNCT3      3'b111 
 `define ADD_FUNCT3      3'b000
@@ -42,7 +41,6 @@
 `define BLT_FUNCT3      3'b100
 `define BGE_FUNCT3      3'b101
 
-//TODO revisar todos los f7 y f3 necesarios para las operaciones
 `define SUB_FUNCT7      7'b0100000
 `define MUL_FUNCT7      7'b0000001
 `define ADD_OR_AND_FUNCT7   7'b0000000

@@ -25,12 +25,16 @@ module stage_fetch #(
     output out_mem_read_en,
     output out_mem_write_en,
     output [31:0] out_mem_addr,
-    output [CACHE_LINE_SIZE-1:0] out_mem_write_data
+    output [CACHE_LINE_SIZE-1:0] out_mem_write_data,
+
+    //Exception
+    output [2:0] out_exception_vector
 );
 
 reg [31:0] PC;
 
 assign out_PC = PC;
+assign out_exception_vector = 3'b0;
 
 initial begin 
     PC = 32'h0;
@@ -75,5 +79,4 @@ cache icache(
     .out_mem_addr(out_mem_addr),
     .out_mem_write_data(out_mem_write_data)
 );
-
 endmodule
