@@ -35,9 +35,9 @@ module core #(
     output out_dmem_read_en,
     output out_dmem_write_en,
     output [31:0] out_dmem_addr,
-    output [CACHE_LINE_SIZE-1:0] out_dmem_write_data
+    output [CACHE_LINE_SIZE-1:0] out_dmem_write_data,
+    output reg core_ready                 // Signal indicating core is ready
 );
-
 //FETCH STAGE
 wire [31:0] fetch_to_registers_pc;
 wire [31:0] fetch_to_registers_inst;

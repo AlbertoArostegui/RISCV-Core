@@ -15,13 +15,16 @@ module dmemory (
     localparam MAXMEM = 1024;
     reg [31:0] MEMORY [0:MAXMEM - 1];
 
-    always @(*)
+    always @(*) begin
         out_data <= MEMORY[in_mem_addr[9:0]];
+    end
 
     always @(posedge clk) begin
-        if (reset)
-            for (integer i = 0; i < MAXMEM; i++)
-                MEMORY[i] = 0;
+        if (reset) begin
+            for (integer i = 0; i < MAXMEM; i++) begin
+                MEMORY[i] <= 0;
+            end
+        end
         if (in_mem_write) begin
             MEMORY[in_mem_addr[9:0]] <= in_mem_data;
         end

@@ -1,4 +1,4 @@
-`include "tlb_miss.sv"
+`include "../tlb_miss.sv"
 
 module tlb_miss_tb;
 
