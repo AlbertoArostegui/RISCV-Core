@@ -64,9 +64,10 @@ assign out_alloc_idx = tail;
 
 always @(*) begin
     //Case we complete an instruction
-    if (entries[head].complete && entries[head].valid) begin
+    if (entries[head].valid && entries[head].complete) begin
         if (entries[head].exception != 3'b0) begin
-            exception();
+            out_PC <= entries[head].PC;                         //Send to rm0
+            out_miss_addr <= entries[head].addr_miss;           //Send to rm1
         end else begin
             out_ready <= entries[head].complete;
             out_value <= entries[head].value;
@@ -78,17 +79,22 @@ always @(*) begin
 end
 
 always @(posedge clk) begin
-    if (reset) begin                //Reset or exception --> Nuke the ROB
+    if (reset) begin              
         head <= 0;
         tail <= 0;
         count <= 0;
         out_ready <= 0;
         
-        for (int i = 0; i < ROB_SIZE; i++) begin
-            entries[i].valid <= 0;
-            entries[i].complete <= 0;
-        end
+        invalidate_rob();
+
+    end else if (entries[head].exception != 3'b0) begin
+        head <= 0;
+        tail <= 0;
+        count <= 0;
+        out_ready <= 0;
+        invalidate_rob();
     end
+
     else begin
         // Allocation. From decode. Only on non stalled cycles
         if (in_allocate && !out_full && !in_stall) begin
@@ -111,23 +117,11 @@ always @(posedge clk) begin
             entries[in_complete_idx].exception <= in_exception;
         end
         
-        // Commit
-        if (entries[head].valid && entries[head].complete && !entries[head].is_store && !in_stall) begin
-            out_ready <= 1;
-            out_value <= entries[head].value;
-            out_miss_addr <= entries[head].addr_miss;
-            out_PC <= entries[head].PC;
-            out_rd <= entries[head].rd;
-            out_exception <= entries[head].exception;
-            out_instr_type <= entries[head].instr_type;
+        //Entry completed
+        if (entries[head].valid && entries[head].complete) begin
+            entries[head].valid <= 0;
+            entries[head].complete <= 0;
 
-            entries[head].valid <= 0;
-            head <= (head + 1) % ROB_SIZE;
-            count <= count - 1;
-        end else if (entries[head].valid && entries[head].complete && !in_stall) begin
-            //write to mem
-            //write_to_mem();
-            entries[head].valid <= 0;
             head <= (head + 1) % ROB_SIZE;
             count <= count - 1;
         end else begin
@@ -136,20 +130,17 @@ always @(posedge clk) begin
     end
 end
 
-task automatic exception;                                                    //This should only be fired on an exception
-    if (entries[head].valid && entries[head].exception) begin
-        out_PC <= entries[head].PC;
-        out_miss_addr <= entries[head].addr_miss;
-        head <= 0;
-        tail <= 0;
-        count <= 0;
-        for (int i = 0; i < ROB_SIZE; i++) begin
-            entries[i].valid <= 0;
-        end
-
-        if (idx == tail && entries[tail].valid)
-            entries[tail].valid = 0;
-    end
+task automatic invalidate_rob;
+    entries[0].valid <= 0;
+    entries[1].valid <= 0;
+    entries[2].valid <= 0;
+    entries[3].valid <= 0;
+    entries[4].valid <= 0;
+    entries[5].valid <= 0;
+    entries[6].valid <= 0;
+    entries[7].valid <= 0;
+    entries[8].valid <= 0;
+    entries[9].valid <= 0;
 endtask
 
 endmodule

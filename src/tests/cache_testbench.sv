@@ -1,4 +1,4 @@
-`include "cache2.sv"
+`include "cache.sv"
 `include "memory.sv"
 
 module cache_tb();
