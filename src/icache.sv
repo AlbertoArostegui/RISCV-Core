@@ -11,7 +11,8 @@ module icache #(
     output reg hit,                       // Hit flag
     output reg [WORD_SIZE-1:0] data,      // Data output on a hit
     output reg mem_read,                  // Memory read signal
-    output reg [31:0] mem_addr            // Address to read from memory
+    output reg [31:0] mem_addr,            // Address to read from memory
+    output reg ready                      // Signal indicating cache is ready
 );
 
 // Cache data and tag arrays
@@ -31,11 +32,13 @@ always @(posedge clk or posedge reset) begin
             cache_valid[i] <= 0;
         end
         hit <= 0;
+        ready <= 0;
     end else if (valid) begin
         // Check for cache hit
         if (cache_valid[index] && cache_tag[index] == tag) begin
             hit <= 1;                             
             data <= cache_data[index];            
+            ready <= 1;
         end else begin
             hit <= 0;                             
             mem_read <= 1;                        
@@ -44,6 +47,7 @@ always @(posedge clk or posedge reset) begin
             cache_data[index] <= mem_data;
             cache_tag[index] <= tag;
             cache_valid[index] <= 1;
+            ready <= 0;
         end
     end
 end
