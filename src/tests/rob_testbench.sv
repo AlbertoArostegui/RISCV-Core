@@ -1,5 +1,5 @@
 `timescale 1ns/1ps
-`include "reorder_buffer.sv"
+`include "reorder_buffer_alt.sv"
 
 module reorder_buffer_tb();
     // Parameters
@@ -59,15 +59,15 @@ module reorder_buffer_tb();
         $display("Full: %b, Alloc Index: %0d", out_full, out_alloc_idx);
         
         for (int i = 0; i < ROB_SIZE; i++) begin
-            if (dut.entries[i].valid) begin
+            if (dut.valid[i]) begin
                 $display("Entry %0d:", i);
-                $display("  PC: %h", dut.entries[i].PC);
-                $display("  Value: %h", dut.entries[i].value);
-                $display("  RD: %0d", dut.entries[i].rd);
-                $display("  Valid: %b", dut.entries[i].valid);
-                $display("  Complete: %b", dut.entries[i].complete);
-                $display("  Exception: %b", dut.entries[i].exception);
-                $display("  Instr Type: %b", dut.entries[i].instr_type);
+                $display("  PC: %h", dut.PC[i]);
+                $display("  Value: %h", dut.value[i]);
+                $display("  RD: %0d", dut.rd[i]);
+                $display("  Valid: %b", dut.valid[i]);
+                $display("  Complete: %b", dut.complete[i]);
+                $display("  Exception: %b", dut.exception[i]);
+                $display("  Instr Type: %b", dut.instr_type[i]);
             end
         end
         $display("=====================================\n");
