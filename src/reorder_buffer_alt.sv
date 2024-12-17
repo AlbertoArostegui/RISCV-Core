@@ -18,13 +18,21 @@ module reorder_buffer #(
     input  wire [31:0]  in_complete_value,
     input  wire [2:0]   in_exception,
 
-    //From cache
+    //From cache (LOADS)
     input wire [31:0]   in_cache_out,
     input wire [3:0]    in_complete_cache_idx,
     input wire [4:0]    in_cache_rd,
+    input wire [2:0]    in_cache_exception,
+
+    //From mul
+    input wire          in_complete_mul,
+    input wire [3:0]    in_complete_mul_idx,
+    input wire [31:0]   in_complete_mul_value,
+    input wire [2:0]    in_mul_exception,
 
     //Control
     input wire          in_stall,
+
     
     //OUTPUT
     output reg          out_ready,
@@ -45,7 +53,6 @@ module reorder_buffer #(
 // Original declaration
 // rob_entry [ROB_SIZE-1:0] entries;
 
-// Replace with separate arrays
 reg [31:0] PC          [ROB_SIZE-1:0];
 reg [31:0] addr_miss   [ROB_SIZE-1:0];
 reg [31:0] value       [ROB_SIZE-1:0];
