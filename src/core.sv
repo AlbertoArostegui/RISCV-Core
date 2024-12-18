@@ -180,6 +180,11 @@ wire IDEX_to_decode_and_execute_mem_read;
 
 //ROB
 wire [3:0] decode_to_registers_complete_idx;
+wire [31:0] decode_to_ROB_instr_addr_miss;
+
+//FROM ROB
+wire [31:0] ROB_to_decode_value;
+wire [4:0] ROB_to_decode_rd;
 
 //Exception vector
 wire [2:0] decode_to_registers_exception_vector;
@@ -208,6 +213,7 @@ stage_decode decode(
 
     //Exception vector
     .in_exception_vector(IFID_to_decode_exception_vector),
+
 
     //OUTPUT
         //CONTROL
@@ -238,9 +244,13 @@ stage_decode decode(
     .out_instr_type(decode_to_registers_instr_type),
 
     .out_pc_write_disable(pc_write_disable),
-    .out_IFID_write_disable(IFID_write_disable)
+    .out_IFID_write_disable(IFID_write_disable),
 
-    //ROB
+    //ROB allocation
+    .out_allocate(),
+    .out_addr_miss(decode_to_ROB_instr_addr_miss),                                               //iTLB address miss
+
+    //ROB later input
     .out_complete_idx(decode_to_registers_complete_idx),
 
     //Exception vector
@@ -320,11 +330,12 @@ registers_IDEX registers_IDEX(
     .in_d_cache_stall(d_cache_stall),
 
     //ROB
-    .in_complete_idx(),
+    .in_complete_idx(decode_to_registers_complete_idx),
 
     //Exception vector
     .in_exception_vector(decode_to_registers_exception_vector),
     
+
     //OUTPUT
     .out_instruction(IDEX_to_execute_inst),
     .out_PC(IDEX_to_execute_PC),
@@ -370,6 +381,7 @@ wire execute_to_registers_branch_inst;
 wire execute_to_registers_mem_to_reg;
 wire execute_to_registers_write_enable;
 wire [2:0] execute_to_registers_funct3;
+wire [2:0] execute_to_registers_instr_type;
 
 //Forwarding Unit: EXMEM --> Execute, Cache, WB
 wire EXMEM_to_execute_and_writeback_write_enable;
@@ -439,6 +451,7 @@ stage_execute execute(
     .out_branch_taken(execute_to_fetch_branch_taken),
     .out_flush(flush),
     .out_funct3(execute_to_registers_funct3),
+    .out_instr_type(execute_to_registers_instr_type),
 
     //CONTROL
 
@@ -465,10 +478,12 @@ wire [31:0] EXMEM_to_cache_mem_data;
 wire EXMEM_to_cache_mem_write;
 wire EXMEM_to_cache_mem_read;
 wire [2:0] EXMEM_to_cache_funct3;
+wire [2:0] EXMEM_to_cache_instr_type;
 
 //ROB
-wire [31:0] EXMEM_to_rob_complete_value;
-wire [4:0] EXMEM_to_rob_complete_idx;
+wire [31:0]     EXMEM_to_rob_complete_value;
+wire [4:0]      EXMEM_to_cache_and_rob_complete_idx;
+wire            EXMEM_to_rob_complete;
 
 //Passing by
 wire EXMEM_to_cache_mem_to_reg;
@@ -492,6 +507,7 @@ registers_EXMEM registers_EXMEM(
     .in_mem_to_reg(execute_to_registers_mem_to_reg),
     .in_write_enable(execute_to_registers_write_enable),
     .in_funct3(execute_to_registers_funct3),
+    .in_instr_type(execute_to_registers_instr_type),
 
     //Control - Stall
     .in_d_cache_stall(d_cache_stall),
@@ -516,6 +532,7 @@ registers_EXMEM registers_EXMEM(
     .out_mem_write(EXMEM_to_cache_cache_write),
     .out_mem_read(EXMEM_to_cache_cache_read),
     .out_funct3(EXMEM_to_cache_funct3),
+    .out_instr_type(EXMEM_to_cache_instr_type),
 
     //Passing by    
     .out_rd(EXMEM_to_execute_and_cache_rd),
@@ -523,8 +540,9 @@ registers_EXMEM registers_EXMEM(
     .out_write_enable(EXMEM_to_execute_and_cache_write_enable),
 
     //ROB
-    .out_complete_idx(EXMEM_to_rob_complete_idx),
+    .out_complete_idx(EXMEM_to_cache_and_rob_complete_idx),
     .out_complete_value(EXMEM_to_rob_complete_value),                   //If alu instruction, write to ROB
+    .out_complete(EXMEM_to_rob_complete),
 
     //Exception
     .out_exception_vector(EXMEM_to_cache_exception_vector)
@@ -560,6 +578,9 @@ stage_cache cache(
     .in_mem_read_data(in_dmem_read_data),
     .in_mem_ready(in_dmem_ready),
 
+    //ROB
+    .in_complete_idx(EXMEM_to_cache_and_rob_complete_idx),
+
 
     //OUTPUT
     .out_alu_out(cache_to_MEMWB_alu_out),
@@ -577,7 +598,13 @@ stage_cache cache(
     .out_mem_read_en(out_dmem_read_en),
     .out_mem_write_en(out_dmem_write_en),
     .out_mem_addr(out_dmem_addr),
-    .out_mem_write_data(out_dmem_write_data)
+    .out_mem_write_data(out_dmem_write_data),
+
+    //ROB
+    .out_complete_idx(),
+    .out_complete_value(),
+    .out_complete(),
+    
 );
 
 //wires for
@@ -628,33 +655,48 @@ stage_writeback writeback(
     .out_write_enable(writeback_to_decode_write_enable)
 );
 
+wire allocate = !execute_to_fetch_branch_taken && decode_to_rob_allocate; //If a branch is taken, next instr after the branch should not be allocated
+
 reorder_buffer rob(
     .clk(clk),
     .reset(reset),
 
     //INPUT
     //FROM DECODE
-    .in_allocate(decode_to_rob_allocate),
-    .in_PC(IFID_to_decode_PC),
-    .in_addr_miss(32'b0),
-    .in_rd(decode_to_rob_rd),
+    .in_allocate(allocate),
+    .in_PC(decode_to_registers_and_ROB_PC),
+    .in_addr_miss_inst(),
+    .in_addr_miss_data(),
+    .in_rd(decode_to_registers_and_ROB_rd),
     .instr_type(),
 
     //FROM EXECUTE REGISTERS
-    .in_complete(),
+    .in_complete(EXMEM_to_rob_complete),
     .in_complete_idx(EXMEM_to_rob_complete_idx),
     .in_complete_value(EXMEM_to_rob_complete_value),
     .in_exception(),
 
+    //FROM CACHE
+    .in_cache_complete(),
+    .in_cache_out(),
+    .in_cache_complete_idx(),
+    .in_cache_exception(),
+
+    //FROM MUL
+    .in_mul_complete(),
+    .in_mul_complete_idx(),
+    .in_mul_complete_value(),
+    .in_mul_exception(),
+
+
     //OUTPUT
-    .out_ready(),
     .out_value(),
     .out_miss_addr(),           //TLB MISS          Write to rm0, rm1
     .out_PC(),                  //TODO: TLB MISS
     .out_rd(),
     .out_exception(),
     .out_instr_type(),
-    .out_full(),
+    .out_full(stall),
     .out_alloc_idx(rob_to_registers_IFID_idx)
 );
 

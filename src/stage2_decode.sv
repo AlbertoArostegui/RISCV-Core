@@ -60,6 +60,10 @@ module stage_decode(
     output out_pc_write_disable,
     output out_IFID_write_disable,
 
+    //ROB
+    output out_allocate,
+    output [31:0] out_addr_miss,
+
     //Exception
     output [2:0] out_exception_vector
 );
@@ -70,6 +74,10 @@ wire [4:0] decoder_to_rf_rs2;
 assign out_instruction = in_instruction;
 assign out_PC = in_PC;
 assign out_exception_vector = in_exception_vector;
+
+assign out_allocate = ; //TODO: out_allocate for rob, 1 or 0 (depending on instr that alters the arch. state (regs, mem) or branch/jump)
+                        //Also, to know when to write to ROB, with a mux in
+                        //execute stage, cache stage and multiplication stages
 
 decoder decoder(
     .instr(in_instruction),     //In

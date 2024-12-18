@@ -19,15 +19,15 @@ module reorder_buffer #(
     input  wire [2:0]   in_exception,
 
     //From cache (LOADS)
+    input wire          in_cache_complete,
+    input wire [3:0]    in_cache_complete_idx,
     input wire [31:0]   in_cache_out,
-    input wire [3:0]    in_complete_cache_idx,
-    input wire [4:0]    in_cache_rd,
     input wire [2:0]    in_cache_exception,
 
     //From mul
-    input wire          in_complete_mul,
-    input wire [3:0]    in_complete_mul_idx,
-    input wire [31:0]   in_complete_mul_value,
+    input wire          in_mul_complete,
+    input wire [3:0]    in_mul_complete_idx,
+    input wire [31:0]   in_mul_complete_value,
     input wire [2:0]    in_mul_exception,
 
     //Control
@@ -103,7 +103,7 @@ always @(posedge clk) begin
     end
 
     else begin
-        // Allocation. From decode. Only on non stalled cycles
+        // Allocation. From decode. Once per cycle. Only on non stalled cycles. 
         if (in_allocate && !out_full && !in_stall) begin
             PC[tail] <= in_PC;
             addr_miss[tail] <= in_addr_miss;
@@ -122,6 +122,18 @@ always @(posedge clk) begin
             value[in_complete_idx] <= in_complete_value;
             complete[in_complete_idx] <= 1;
             exception[in_complete_idx] <= in_exception;
+        end
+
+        if (in_cache_complete) begin
+            value[in_cache_complete_idx] <= in_cache_out;
+            complete[in_cache_complete_idx] <= 1;
+            exception[in_cache_complete_idx] <= in_cache_exception;
+        end
+
+        if (in_mul_complete) begin
+            value[in_mul_complete_idx] <= in_mul_complete_value;
+            complete[in_mul_complete_idx] <= 1;
+            exception[in_mul_complete_idx] <= in_mul_exception;
         end
         
         //Entry completed
