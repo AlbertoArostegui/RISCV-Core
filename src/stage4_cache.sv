@@ -15,6 +15,7 @@ module stage_cache #(
     input               in_write_en,
     input               in_read_en,
     input [2:0]         in_funct3,
+    input               mode, // 0 for INSTRUCTION, 1 for DATA
 
     //Control passing by
     input [4:0]         in_rd,
@@ -47,12 +48,37 @@ assign out_rd = in_rd;
 assign out_mem_to_reg = in_mem_to_reg;
 assign out_write_enable = in_write_enable;
 
+// Instantiate the DTLB
+dtlb dtlb (
+    .clk(clk),
+    .reset(reset),
+    .virtual_address(in_alu_out),
+    .physical_address(dtlb_physical_address),
+    .tlb_hit(dtlb_hit)
+);
+
+// Handle TLB miss
+wire [31:0] tlb_miss_physical_address;
+wire tlb_update;
+
+tlb_miss tlb_miss (
+    .clk(clk),
+    .reset(reset),
+    .virtual_address(in_alu_out),
+    .tlb_miss_detected(~dtlb_hit),
+    .os_offset(32'h1000), // Example offset, adjust as needed
+    .tlb_miss_physical_address(tlb_miss_physical_address),
+    .tlb_update(tlb_update)
+);
+
+wire [31:0] final_physical_address = dtlb_hit ? dtlb_physical_address : tlb_miss_physical_address;
+
 cache d_cache(
     .clk(clk),
     .reset(reset),
 
     //INPUT
-    .in_addr(in_alu_out),
+    .in_addr(final_physical_address),
     .in_write_data(in_write_data),
     .in_write_en(in_write_en),
     .in_read_en(in_read_en),

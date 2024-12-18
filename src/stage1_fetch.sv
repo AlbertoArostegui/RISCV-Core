@@ -51,8 +51,31 @@ always @(posedge clk or posedge reset) begin
     end
 end
 
-wire [31:0] mem_addr = PC; //The aim is to select the word address
-wire [31:0] in_write_data;      //Placeholder so there's no warning, but we are not going to write to the icache
+// Instantiate the ITLB
+itlb itlb (
+    .clk(clk),
+    .reset(reset),
+    .virtual_address(PC),
+    .physical_address(itlb_physical_address),
+    .tlb_hit(itlb_hit)
+);
+
+wire [31:0] tlb_miss_physical_address;
+wire tlb_update;
+
+tlb_miss tlb_miss (
+    .clk(clk),
+    .reset(reset),
+    .virtual_address(PC),
+    .tlb_miss_detected(~itlb_hit),
+    .os_offset(32'h1000),
+    .tlb_miss_physical_address(tlb_miss_physical_address),
+    .tlb_update(tlb_update)
+);
+
+wire [31:0] final_physical_address = itlb_hit ? itlb_physical_address : tlb_miss_physical_address;
+
+wire [31:0] in_write_data;      
 
 cache icache(
     .clk(clk),
@@ -61,7 +84,7 @@ cache icache(
     //INPUT
     .in_read_en(1'b1),
     .in_write_en(in_write_en),
-    .in_addr(mem_addr),
+    .in_addr(final_physical_address),
     .in_write_data(in_write_data),
     .in_funct3(3'b010),
 
