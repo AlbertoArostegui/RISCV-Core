@@ -1,5 +1,6 @@
 `include "alu.sv"
 `include "forwarding_unit.sv"
+`include "defines2.sv"
 
 module stage_execute(
     input clk,
@@ -66,7 +67,10 @@ module stage_execute(
     output out_write_enable,
 
     //Exception
-    output [2:0] out_exception_vector
+    output [2:0] out_exception_vector,
+
+    //ROB
+    output out_complete
 );
 
 assign out_rd = in_IDEX_rd;
@@ -77,7 +81,8 @@ assign out_mem_to_reg = in_mem_to_reg;
 assign out_write_enable = in_write_enable;
 assign out_funct3 = in_funct3;
 assign out_exception_vector = in_exception_vector; //TODO: Exception handling. Here should be divide by zero
-assign out_instr_type = in_instr_type;
+assign out_instr_type = in_instr_type;                          //This propagates the instruction type to the next stage
+assign out_complete = (in_instr_type != `INSTR_TYPE_NO_WB);     //This is for the ROB, to see if we write from this stage or not
 
 forwarding_unit forwarding_unit(
     .clk(clk),

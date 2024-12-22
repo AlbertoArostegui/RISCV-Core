@@ -26,6 +26,11 @@ module stage_cache #(
     input wire [CACHE_LINE_SIZE-1:0] in_mem_read_data,
     input wire          in_mem_ready,
 
+    //ROB
+    input [3:0]         in_complete_idx,
+    input               in_instr_type,
+
+
     //OUTPUT
     output [31:0]       out_alu_out,
     output [31:0]       out_read_data,
@@ -41,12 +46,19 @@ module stage_cache #(
     output              out_mem_write_en,
     output [31:0]       out_mem_addr,
     output [CACHE_LINE_SIZE-1:0] out_mem_write_data
+
+    //ROB
+    output [3:0]        out_complete_idx,
+    output              out_complete
 );
 
 assign out_alu_out = in_alu_out;
 assign out_rd = in_rd;
 assign out_mem_to_reg = in_mem_to_reg;
 assign out_write_enable = in_write_enable;
+assign out_complete_idx = in_complete_idx;
+assign out_complete = !out_stall && (in_instr_type != `INSTR_TYPE_LOAD);    //TODO: Manage stores. We have to see how do we do the logic
+                                                                            //with the SB and the ROB
 
 // Instantiate the DTLB
 dtlb dtlb (

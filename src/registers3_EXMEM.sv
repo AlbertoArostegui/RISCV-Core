@@ -1,4 +1,3 @@
-`include "defines2.sv"
 module registers_EXMEM(
     input clk,
     input reset,
@@ -23,6 +22,7 @@ module registers_EXMEM(
 
     //ROB
     input [3:0]         in_rob_idx,
+    input               in_complete,
 
     //Exception vector
     input [2:0]         in_exception_vector
@@ -87,7 +87,7 @@ always @(posedge clk) begin
         //Write to the ROB if its an ALU instruction. If not, propagate the idx. Value and complete go directly to the ROB.
         out_complete_idx <= in_rob_idx;
         out_complete_value <= in_alu_out;
-        out_complete <= (in_instr_type == `INSTR_TYPE_ALU);
+        out_complete <= in_complete;
     end
 end
 

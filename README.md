@@ -31,9 +31,16 @@ This diagram shows (more or less) the current implementation of the processor, i
 
 <img width="1510" alt="Screenshot 2024-12-02 at 22 59 33" src="https://github.com/user-attachments/assets/e81c719a-5c4d-4d0c-8e6b-a1caeaa5774e">
 
+# CODE STRUCTURE
+The top module is SoC.sv, in which both core and memory modules are instantiated. Each stage has one module file (stageX_name.sv) and each set of pipeline registers has another one (registersX_name.sv). All the stages and registers modules are instantiated in the core.sv file. All combinational logic is inside its respective stage module.
 
+Each module has a set of inputs and outputs, which are grouped (in the sense of blank or contiguous lines) by its function within the processor, usually with a comment. 
+Wires that connect two modules inside the core are declared before the first of the two modules.
+
+# TESTING
 To run the tests, from src directory:
 ```bash
 ./run_test.sh testbench.sv
 ```
+The script will compile the testbench with icarus Verilog and run it, leaving the executable and thew waveform in the Build directory
 The core testbench can be used to debug the whole core, it contains a lot of displayed information of each stage as they execute

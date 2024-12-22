@@ -1,5 +1,6 @@
 `include "register_file.sv"
 `include "decoder.sv"
+`include "defines2.sv"
 `include "control.sv"
 `include "hazard_detection_unit.sv"
 
@@ -75,9 +76,9 @@ assign out_instruction = in_instruction;
 assign out_PC = in_PC;
 assign out_exception_vector = in_exception_vector;
 
-assign out_allocate = ; //TODO: out_allocate for rob, 1 or 0 (depending on instr that alters the arch. state (regs, mem) or branch/jump)
-                        //Also, to know when to write to ROB, with a mux in
-                        //execute stage, cache stage and multiplication stages
+assign out_allocate = (out_instr_type != `INSTR_TYPE_NO_WB); 
+//We only allocate in the ROB if the instruction has a write back to the registers or if its a store (SB is managed by ROB).
+//On taken branches we will wipe the ROB
 
 decoder decoder(
     .instr(in_instruction),     //In

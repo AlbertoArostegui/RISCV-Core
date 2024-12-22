@@ -3,12 +3,17 @@
 `include "registers1_IFID.sv"
 `include "stage2_decode.sv"
 `include "registers2_IDEX.sv"
+`include "registers2_IDM1.sv"
 `include "stage3_execute.sv"
+`include "registers3_M1M2.sv"
 `include "registers3_EXMEM.sv"
-`include "stage4_memory.sv"
 `include "stage4_cache.sv"
 `include "registers4_MEMWB.sv"
+`include "registers4_M2M3.sv"
 `include "stage5_writeback.sv"
+`include "registers5_M3M4.sv"
+`include "registers6_M4M5.sv"
+`include "registers7_M5WB.sv"
 `include "reorder_buffer.sv"
 
 module core #(
@@ -196,7 +201,7 @@ stage_decode decode(
     .in_instruction(IFID_to_decode_instruction),
     .in_PC(IFID_to_decode_PC),
 
-    //INPUT FROM WB
+    //INPUT FROM ROB
     //This should come from control from WB
     .in_write_enable(writeback_to_decode_write_enable),
     //This should come from control from WB
@@ -393,6 +398,7 @@ wire [31:0] EXMEM_to_execute_and_cache_alu_out; //For EX data hazards
 
 //ROB
 wire [3:0] execute_to_registers_complete_idx;
+wire execute_to_registers_complete;
 
 //Exception vector
 wire [2:0] execute_to_registers_exception_vector;
@@ -464,9 +470,10 @@ stage_execute execute(
 
     //ROB
     .out_complete_idx(EXMEM_to_registers_complete_idx),
+    .out_complete(EXMEM_to_registers_complete),
 
     //Exception vector
-    .out_exception_vector(execute_to_registers_exception_vector)
+    .out_exception_vector(execute_to_registers_exception_vector),
 );
 
 //wires for
@@ -514,6 +521,7 @@ registers_EXMEM registers_EXMEM(
 
     //ROB
     .in_complete_idx(execute_to_registers_complete_idx),
+    .in_complete(execute_to_registers_complete),
 
     //Exception
     .in_exception_vector(execute_to_registers_exception_vector),
@@ -541,8 +549,8 @@ registers_EXMEM registers_EXMEM(
 
     //ROB
     .out_complete_idx(EXMEM_to_cache_and_rob_complete_idx),
-    .out_complete_value(EXMEM_to_rob_complete_value),                   //If alu instruction, write to ROB
-    .out_complete(EXMEM_to_rob_complete),
+    .out_complete_value(EXMEM_to_rob_complete_value),                   
+    .out_complete(EXMEM_to_rob_complete),                   //If alu instruction, write to ROB
 
     //Exception
     .out_exception_vector(EXMEM_to_cache_exception_vector)
@@ -550,11 +558,15 @@ registers_EXMEM registers_EXMEM(
 
 //wires for
 //Memory Stage --> MEMWB Registers
-wire [31:0] cache_to_MEMWB_alu_out;
+wire [31:0] cache_to_MEMWB_alu_out;         //Not used with ROB
 wire [31:0] cache_to_MEMWB_cache_out;
-wire [4:0] cache_to_MEMWB_rd;
+wire [4:0] cache_to_MEMWB_rd;               //Not used with ROB
 wire cache_to_MEMWB_mem_to_reg;
 wire cache_to_MEMWB_write_enable;
+
+//ROB
+wire cache_to_MEMWB_complete_idx;
+wire cache_to_MEMWB_complete;
 
 stage_cache cache(
     .clk(clk),
@@ -580,6 +592,7 @@ stage_cache cache(
 
     //ROB
     .in_complete_idx(EXMEM_to_cache_and_rob_complete_idx),
+    .in_instr_type(EXMEM_to_cache_instr_type),
 
 
     //OUTPUT
@@ -601,19 +614,22 @@ stage_cache cache(
     .out_mem_write_data(out_dmem_write_data),
 
     //ROB
-    .out_complete_idx(),
-    .out_complete_value(),
-    .out_complete(),
+    .out_complete_idx(cache_to_MEMWB_complete_idx),
+    .out_complete(cache_to_MEMWB_complete),
     
 );
 
 //wires for
 //MEMWB Registers --> Writeback Stage
 wire [31:0] MEMWB_to_writeback_alu_out;
-wire [31:0] MEMWB_to_writeback_mem_out;
+wire [31:0] MEMWB_to_ROB_mem_out;
 
 wire MEMWB_to_writeback_mem_to_reg;
 wire MEMWB_to_execute_and_writeback_write_enable;
+
+//ROB
+wire MEMWB_to_ROB_complete_idx;
+wire MEMWB_to_ROB_complete;
 
 registers_MEMWB registers_MEMWB(
     .clk(clk),
@@ -627,13 +643,21 @@ registers_MEMWB registers_MEMWB(
     .in_mem_to_reg(cache_to_MEMWB_mem_to_reg),
     .in_write_enable(cache_to_MEMWB_write_enable),
 
+    //ROB
+    .in_complete_idx(cache_to_MEMWB_complete_idx),
+    .in_complete(cache_to_MEMWB_complete),
+
     //OUTPUT
     .out_alu_out(MEMWB_to_writeback_alu_out),
-    .out_mem_out(MEMWB_to_writeback_mem_out),
+    .out_mem_out(MEMWB_to_ROB_mem_out),
 
     .out_rd(MEMWB_to_execute_and_writeback_rd),
     .out_mem_to_reg(MEMWB_to_writeback_mem_to_reg),
-    .out_write_enable(MEMWB_to_execute_and_writeback_write_enable)
+    .out_write_enable(MEMWB_to_execute_and_writeback_write_enable),
+
+    //ROB
+    .out_complete_idx(MEMWB_to_ROB_complete_idx),
+    .out_complete(MEMWB_to_ROB_complete)
 );
 
 
@@ -655,8 +679,33 @@ stage_writeback writeback(
     .out_write_enable(writeback_to_decode_write_enable)
 );
 
+//wires for
+//Registers M5WB --> ROB
+wire [31:0] M5WB_to_ROB_complete_value;
+wire [3:0] M5WB_to_ROB_complete_idx;
+wire M5WB_to_ROB_complete;
+wire [2:0] M5WB_to_ROB_exception_vector;
+
+registers_M5WB registers_M5WB(
+    .clk(clk),
+    .reset(reset),
+
+    //INPUT
+    .in_mul_out(),
+    .in_complete_idx(),
+    .in_complete(),
+    .in_exception_vector(),
+
+    //OUTPUT
+    .out_mul_out(M5WB_to_ROB_complete_value),
+    .out_complete_idx(M5WB_to_ROB_complete_idx),
+    .out_complete(M5WB_to_ROB_complete),
+    .out_exception_vector(M5WB_to_ROB_exception_vector)
+);
+
 wire allocate = !execute_to_fetch_branch_taken && decode_to_rob_allocate; //If a branch is taken, next instr after the branch should not be allocated
 
+//TODO: Manage stalls. When to stall (SB full, Cache miss,). What to do when stalled (writeback instructions?)
 reorder_buffer rob(
     .clk(clk),
     .reset(reset),
@@ -677,27 +726,27 @@ reorder_buffer rob(
     .in_exception(),
 
     //FROM CACHE
-    .in_cache_complete(),
-    .in_cache_out(),
-    .in_cache_complete_idx(),
+    .in_cache_complete(MEMWB_to_ROB_complete),
+    .in_cache_out(MEMWB_to_ROB_complete_idx),
+    .in_cache_complete_idx(MEMWB_to_ROB_mem_out),
     .in_cache_exception(),
 
     //FROM MUL
-    .in_mul_complete(),
-    .in_mul_complete_idx(),
-    .in_mul_complete_value(),
-    .in_mul_exception(),
+    .in_mul_complete(M5WB_to_ROB_complete),
+    .in_mul_complete_idx(M5WB_to_ROB_complete_idx),
+    .in_mul_complete_value(M5WB_to_ROB_complete_value),
+    .in_mul_exception(M5WB_to_ROB_exception_vector),
 
 
     //OUTPUT
-    .out_value(),
-    .out_miss_addr(),           //TLB MISS          Write to rm0, rm1
-    .out_PC(),                  //TODO: TLB MISS
-    .out_rd(),
-    .out_exception(),
-    .out_instr_type(),
-    .out_full(stall),
-    .out_alloc_idx(rob_to_registers_IFID_idx)
+    .out_value(ROB_to_decode_value),
+    .out_miss_addr(),                           //TLB MISS          Write to rm0, rm1
+    .out_PC(),                                  //TODO: TLB MISS
+    .out_rd(ROB_to_decode_rd),  
+    .out_exception(),                           //TODO: On exception, nuke rob, flush pipeline and save PC and address of exception
+    .out_instr_type(),                          //Maybe not needed, just used as logic inside ROB for deciding if w.enable
+    .out_full(stall),                           //Stalling when full
+    .out_alloc_idx(rob_to_registers_IFID_idx)   //This is the index of the instruction in the ROB
 );
 
 endmodule
