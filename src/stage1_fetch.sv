@@ -11,6 +11,7 @@ module stage_fetch #(
     input branch_taken,
     input [31:0] new_pc,
     input pc_write_disable,
+    input [2:0] in_funct3, // New input for load type
 
     //MEM IFACE
     input [CACHE_LINE_SIZE-1:0] in_mem_read_data,
@@ -86,7 +87,7 @@ cache icache(
     .in_write_en(in_write_en),
     .in_addr(final_physical_address),
     .in_write_data(in_write_data),
-    .in_funct3(3'b010),
+    .in_funct3(in_funct3),
 
     //MEM IFACE
     .in_mem_read_data(in_mem_read_data),
