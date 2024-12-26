@@ -45,7 +45,7 @@ module stage_cache #(
     output              out_mem_read_en,
     output              out_mem_write_en,
     output [31:0]       out_mem_addr,
-    output [CACHE_LINE_SIZE-1:0] out_mem_write_data
+    output [CACHE_LINE_SIZE-1:0] out_mem_write_data,
 
     //ROB
     output [3:0]        out_complete_idx,
@@ -59,7 +59,7 @@ assign out_write_enable = in_write_enable;
 assign out_complete_idx = in_complete_idx;
 assign out_complete = !out_stall && (in_instr_type != `INSTR_TYPE_LOAD);    //TODO: Manage stores. We have to see how do we do the logic
                                                                             //with the SB and the ROB
-
+/*
 // Instantiate the DTLB
 dtlb dtlb (
     .clk(clk),
@@ -84,13 +84,14 @@ tlb_miss tlb_miss (
 );
 
 wire [31:0] final_physical_address = dtlb_hit ? dtlb_physical_address : tlb_miss_physical_address;
+*/
 
 cache d_cache(
     .clk(clk),
     .reset(reset),
 
     //INPUT
-    .in_addr(final_physical_address),
+    .in_addr(in_alu_out),
     .in_write_data(in_write_data),
     .in_write_en(in_write_en),
     .in_read_en(in_read_en),

@@ -25,7 +25,7 @@ module registers_EXMEM(
     input               in_complete,
 
     //Exception vector
-    input [2:0]         in_exception_vector
+    input [2:0]         in_exception_vector,
 
     //OUTPUT
     output reg [31:0]   out_alu_out,
@@ -45,7 +45,7 @@ module registers_EXMEM(
     //ROB
     output reg [3:0]    out_complete_idx,
     output reg [31:0]   out_complete_value,
-    output reg          out_complete,
+    output reg          out_complete
 );
 
 initial begin

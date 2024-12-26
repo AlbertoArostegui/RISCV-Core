@@ -473,7 +473,7 @@ stage_execute execute(
     .out_complete(EXMEM_to_registers_complete),
 
     //Exception vector
-    .out_exception_vector(execute_to_registers_exception_vector),
+    .out_exception_vector(execute_to_registers_exception_vector)
 );
 
 //wires for
@@ -615,7 +615,7 @@ stage_cache cache(
 
     //ROB
     .out_complete_idx(cache_to_MEMWB_complete_idx),
-    .out_complete(cache_to_MEMWB_complete),
+    .out_complete(cache_to_MEMWB_complete)
     
 );
 

@@ -62,7 +62,7 @@ always @(*) begin
                 out_addr <= entries[i].addr;
                 out_data <= entries[i].data;
                 out_funct3 <= entries[i].funct3;
-                out_write_to_cache <= 1
+                out_write_to_cache <= 1;
             end
         end
     end
@@ -81,7 +81,7 @@ always @(*) begin
 end
 
 always @(posedge clk) begin
-    if (reset || in_exception) reset();                                 //Case exception        --> Nuke Store Buffer (precise exceptions) or simply reset
+    if (reset || in_exception) reset_sb();                              //Case exception        --> Nuke Store Buffer (precise exceptions) or simply reset
     if (in_store_inst) begin                                            //Case we store         --> We save into the entries the store
         entries[store_counter].addr <= in_addr;
         entries[store_counter].data <= in_data;
@@ -90,9 +90,10 @@ always @(posedge clk) begin
         store_counter <= store_counter + 1;
     if (out_hit) store_counter <= store_counter - 1;                    //Case we bypass load   --> We remove from our entries the data we loaded
     if (completed) store_counter <= store_counter - 1;                  //Case we write 2 cache --> We remove from our entries the data we are committing
+    end
 end
 
-task automatic reset;
+task reset_sb;
     for (int i = 0; i < 3; i++) begin
         entries[i].addr <= 0;
         entries[i].data <= 0;
