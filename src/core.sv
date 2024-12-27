@@ -14,7 +14,7 @@
 `include "registers5_M3M4.sv"
 `include "registers6_M4M5.sv"
 `include "registers7_M5WB.sv"
-`include "reorder_buffer.sv"
+`include "reorder_buffer_alt.sv"
 
 module core #(
     parameter int CACHE_LINE_SIZE = 128
@@ -190,6 +190,7 @@ wire [31:0] decode_to_ROB_instr_addr_miss;
 //FROM ROB
 wire [31:0] ROB_to_decode_value;
 wire [4:0] ROB_to_decode_rd;
+wire decode_to_rob_allocate;
 
 //Exception vector
 wire [2:0] decode_to_registers_exception_vector;
@@ -252,7 +253,7 @@ stage_decode decode(
     .out_IFID_write_disable(IFID_write_disable),
 
     //ROB allocation
-    .out_allocate(),
+    .out_allocate(decode_to_rob_allocate),
     .out_addr_miss(decode_to_ROB_instr_addr_miss),                                               //iTLB address miss
 
     //ROB later input
@@ -303,7 +304,7 @@ registers_IDEX registers_IDEX(
 
     //INPUT
     .in_instruction(decode_to_registers_instruction),
-    .in_PC(decode_to_registers_PC),
+    .in_PC(decode_to_registers_and_ROB_PC),
 
     .in_immediate(decode_to_registers_immediate),
     .in_data_rs1(decode_to_registers_data_a),
@@ -320,7 +321,7 @@ registers_IDEX registers_IDEX(
     .in_instr_type(decode_to_registers_instr_type),
 
     //Passing by
-    .in_rd(decode_to_registers_rd),
+    .in_rd(decode_to_registers_and_ROB_rd),
         //Control
     .in_mem_write(decode_to_registers_MEM_mem_write),
     .in_mem_read(decode_to_registers_MEM_mem_read),
@@ -469,8 +470,8 @@ stage_execute execute(
     .out_write_enable(execute_to_registers_write_enable),
 
     //ROB
-    .out_complete_idx(EXMEM_to_registers_complete_idx),
-    .out_complete(EXMEM_to_registers_complete),
+    .out_complete_idx(execute_to_registers_complete_idx),
+    .out_complete(execute_to_registers_complete),
 
     //Exception vector
     .out_exception_vector(execute_to_registers_exception_vector)
@@ -489,8 +490,11 @@ wire [2:0] EXMEM_to_cache_instr_type;
 
 //ROB
 wire [31:0]     EXMEM_to_rob_complete_value;
-wire [4:0]      EXMEM_to_cache_and_rob_complete_idx;
+wire [3:0]      EXMEM_to_cache_and_rob_complete_idx;
 wire            EXMEM_to_rob_complete;
+
+//Exception vector
+wire [2:0]      EXMEM_to_cache_exception_vector;
 
 //Passing by
 wire EXMEM_to_cache_mem_to_reg;
@@ -565,7 +569,7 @@ wire cache_to_MEMWB_mem_to_reg;
 wire cache_to_MEMWB_write_enable;
 
 //ROB
-wire cache_to_MEMWB_complete_idx;
+wire [3:0] cache_to_MEMWB_complete_idx;
 wire cache_to_MEMWB_complete;
 
 stage_cache cache(
@@ -660,7 +664,7 @@ registers_MEMWB registers_MEMWB(
     .out_complete(MEMWB_to_ROB_complete)
 );
 
-
+/*
 stage_writeback writeback(
     .clk(clk),
     .reset(reset),
@@ -678,6 +682,7 @@ stage_writeback writeback(
     .out_rd(writeback_to_decode_rd),
     .out_write_enable(writeback_to_decode_write_enable)
 );
+*/
 
 //wires for
 //Registers M5WB --> ROB

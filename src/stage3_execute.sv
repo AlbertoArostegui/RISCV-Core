@@ -45,6 +45,9 @@ module stage_execute(
     input in_mem_to_reg,
     input in_write_enable,
 
+    //ROB 
+    input [3:0] in_complete_idx,
+
     //Exception vector
     input [2:0] in_exception_vector,
 
@@ -70,7 +73,8 @@ module stage_execute(
     output [2:0] out_exception_vector,
 
     //ROB
-    output out_complete
+    output out_complete,
+    output [3:0] out_complete_idx
 );
 
 assign out_rd = in_IDEX_rd;
@@ -82,7 +86,8 @@ assign out_write_enable = in_write_enable;
 assign out_funct3 = in_funct3;
 assign out_exception_vector = in_exception_vector; //TODO: Exception handling. Here should be divide by zero
 assign out_instr_type = in_instr_type;                          //This propagates the instruction type to the next stage
-assign out_complete = (in_instr_type != `INSTR_TYPE_NO_WB);     //This is for the ROB, to see if we write from this stage or not
+assign out_complete = (in_instr_type == `INSTR_TYPE_ALU);     //This is for the ROB, to see if we write from this stage or not. We write if the instr is ALU type. Either way, we propagate the idx
+assign out_complete_idx = in_complete_idx;
 
 forwarding_unit forwarding_unit(
     .clk(clk),

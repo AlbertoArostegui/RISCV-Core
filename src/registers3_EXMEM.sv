@@ -21,7 +21,7 @@ module registers_EXMEM(
     input               in_d_cache_stall,
 
     //ROB
-    input [3:0]         in_rob_idx,
+    input [3:0]         in_complete_idx,
     input               in_complete,
 
     //Exception vector
@@ -45,7 +45,10 @@ module registers_EXMEM(
     //ROB
     output reg [3:0]    out_complete_idx,
     output reg [31:0]   out_complete_value,
-    output reg          out_complete
+    output reg          out_complete,
+
+    //Exception vector
+    output reg [2:0]    out_exception_vector
 );
 
 initial begin
@@ -62,6 +65,7 @@ initial begin
     out_complete_idx = 0;
     out_complete_value = 0;
     out_complete = 0;
+    out_exception_vector = 0;
 end
 
 always @(posedge clk) begin
@@ -85,9 +89,11 @@ always @(posedge clk) begin
         out_write_enable <= in_write_enable;
 
         //Write to the ROB if its an ALU instruction. If not, propagate the idx. Value and complete go directly to the ROB.
-        out_complete_idx <= in_rob_idx;
+        out_complete_idx <= in_complete_idx;
         out_complete_value <= in_alu_out;
         out_complete <= in_complete;
+
+        out_exception_vector <= in_exception_vector;
     end
 end
 

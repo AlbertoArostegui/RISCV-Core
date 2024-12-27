@@ -28,7 +28,7 @@ module stage_cache #(
 
     //ROB
     input [3:0]         in_complete_idx,
-    input               in_instr_type,
+    input [2:0]         in_instr_type,
 
 
     //OUTPUT
@@ -121,7 +121,7 @@ store_buffer store_buffer(
     .in_addr(in_alu_out),
     .in_data(in_write_data),
     .in_funct3(),
-    .in_store_inst(),
+    .in_store_instr(),
 
     //OUTPUT
     .out_addr(),

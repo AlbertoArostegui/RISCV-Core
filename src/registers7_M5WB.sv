@@ -20,12 +20,12 @@ module registers_M5WB (
 always @(posedge clk) begin
     if (reset) begin
         out_mul_out <= 0;
-        out_rob_idx <= 0;
+        out_complete_idx <= 0;
         out_complete <= 0;
         out_exception_vector <= 0;
     end else begin
         out_mul_out <= in_mul_out;
-        out_rob_idx <= in_rob_idx;
+        out_complete_idx <= in_complete_idx;
         out_complete <= in_complete;
         out_exception_vector <= in_exception_vector;
     end

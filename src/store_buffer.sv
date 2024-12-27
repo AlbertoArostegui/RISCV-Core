@@ -28,16 +28,7 @@ module store_buffer #(
     output reg          out_write_to_cache,
     output reg          out_stall
 );
-
-/*
-66                35 34                  3   0
-+-------------------+--------------------+---+
-|   Address         |   Data             | F |
-+-------------------+--------------------+---+
-                                           |
-                                           +-- funct3
-*/
-
+/* Original, but icarus verilog does not support iterating packed structs
 typedef struct packed {
     reg [31:0] addr;
     reg [31:0] data;
@@ -46,10 +37,19 @@ typedef struct packed {
 } sb_entry;
 
 sb_entry [SB_SIZE-1:0] entries;
+*/
+
+
+// Individual arrays instead of structure
+reg [31:0] addr      [SB_SIZE-1:0];
+reg [31:0] data      [SB_SIZE-1:0];
+reg [2:0]  funct3    [SB_SIZE-1:0];
+reg [3:0]  rob_idx   [SB_SIZE-1:0];
+
 reg [1:0] store_counter; 
 reg [1:0] oldest;
 
-wire stall = in_store_inst && (store_counter == 2'b11);
+wire stall = in_store_instr && (store_counter == 2'b11);
 
 always @(*) begin
     //Case full and new store enters -> Stall
@@ -58,10 +58,10 @@ always @(*) begin
     //Case rob indicates instr completion -> commit to cache
     else if (in_complete) begin
         for (int i = 0; i < SB_SIZE; i++) begin
-            if (entries[i].rob_idx == in_complete_idx) begin
-                out_addr <= entries[i].addr;
-                out_data <= entries[i].data;
-                out_funct3 <= entries[i].funct3;
+            if (rob_idx[i] == in_complete_idx) begin
+                out_addr <= addr[i];
+                out_data <= data[i];
+                out_funct3 <= funct3[i];
                 out_write_to_cache <= 1;
             end
         end
@@ -70,35 +70,35 @@ always @(*) begin
     //Case load instr -> check if addr in store buffer. This is sb bypass
     else if (in_load_instr) begin
         for (int i = 0; i < SB_SIZE; i++) begin
-            if (entries[i].addr == in_addr) begin
-                out_addr <= entries[i].addr;
-                out_data <= entries[i].data;
-                out_funct3 <= entries[i].funct3;
+            if (addr[i] == in_addr) begin
+                out_addr <= addr[i];
+                out_data <= data[i];
+                out_funct3 <= funct3[i];
                 out_hit <= 1;
             end
         end
     end
 end
-
+//TODO: Drain store buffer. Figure out when is it needed to drain.
 always @(posedge clk) begin
     if (reset || in_exception) reset_sb();                              //Case exception        --> Nuke Store Buffer (precise exceptions) or simply reset
-    if (in_store_inst) begin                                            //Case we store         --> We save into the entries the store
-        entries[store_counter].addr <= in_addr;
-        entries[store_counter].data <= in_data;
-        entries[store_counter].funct3 <= in_funct3;
-        entries[store_counter].rob_idx <= in_rob_idx;
+    else begin                                                          //Case we store         --> We save into the entries the store
+        addr[store_counter] <= in_addr;
+        data[store_counter] <= in_data;
+        funct3[store_counter] <= in_funct3;
+        rob_idx[store_counter] <= in_rob_idx;
         store_counter <= store_counter + 1;
     if (out_hit) store_counter <= store_counter - 1;                    //Case we bypass load   --> We remove from our entries the data we loaded
-    if (completed) store_counter <= store_counter - 1;                  //Case we write 2 cache --> We remove from our entries the data we are committing
+    if (in_completed) store_counter <= store_counter - 1;                  //Case we write 2 cache --> We remove from our entries the data we are committing
     end
 end
 
 task reset_sb;
     for (int i = 0; i < 3; i++) begin
-        entries[i].addr <= 0;
-        entries[i].data <= 0;
-        entries[i].funct3 <= 0;
-        entries[i].rob_idx <= 0;
+        addr[i] <= 0;
+        data[i] <= 0;
+        funct3[i] <= 0;
+        rob_idx[i] <= 0;
     end
     store_counter <= 0;
     oldest <= 0;

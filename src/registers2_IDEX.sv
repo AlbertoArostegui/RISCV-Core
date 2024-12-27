@@ -36,7 +36,7 @@ module registers_IDEX(
     input in_d_cache_stall,
 
     //ROB
-    input [3:0] in_rob_idx,
+    input [3:0] in_complete_idx,
 
     //Exception vector
     input [2:0] in_exception_vector,
@@ -70,7 +70,7 @@ module registers_IDEX(
     output reg out_write_enable,
 
     //ROB
-    output reg [3:0] out_rob_idx,
+    output reg [3:0] out_complete_idx,
 
     //Exception vector
     output reg [2:0] out_exception_vector
@@ -100,7 +100,7 @@ module registers_IDEX(
             out_mem_to_reg <= 1'b0;
             out_write_enable <= 1'b0;
             //ROB
-            out_rob_idx <= 4'b0;
+            out_complete_idx <= 4'b0;
             //Exception
             out_exception_vector <= 3'b0;
         end else begin
@@ -128,7 +128,7 @@ module registers_IDEX(
                 out_mem_to_reg <= in_mem_to_reg;
                 out_write_enable <= in_write_enable;
 
-                out_rob_idx <= in_rob_idx;
+                out_complete_idx <= in_complete_idx;
 
                 out_exception_vector <= in_exception_vector;
             end

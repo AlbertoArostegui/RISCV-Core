@@ -21,6 +21,8 @@ module stage_decode(
     input [4:0] in_IDEX_rd,
     input in_IDEX_mem_read,
 
+    input [3:0] in_complete_idx,
+
     //Exception
     input [2:0] in_exception_vector,
 
@@ -62,6 +64,7 @@ module stage_decode(
     output out_IFID_write_disable,
 
     //ROB
+    output [3:0] out_complete_idx,
     output out_allocate,
     output [31:0] out_addr_miss,
 
@@ -75,6 +78,7 @@ wire [4:0] decoder_to_rf_rs2;
 assign out_instruction = in_instruction;
 assign out_PC = in_PC;
 assign out_exception_vector = in_exception_vector;
+assign out_complete_idx = in_complete_idx;
 
 assign out_allocate = (out_instr_type != `INSTR_TYPE_NO_WB); 
 //We only allocate in the ROB if the instruction has a write back to the registers or if its a store (SB is managed by ROB).
