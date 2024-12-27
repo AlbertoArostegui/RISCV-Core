@@ -33,6 +33,9 @@ module reorder_buffer #(
     //Control
     input wire          in_stall,
 
+    //Exception
+    input wire [31:0]   in_addr_miss_instr,
+    input wire [31:0]   in_addr_miss_data,
     
     //OUTPUT
     output reg          out_ready,

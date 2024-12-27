@@ -89,7 +89,7 @@ always @(posedge clk) begin
         rob_idx[store_counter] <= in_rob_idx;
         store_counter <= store_counter + 1;
     if (out_hit) store_counter <= store_counter - 1;                    //Case we bypass load   --> We remove from our entries the data we loaded
-    if (in_completed) store_counter <= store_counter - 1;                  //Case we write 2 cache --> We remove from our entries the data we are committing
+    if (in_complete) store_counter <= store_counter - 1;                  //Case we write 2 cache --> We remove from our entries the data we are committing
     end
 end
 

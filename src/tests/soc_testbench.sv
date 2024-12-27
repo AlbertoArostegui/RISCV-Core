@@ -205,14 +205,6 @@ module soc_testbench();
             dut.core.registers_MEMWB.out_write_enable
         );
 
-        // WRITEBACK STAGE
-        $display("\n[✍️ WRITEBACK STAGE]");
-        $display("OUT: rd=%d data=%h write_enable=%b",
-            dut.core.writeback.out_rd,
-            dut.core.writeback.out_data,
-            dut.core.writeback.out_write_enable
-        );
-
         // Register File State
         $display("\n[📊 REGISTER FILE STATE]");
         for(int i = 0; i < 32; i += 4) begin
