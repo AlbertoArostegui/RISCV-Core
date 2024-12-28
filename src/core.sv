@@ -190,6 +190,8 @@ wire [31:0] decode_to_ROB_instr_addr_miss;
 //FROM ROB
 wire [31:0] ROB_to_decode_value;
 wire [4:0] ROB_to_decode_rd;
+wire        ROB_to_decode_write_enable;
+//TO ROB
 wire decode_to_ROB_allocate;
 
 //Exception vector
@@ -204,11 +206,11 @@ stage_decode decode(
 
     //INPUT FROM ROB
     //This should come from control from WB
-    .in_write_enable(writeback_to_decode_write_enable),
+    .in_write_enable(ROB_to_decode_write_enable),
     //This should come from control from WB
-    .in_write_reg(writeback_to_decode_rd),
+    .in_write_reg(ROB_to_decode_rd),
     //This should come from WB
-    .in_write_data(writeback_to_decode_and_execute_out_data),
+    .in_write_data(ROB_to_decode_value),
 
     //Hazard Detection Unit
     .in_IDEX_rd(IDEX_to_decode_and_execute_rd),
@@ -401,6 +403,14 @@ wire [31:0] EXMEM_to_execute_and_cache_and_ROB_alu_out; //For EX data hazards
 wire [3:0] execute_to_registers_complete_idx;
 wire execute_to_registers_complete;
 
+//ROB Bypass
+wire [4:0] execute_to_ROB_rs1;
+wire [4:0] execute_to_ROB_rs2;
+wire ROB_to_execute_bypass_rs1;
+wire [31:0] ROB_to_execute_bypass_rs1_value;
+wire ROB_to_execute_bypass_rs2;
+wire [31:0] ROB_to_execute_bypass_rs2_value;
+
 //Exception vector
 wire [2:0] execute_to_registers_exception_vector;
 
@@ -445,6 +455,11 @@ stage_execute execute(
 
     //ROB
     .in_complete_idx(IDEX_to_execute_complete_idx),
+    //ROB Bypass
+    .in_rs1_ROB_bypass(ROB_to_execute_bypass_rs1),
+    .in_rs1_ROB_bypass_value(ROB_to_execute_bypass_rs1_value),
+    .in_rs2_ROB_bypass(ROB_to_exeucte_bypass_rs2),
+    .in_rs2_ROB_bypass_value(ROB_to_execute_bypass_rs2_value),
 
     //Exception vector
     .in_exception_vector(IDEX_to_execute_exception_vector),
@@ -472,6 +487,10 @@ stage_execute execute(
     //ROB
     .out_complete_idx(execute_to_registers_complete_idx),
     .out_complete(execute_to_registers_complete),
+
+    //ROB Bypass
+    .out_rs1_ROB(execute_to_ROB_rs1),
+    .out_rs2_ROB(execute_to_ROB_rs2),
 
     //Exception vector
     .out_exception_vector(execute_to_registers_exception_vector)
@@ -726,7 +745,7 @@ reorder_buffer rob(
 
     //FROM EXECUTE REGISTERS
     .in_complete(EXMEM_to_rob_complete),
-    .in_complete_idx(EXMEM_to_rob_complete_idx),
+    .in_complete_idx(EXMEM_to_cache_and_rob_complete_idx),
     .in_complete_value(EXMEM_to_execute_and_cache_and_ROB_alu_out),
     .in_exception(),
 
@@ -742,16 +761,28 @@ reorder_buffer rob(
     .in_mul_complete_value(M5WB_to_ROB_complete_value),
     .in_mul_exception(M5WB_to_ROB_exception_vector),
 
+    //CONTROL
+    .in_stall(i_cache_stall | d_cache_stall),
+
+    //BYPASS
+    .in_execute_rs1(execute_to_ROB_rs1),
+    .in_execute_rs2(execute_to_ROB_rs2),
 
     //OUTPUT
+    .out_ready(ROB_to_decode_write_enable),
     .out_value(ROB_to_decode_value),
     .out_miss_addr(),                           //TLB MISS          Write to rm0, rm1
     .out_PC(),                                  //TODO: TLB MISS
     .out_rd(ROB_to_decode_rd),  
     .out_exception(),                           //TODO: On exception, nuke rob, flush pipeline and save PC and address of exception
     .out_instr_type(),                          //Maybe not needed, just used as logic inside ROB for deciding if w.enable
-    .out_full(stall),                           //Stalling when full
-    .out_alloc_idx(rob_to_registers_IFID_idx)   //This is the index of the instruction in the ROB
+    .out_full(),                           //Stalling when full
+    .out_alloc_idx(rob_to_registers_IFID_idx),   //This is the index of the instruction in the ROB
+    //BYPASS
+    .out_rs1_bypass(ROB_to_execute_bypass_rs1),
+    .out_rs1_bypass_value(ROB_to_execute_bypass_rs1_value),
+    .out_rs2_bypass(ROB_to_execute_bypass_rs2),
+    .out_rs2_bypass_value(ROB_to_execute_bypass_rs2_value)
 );
 
 endmodule

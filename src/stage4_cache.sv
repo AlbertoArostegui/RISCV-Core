@@ -57,7 +57,7 @@ assign out_rd = in_rd;
 assign out_mem_to_reg = in_mem_to_reg;
 assign out_write_enable = in_write_enable;
 assign out_complete_idx = in_complete_idx;
-assign out_complete = !out_stall && (in_instr_type != `INSTR_TYPE_LOAD);    //TODO: Manage stores. We have to see how do we do the logic
+assign out_complete = !out_stall && (in_instr_type == `INSTR_TYPE_LOAD || in_instr_type == `INSTR_TYPE_STORE);    //TODO: Manage stores. We have to see how do we do the logic
                                                                             //with the SB and the ROB
 /*
 // Instantiate the DTLB

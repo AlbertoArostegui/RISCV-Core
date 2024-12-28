@@ -48,6 +48,12 @@ module stage_execute(
     //ROB 
     input [3:0] in_complete_idx,
 
+    //ROB Bypass
+    input in_rs1_ROB_bypass,
+    input [31:0] in_rs1_ROB_bypass_value,
+    input in_rs2_ROB_bypass,
+    input [31:0] in_rs2_ROB_bypass_value,
+
     //Exception vector
     input [2:0] in_exception_vector,
 
@@ -74,7 +80,11 @@ module stage_execute(
 
     //ROB
     output out_complete,
-    output [3:0] out_complete_idx
+    output [3:0] out_complete_idx,
+
+    //ROB Bypass
+    output [4:0] out_rs1_ROB,
+    output [4:0] out_rs2_ROB
 );
 
 assign out_rd = in_IDEX_rd;
@@ -86,8 +96,10 @@ assign out_write_enable = in_write_enable;
 assign out_funct3 = in_funct3;
 assign out_exception_vector = in_exception_vector; //TODO: Exception handling. Here should be divide by zero
 assign out_instr_type = in_instr_type;                          //This propagates the instruction type to the next stage
-assign out_complete = (in_instr_type == `INSTR_TYPE_ALU);     //This is for the ROB, to see if we write from this stage or not. We write if the instr is ALU type. Either way, we propagate the idx
+assign out_complete = (in_instr_type == `INSTR_TYPE_ALU) && (in_opcode == `OPCODE_ALU || in_opcode == `OPCODE_ALU_IMM);     //This is for the ROB, to see if we write from this stage or not. We write if the instr is ALU type. Either way, we propagate the idx
 assign out_complete_idx = in_complete_idx;
+assign out_rs1_ROB = in_rs1;
+assign out_rs2_ROB = in_rs2;
 
 forwarding_unit forwarding_unit(
     .clk(clk),
@@ -112,13 +124,15 @@ wire [31:0] alu_operand1;
 wire [31:0] alu_operand2;
 
 // MUX for forwarding
-assign alu_operand1 = (forwardA == 2'b10) ? in_EXMEM_alu_out :
-                     (forwardA == 2'b01) ? in_MEMWB_out_data :
-                     in_data_rs1;
+assign alu_operand1 =   (forwardA == 2'b10) ? in_EXMEM_alu_out :
+                        (forwardA == 2'b01) ? in_MEMWB_out_data :
+                        in_rs1_ROB_bypass ? in_rs1_ROB_bypass_value :
+                        in_data_rs1;
 
-assign alu_operand2 = (forwardB == 2'b10) ? in_EXMEM_alu_out :
-                     (forwardB == 2'b01) ? in_MEMWB_out_data :
-                     in_data_rs2;
+assign alu_operand2 =   (forwardB == 2'b10) ? in_EXMEM_alu_out :
+                        (forwardB == 2'b01) ? in_MEMWB_out_data :
+                        in_rs2_ROB_bypass ? in_rs2_ROB_bypass_value :
+                        in_data_rs2;
                      
 //IMPORTANT: This is the data that will be stored in the memory. It also comes
 //from the registers so hazards could happen. It must be after the first MUX

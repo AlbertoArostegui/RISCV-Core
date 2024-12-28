@@ -1,3 +1,4 @@
+`include "defines2.sv"
 module reorder_buffer #(
     parameter ROB_SIZE = 10
     ) (
@@ -33,6 +34,10 @@ module reorder_buffer #(
     //Control
     input wire          in_stall,
 
+    //Bypass
+    input wire [4:0]    in_execute_rs1,
+    input wire [4:0]    in_execute_rs2,
+
     //Exception
     input wire [31:0]   in_addr_miss_instr,
     input wire [31:0]   in_addr_miss_data,
@@ -46,8 +51,16 @@ module reorder_buffer #(
     output reg  [2:0]   out_exception,
     output reg  [2:0]   out_instr_type,
     
+    //To decode
+    output wire [3:0]   out_alloc_idx,
+    //Control
     output wire         out_full,
-    output wire [3:0]   out_alloc_idx
+
+    //Bypass
+    output reg          out_rs1_bypass,  
+    output reg [31:0]   out_rs1_bypass_value,
+    output reg          out_rs2_bypass,
+    output reg [31:0]   out_rs2_bypass_value
 );
 
 /*We should take decisions according to instr_type. We should have at least
@@ -72,14 +85,55 @@ reg [3:0] count;
 assign out_full = (count == ROB_SIZE);
 assign out_alloc_idx = tail;
 
+//TODO: Fix this forwarding. For the case of the loop bne, the third instruction has to forwared the value for r1, since rs2 is r1 in the 3rd instruction. It is written to r1 correctly, but the value is not forwarded.
+//Forwarding logic
+reg [3:0] idx;
+reg found_rs1;
+reg found_rs2;
+
 always @(*) begin
-    //Case we complete an instruction
+    out_rs1_bypass = 0;
+    out_rs2_bypass = 0;
+    out_rs1_bypass_value = 0;
+    out_rs2_bypass_value = 0;
+
+    // Start from newest entry (tail-1) and go backwards to head
+    idx = (tail == 0) ? ROB_SIZE-1 : tail-1;
+    found_rs1 = 0;
+    found_rs2 = 0;
+
+    while (idx != head && (!found_rs1 || !found_rs2)) begin
+        if (!found_rs1 && valid[idx] && complete[idx] && in_execute_rs1 == rd[idx]) begin
+            out_rs1_bypass = 1;
+            out_rs1_bypass_value = value[idx];
+            found_rs1 = 1;
+        end
+        if (!found_rs2 && valid[idx] && complete[idx] && in_execute_rs2 == rd[idx]) begin
+            out_rs2_bypass = 1;
+            out_rs2_bypass_value = value[idx];
+            found_rs2 = 1;
+        end
+        idx = (idx == 0) ? ROB_SIZE-1 : idx-1;
+    end
+
+    // Check head position as well
+    if (!found_rs1 && valid[head] && complete[head] && in_execute_rs1 == rd[head]) begin
+        out_rs1_bypass = 1;
+        out_rs1_bypass_value = value[head];
+    end
+    if (!found_rs2 && valid[head] && complete[head] && in_execute_rs2 == rd[head]) begin
+        out_rs2_bypass = 1;
+        out_rs2_bypass_value = value[head];
+    end
+end
+
+always @(*) begin
     if (valid[head] && complete[head]) begin
         if (exception[head] != 3'b0) begin
             out_PC <= PC[head];                         //Send to rm0
             out_miss_addr <= addr_miss[head];           //Send to rm1
         end else begin
-            out_ready <= complete[head];
+            out_ready <= complete[head] && (instr_type[head] == `INSTR_TYPE_ALU || instr_type[head] == `INSTR_TYPE_MUL || instr_type[head] == `INSTR_TYPE_LOAD);
             out_value <= value[head];
             out_rd <= rd[head];
             out_exception <= exception[head];
@@ -106,7 +160,7 @@ always @(posedge clk) begin
     end
 
     else begin
-        // Allocation. From decode. Once per cycle. Only on non stalled cycles. 
+        // Allocation. From decode. Once per cycle. Only on non-stalled cycles. 
         if (in_allocate && !out_full && !in_stall) begin
             PC[tail] <= in_PC;
             addr_miss[tail] <= in_addr_miss;
