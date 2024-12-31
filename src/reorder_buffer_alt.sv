@@ -8,6 +8,7 @@ module reorder_buffer #(
     //INPUT
     //From decode
     input  wire         in_allocate,
+    input  wire [3:0]   in_allocate_idx,
     input  wire [31:0]  in_PC,
     input  wire [31:0]  in_addr_miss,
     input  wire [4:0]   in_rd,
@@ -66,8 +67,6 @@ module reorder_buffer #(
 /*We should take decisions according to instr_type. We should have at least
 * ALU, STORE/LOAD and MUL*/
 
-// Original declaration
-// rob_entry [ROB_SIZE-1:0] entries;
 
 reg [31:0] PC          [ROB_SIZE-1:0];
 reg [31:0] addr_miss   [ROB_SIZE-1:0];
@@ -79,11 +78,11 @@ reg [2:0]  exception   [ROB_SIZE-1:0];
 reg [2:0]  instr_type  [ROB_SIZE-1:0];
 
 reg [3:0] head;
-reg [3:0] tail;
+//reg [3:0] in_allocate_idx;
 reg [3:0] count;
 
 assign out_full = (count == ROB_SIZE);
-assign out_alloc_idx = tail;
+assign out_alloc_idx = in_allocate_idx;
 
 //TODO: Fix this forwarding. For the case of the loop bne, the third instruction has to forwared the value for r1, since rs2 is r1 in the 3rd instruction. It is written to r1 correctly, but the value is not forwarded.
 //Forwarding logic
@@ -97,8 +96,8 @@ always @(*) begin
     out_rs1_bypass_value = 0;
     out_rs2_bypass_value = 0;
 
-    // Start from newest entry (tail-1) and go backwards to head
-    idx = (tail == 0) ? ROB_SIZE-1 : tail-1;
+    // Start from newest entry (in_allocate_idx-1) and go backwards to head
+    idx = (in_allocate_idx == 0) ? ROB_SIZE-1 : in_allocate_idx-1;
     found_rs1 = 0;
     found_rs2 = 0;
 
@@ -145,7 +144,7 @@ end
 always @(posedge clk) begin
     if (reset) begin              
         head <= 0;
-        tail <= 0;
+        //in_allocate_idx <= 0;
         count <= 0;
         out_ready <= 0;
         
@@ -153,25 +152,29 @@ always @(posedge clk) begin
 
     end else if (exception[head] != 3'b0) begin
         head <= 0;
-        tail <= 0;
+        //in_allocate_idx <= 0;
         count <= 0;
         out_ready <= 0;
         invalidate_rob();
     end
 
     else begin
+
+        //in_allocate_idx <= (tail + 1) % ROB_SIZE;
+        //count <= count + 1;
+
         // Allocation. From decode. Once per cycle. Only on non-stalled cycles. 
         if (in_allocate && !out_full && !in_stall) begin
-            PC[tail] <= in_PC;
-            addr_miss[tail] <= in_addr_miss;
-            rd[tail] <= in_rd;
-            instr_type[tail] <= in_instr_type;
-            valid[tail] <= 1;
-            complete[tail] <= 0;
-            exception[tail] <= 3'b0;
+            PC[in_allocate_idx] <= in_PC;
+            addr_miss[in_allocate_idx] <= in_addr_miss;
+            rd[in_allocate_idx] <= in_rd;
+            instr_type[in_allocate_idx] <= in_instr_type;
+            valid[in_allocate_idx] <= 1;
+            complete[in_allocate_idx] <= 0;
+            exception[in_allocate_idx] <= 3'b0;
             
-            tail <= (tail + 1) % ROB_SIZE;
-            count <= count + 1;
+            //in_allocate_idx <= (tail + 1) % ROB_SIZE;
+            //count <= count + 1;
         end
         
         // Completion. Even on stalled cycles (for now)

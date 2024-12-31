@@ -45,6 +45,75 @@ module soc_testbench();
     task automatic display_processor_state;
         $display("\n╔═══════════════════ CYCLE %0d ════════════════════╗", $time/2);
         
+        $display("\n[📋 REORDER BUFFER STATE]");
+        $display("INPUTS:");
+        $display("  Allocate=%b in_PC=%h rd=%d instr_type=%b\n     stall=%b", 
+            dut.core.rob.in_allocate,
+            dut.core.rob.in_PC,
+            dut.core.rob.in_rd,
+            dut.core.rob.in_instr_type,
+            dut.core.rob.in_stall
+        );
+        $display("  Execute complete=%b idx=%d value=%h exception=%b",
+            dut.core.rob.in_complete,
+            dut.core.rob.in_complete_idx,
+            dut.core.rob.in_complete_value,
+            dut.core.rob.in_exception
+        );
+        $display("  Cache complete=%b idx=%d value=%h exception=%b",
+            dut.core.rob.in_cache_complete,
+            dut.core.rob.in_cache_complete_idx,
+            dut.core.rob.in_cache_out,
+            dut.core.rob.in_cache_exception
+        );
+        $display("  Mul complete=%b idx=%d value=%h exception=%b",
+            dut.core.rob.in_mul_complete,
+            dut.core.rob.in_mul_complete_idx,
+            dut.core.rob.in_mul_complete_value,
+            dut.core.rob.in_mul_exception
+        );
+        
+        $display("\nOUTPUTS:");
+        $display("  Ready=%b value=%h rd=%d exception=%b instr_type=%b out_full=%b\nrs1_bypass=%b rs1_bypass_value=%h rs2_bypass=%b rs2_bypass_value=%h",
+            dut.core.rob.out_ready,
+            dut.core.rob.out_value,
+            dut.core.rob.out_rd,
+            dut.core.rob.out_exception,
+            dut.core.rob.out_instr_type,
+            dut.core.rob.out_full,
+            dut.core.rob.out_rs1_bypass,
+            dut.core.rob.out_rs1_bypass_value,
+            dut.core.rob.out_rs2_bypass,
+            dut.core.rob.out_rs2_bypass_value
+        );
+        $display("  Full=%b alloc_idx=%d",
+            dut.core.rob.out_full,
+            dut.core.rob.out_alloc_idx
+        );
+        
+        $display("\nROB ENTRIES (head=%d in_allocate_idx=%d count=%d):", 
+            dut.core.rob.head,
+            //dut.core.rob.tail,
+            dut.core.rob.in_allocate_idx,
+            dut.core.rob.count
+        );
+        $display("╔════╤══════════╤══════════╤═════╤═══════╤═════════╤═════════════╤════════════╗");
+        $display("║ ## │    PC    │  VALUE   │ RD  │ VALID │COMPLETE │  EXCEPTION  │ INST_TYPE  ║");
+        $display("╠════╪══════════╪══════════╪═════╪═══════╪═════════╪═════════════╪════════════╣");
+        for(int i = 0; i < 10; i++) begin
+            $display("║ %2d │ %6h │ %6h │ %3d │   %b   │    %b    │     %b     │    %b     ║",
+                i,
+                dut.core.rob.PC[i],
+                dut.core.rob.value[i],
+                dut.core.rob.rd[i],
+                dut.core.rob.valid[i],
+                dut.core.rob.complete[i],
+                dut.core.rob.exception[i],
+                dut.core.rob.instr_type[i]
+            );
+        end
+        $display("╚════╧══════════╧══════════╧═════╧═══════╧═════════╧═════════════╧════════════╝");
+
         // FETCH STAGE
         $display("\n[📍 FETCH STAGE]");
         $display("IN:");
@@ -60,13 +129,15 @@ module soc_testbench();
             decode_instruction(dut.core.fetch.out_instruction)
         );
 
+        $display("\n[rob_idx reg = %d]", dut.core.rob_idx);
         // IF/ID Pipeline Registers
         $display("\n[🔄 IF/ID REGISTERS]");
-        $display("IN: IFID_write_disable=%b", dut.core.registers_IFID.in_IFID_write_disable);
-        $display("OUT: PC=%h instruction=%h (%s)",
+        $display("IN: IFID_write_disable=%b in_rob_idx=%d", dut.core.registers_IFID.in_complete_idx, dut.core.registers_IFID.in_IFID_write_disable);
+        $display("OUT: PC=%h instruction=%h (%s)\n     ROB_IDX = %d",
             dut.core.registers_IFID.out_PC,
             dut.core.registers_IFID.out_instruction,
-            decode_instruction(dut.core.registers_IFID.out_instruction)
+            decode_instruction(dut.core.registers_IFID.out_instruction),
+            dut.core.registers_IFID.out_complete_idx
         );
 
         // DECODE STAGE
@@ -113,10 +184,11 @@ module soc_testbench();
 
         // ID/EX Pipeline Registers
         $display("\n[🔄 ID/EX REGISTERS]");
-        $display("OUT: PC=%h instruction=%h (%s)",
+        $display("OUT: PC=%h instruction=%h (%s)\n     ROB_IDX = %d",
             dut.core.registers_IDEX.out_PC,
             dut.core.registers_IDEX.out_instruction,
-            decode_instruction(dut.core.registers_IDEX.out_instruction)
+            decode_instruction(dut.core.registers_IDEX.out_instruction),
+            dut.core.registers_IDEX.out_complete_idx
         );
         $display("  Data: rs1=%d rs2=%d rd=%d data_rs1=%h data_rs2=%h imm=%h",
             dut.core.registers_IDEX.out_rs1,
@@ -139,23 +211,33 @@ module soc_testbench();
         // EXECUTE STAGE
         $display("\n[⚡ EXECUTE STAGE]");
         $display("IN:");
-        $display("  Data: PC=%h rs1_data=%h rs2_data=%h imm=%h",
+        $display("  Data: PC=%h rs1_data=%h rs2_data=%h imm=%h", 
             dut.core.execute.in_PC,
             dut.core.execute.in_data_rs1,
             dut.core.execute.in_data_rs2,
             dut.core.execute.in_immediate
         );
-        $display("  Forwarding: rs1=%d rs2=%d EXMEM_rd=%d EXMEM_write_enable=%b MEMWB_rd=%d MEMWB_write_enable=%b",
-            dut.core.execute.in_rs1,
-            dut.core.execute.in_rs2,
-            dut.core.execute.in_EXMEM_rd,
-            dut.core.execute.in_EXMEM_write_enable,
-            dut.core.execute.in_MEMWB_rd,
-            dut.core.execute.in_MEMWB_write_enable
-        );
-        $display(" Operand1: %h Operand2: %h",
+        
+        // Forwarding logic breakdown
+        $display("\nFORWARDING RESOLUTION:");
+        $display("Operand 1 (rs1=%d):", dut.core.execute.in_rs1);
+        $display("  REG   value: %h", dut.core.execute.in_data_rs1);
+        $display("  EXMEM value: %h", dut.core.execute.in_EXMEM_alu_out);
+        $display("  MEMWB value: %h", dut.core.execute.in_MEMWB_out_data);
+        $display("  ROB   value: %h", dut.core.execute.in_rs1_ROB_bypass_value);
+        $display("  Selected: %h (%s)", 
             dut.core.execute.alu_operand1,
-            dut.core.execute.alu_operand2
+            decode_forward(dut.core.execute.forwarding_unit.forwardA, dut.core.execute.in_rs1_ROB_bypass)
+        );
+
+        $display("\nOperand 2 (rs2=%d):", dut.core.execute.in_rs2);
+        $display("  REG   value: %h", dut.core.execute.in_data_rs2);
+        $display("  EXMEM value: %h", dut.core.execute.in_EXMEM_alu_out);
+        $display("  MEMWB value: %h", dut.core.execute.in_MEMWB_out_data);
+        $display("  ROB   value: %h", dut.core.execute.in_rs2_ROB_bypass_value);
+        $display("  Selected: %h (%s)", 
+            dut.core.execute.alu_operand2,
+            decode_forward(dut.core.execute.forwarding_unit.forwardB, dut.core.execute.in_rs2_ROB_bypass)
         );
         $display("OUT:");
         $display("  ALU: result=%h branch_taken=%b",
@@ -271,5 +353,14 @@ module soc_testbench();
         endcase
         return asm;
     endfunction
+
+    function string decode_forward(input logic [1:0] forward, input logic rob_bypass);
+    case ({forward, rob_bypass})
+        3'b100: return "EXMEM";
+        3'b010: return "MEMWB";
+        3'b001: return "ROB";
+        default: return "REG";
+    endcase
+endfunction
 
 endmodule

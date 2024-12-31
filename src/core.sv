@@ -104,6 +104,7 @@ wire [3:0] rob_to_registers_IFID_idx;
 
 //ROB
 wire [3:0] IFID_to_decode_complete_idx;
+wire IFID_to_ROB_wait_stall;
 
 //Exception vector
 wire [2:0] IFID_to_decode_exception_vector;
@@ -125,7 +126,7 @@ registers_IFID registers_IFID(
     .in_d_cache_stall(d_cache_stall),
 
     //ROB
-    .in_complete_idx(rob_to_registers_IFID_idx),
+    .in_complete_idx(rob_idx),
 
     //Exception vector
     .in_exception_vector(fetch_to_registers_exception_vector),
@@ -136,6 +137,8 @@ registers_IFID registers_IFID(
 
     //ROB
     .out_complete_idx(IFID_to_decode_complete_idx),
+    .out_wait_stall(IFID_to_ROB_wait_stall),
+
 
     //Exception vector
     .out_exception_vector(IFID_to_decode_exception_vector)
@@ -193,6 +196,7 @@ wire [4:0] ROB_to_decode_rd;
 wire        ROB_to_decode_write_enable;
 //TO ROB
 wire decode_to_ROB_allocate;
+wire [3:0] decode_to_ROB_allocate_idx;
 
 //Exception vector
 wire [2:0] decode_to_registers_exception_vector;
@@ -256,6 +260,7 @@ stage_decode decode(
 
     //ROB allocation
     .out_allocate(decode_to_ROB_allocate),
+    .out_allocate_idx(decode_to_ROB_allocate_idx),
     .out_addr_miss(decode_to_ROB_instr_addr_miss),                                               //iTLB address miss
 
     //ROB later input
@@ -458,7 +463,7 @@ stage_execute execute(
     //ROB Bypass
     .in_rs1_ROB_bypass(ROB_to_execute_bypass_rs1),
     .in_rs1_ROB_bypass_value(ROB_to_execute_bypass_rs1_value),
-    .in_rs2_ROB_bypass(ROB_to_exeucte_bypass_rs2),
+    .in_rs2_ROB_bypass(ROB_to_execute_bypass_rs2),
     .in_rs2_ROB_bypass_value(ROB_to_execute_bypass_rs2_value),
 
     //Exception vector
@@ -728,6 +733,14 @@ registers_M5WB registers_M5WB(
 );
 
 wire allocate = !execute_to_fetch_branch_taken && decode_to_ROB_allocate; //If a branch is taken, next instr after the branch should not be allocated
+//ROB Index
+reg [3:0] rob_idx;
+initial rob_idx = 0;
+always @(posedge clk) begin 
+    if (reset) rob_idx <= 0;
+    if (!d_cache_stall && !i_cache_stall) rob_idx <= (rob_idx + 1) % 10;
+end
+    
 
 //TODO: Manage stalls. When to stall (SB full, Cache miss,). What to do when stalled (writeback instructions?)
 reorder_buffer rob(
@@ -737,6 +750,7 @@ reorder_buffer rob(
     //INPUT
     //FROM DECODE
     .in_allocate(allocate),
+    .in_allocate_idx(decode_to_ROB_allocate_idx),
     .in_PC(decode_to_registers_and_ROB_PC),
     .in_addr_miss_instr(),
     .in_addr_miss_data(),
@@ -762,7 +776,7 @@ reorder_buffer rob(
     .in_mul_exception(M5WB_to_ROB_exception_vector),
 
     //CONTROL
-    .in_stall(i_cache_stall | d_cache_stall),
+    .in_stall(IFID_to_ROB_wait_stall | d_cache_stall),
 
     //BYPASS
     .in_execute_rs1(execute_to_ROB_rs1),
