@@ -738,7 +738,8 @@ reg [3:0] rob_idx;
 initial rob_idx = 0;
 always @(posedge clk) begin 
     if (reset) rob_idx <= 0;
-    if (!d_cache_stall && !i_cache_stall) rob_idx <= (rob_idx + 1) % 10;
+    if (execute_to_fetch_branch_taken) rob_idx <= execute_to_registers_complete_idx;
+    else if (!d_cache_stall && !i_cache_stall) rob_idx <= (rob_idx + 1) % 10;
 end
     
 

@@ -174,7 +174,7 @@ always @(posedge clk) begin
             exception[in_allocate_idx] <= 3'b0;
             
             //in_allocate_idx <= (tail + 1) % ROB_SIZE;
-            //count <= count + 1;
+            count <= count + 1;
         end
         
         // Completion. Even on stalled cycles (for now)
