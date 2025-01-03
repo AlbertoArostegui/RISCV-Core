@@ -127,7 +127,7 @@ always @(*) begin
 end
 
 always @(*) begin
-    if (valid[head] && complete[head]) begin
+    if (!in_stall && valid[head] && complete[head]) begin
         if (exception[head] != 3'b0) begin
             out_PC <= PC[head];                         //Send to rm0
             out_miss_addr <= addr_miss[head];           //Send to rm1

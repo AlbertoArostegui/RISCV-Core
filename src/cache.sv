@@ -11,6 +11,7 @@ module cache #(
     input wire [31:0] in_write_data,
     input wire in_write_en,
     input wire in_read_en,
+    input wire in_bypass_found,
     input wire [2:0] in_funct3,               //Distinguish B, H, W. Addresses are supposed to be input correctly for different types
 
     //MEM IFACE
@@ -74,6 +75,7 @@ module cache #(
     integer way_to_replace;
 
     reg [CACHE_LINE_SIZE-1:0] cache_line;
+    wire read_cache = in_read_en && in_bypass_found;
 
     // Combinational hit detection and data read/write
     always @(*) begin

@@ -15,28 +15,36 @@ module soc_testbench();
     always #1 clk = ~clk;
 
     initial begin
-        $dumpfile("soc_testbench.vcd");
+        $dumpfile("first_perf_testbench.vcd");
         $dumpvars(0, soc_testbench);
         $dumpvars(0, dut);
 
-        $readmemh("/Users/alberto/pa/src/tests/hex/loop_add_bne.hex", dut.memory.memory, 32'h80, 32'h87);
+        $readmemh("/Users/alberto/pa/src/tests/hex/first_perf.hex", dut.memory.memory, 32'h80, 32'h89);
         /*
-            addi x1, x0, 50
-            addi x2, x0, 50
+            addi    x11, x0, 0       # sum = 0 (x11 holds sum)
+            addi    x12, x0, 0       # i = 0 (x12 holds i)
+            addi    x13, x0, 128     # Load loop limit 128 into x13
+
         loop:
-            add x3, x3, x1
-            addi x2, x2, -1	
-            bne x2, x0, loop
+            bge     x12, x13, end    # if (i >= 128) break
+            slli    x14, x12, 2      # x14 = i * 4 (byte offset, 4 bytes per int)
+            add     x15, x10, x14    # x15 = &a[i] (base address + offset)
+            lw      x16, 0(x15)      # x16 = a[i] (load word from memory)
+            add     x11, x11, x16    # sum += a[i]
+            addi    x12, x12, 1      # i++
+            j       loop             # Repeat the loop
+
+        end:
         */
 
-        for(int i = 32'h80; i < 32'h87; i = i+1) begin
+        for(int i = 32'h80; i < 32'h8a; i = i+1) begin
             $display("%h", dut.memory.memory[i]);
         end
 
         reset = 1;
         #2 reset = 0;
 
-        repeat(290) begin
+        repeat(1000) begin
             #2;
             display_processor_state();
         end
@@ -277,6 +285,25 @@ module soc_testbench();
             dut.core.cache.out_rd
         );
 
+        // Cache internals
+        $display("\nCache Internals:\n")
+        $display("Full address: 0x%b", {dut.core.cache.d_cache.tag, dut.core.cache.d_cache.set_index, dut.core.cache.d_cache.word_offset, dut.core.cache.d_cache.byte_offset});
+        $display("Set Index: %b", dut.core.cache.d_cache.set_index);
+        $display("Tag: 0x%b", dut.core.cache.d_cache.tag);
+        $display("Word Offset: %b", dut.core.cache.d_cache.word_offset);
+        $display("Byte Offset: %b", dut.core.cache.d_cache.byte_offset);
+
+        for (int i = 0; i < 2; i++) begin
+            for (int j = 0; j < 2; j++) begin
+                $display("  Set %0d Way %0d:", i, j);
+                $display("    Valid: %b", dut.core.cache.d_cache.valid[i][j]);
+                $display("    Dirty: %b", dut.core.cache.d_cache.dirty[i][j]);
+                $display("    Tag: 0x%b", dut.core.cache.d_cache.tags[i][j]);
+                $display("    Data: 0x%h", dut.core.cache.d_cache.data[i][j]);
+            end
+            $display("    LRU: %b", dut.core.cache.d_cache.lru[i]);
+        end
+
         // MEM/WB Pipeline Registers
         $display("\n[🔄 MEM/WB REGISTERS]");
         $display("OUT: alu_out=%h mem_out=%h rd=%d memToReg=%b regWrite=%b",
@@ -362,5 +389,4 @@ module soc_testbench();
         default: return "REG";
     endcase
     endfunction
-
 endmodule

@@ -36,6 +36,12 @@ module memory (
     reg [29:0] i_addr;
     reg [29:0] d_addr;
 
+    initial begin
+        for (int i = 0; i < MEM_SIZE; i++) begin
+            memory[i] = 32'b0;
+        end
+    end
+
     always @(posedge clk or posedge reset) begin
         if (reset) begin
             imem_state <= IDLE;

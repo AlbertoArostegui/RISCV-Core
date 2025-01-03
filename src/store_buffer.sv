@@ -8,16 +8,16 @@ module store_buffer #(
     input [31:0]        in_addr,
     input [31:0]        in_data,
     input [2:0]         in_funct3,
-    input [3:0]         in_rob_idx,
     input               in_store_instr,
     input               in_load_instr,
 
     //ROB
+    input [3:0]         in_rob_idx,                         //Allocate
     input               in_complete,                        //Instruction completed ? commit to cache    
     input [3:0]         in_complete_idx,                    //Index of completed instruction
     input               in_exception,                       //Exception, nuke the store buffer
 
-    /*We need not store the store in the ROB. The ROB is used only for control*/
+    /*The ROB is used only for control*/
 
     
     //OUTPUT
@@ -39,7 +39,6 @@ typedef struct packed {
 sb_entry [SB_SIZE-1:0] entries;
 */
 
-
 // Individual arrays instead of structure
 reg [31:0] addr      [SB_SIZE-1:0];
 reg [31:0] data      [SB_SIZE-1:0];
@@ -49,10 +48,17 @@ reg [3:0]  rob_idx   [SB_SIZE-1:0];
 reg [1:0] store_counter; 
 reg [1:0] oldest;
 
+initial begin
+    reset_sb();
+end
+
 wire stall = in_store_instr && (store_counter == 2'b11);
+
+initial out_stall <= 0;
 
 always @(*) begin
     //Case full and new store enters -> Stall
+    out_hit <= 0;
     if (stall) out_stall <= 1;
 
     //Case rob indicates instr completion -> commit to cache
@@ -68,6 +74,7 @@ always @(*) begin
     end
 
     //Case load instr -> check if addr in store buffer. This is sb bypass
+    //TODO: SB bypass. Handle case in which we have more than one store for the same addr. Youngest should be returned.
     else if (in_load_instr) begin
         for (int i = 0; i < SB_SIZE; i++) begin
             if (addr[i] == in_addr) begin
@@ -79,17 +86,18 @@ always @(*) begin
         end
     end
 end
+
 //TODO: Drain store buffer. Figure out when is it needed to drain.
 always @(posedge clk) begin
     if (reset || in_exception) reset_sb();                              //Case exception        --> Nuke Store Buffer (precise exceptions) or simply reset
-    else begin                                                          //Case we store         --> We save into the entries the store
+    else if (in_store_instr) begin                                                          //Case we store         --> We save into the entries the store
         addr[store_counter] <= in_addr;
         data[store_counter] <= in_data;
         funct3[store_counter] <= in_funct3;
         rob_idx[store_counter] <= in_rob_idx;
         store_counter <= store_counter + 1;
-    if (out_hit) store_counter <= store_counter - 1;                    //Case we bypass load   --> We remove from our entries the data we loaded
-    if (in_complete) store_counter <= store_counter - 1;                  //Case we write 2 cache --> We remove from our entries the data we are committing
+    //if (out_hit) store_counter <= store_counter - 1;                    //Case we bypass load   --> We remove from our entries the data we loaded
+    if (in_complete) store_counter <= store_counter - 1;                //Case we commit 2 cache --> We remove from our entries the data we are committing
     end
 end
 

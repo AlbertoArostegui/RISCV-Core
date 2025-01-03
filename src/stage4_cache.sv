@@ -27,8 +27,12 @@ module stage_cache #(
     input wire          in_mem_ready,
 
     //ROB
-    input [3:0]         in_complete_idx,
+    //Here the difference with Ex. is that we pass idx to ROB as if it was completed (same as Ex.), but won't commit to cache until ROB issues the completion flag.
+    //So we need 2 different idxs. One for sending to rob as "ready to commit" and the other to know which to commit when ROB signals it.
+    input [3:0]         in_allocate_idx,
     input [2:0]         in_instr_type,
+    input [3:0]         in_complete_idx,
+    input               in_exception,
 
 
     //OUTPUT
@@ -56,7 +60,7 @@ assign out_alu_out = in_alu_out;
 assign out_rd = in_rd;
 assign out_mem_to_reg = in_mem_to_reg;
 assign out_write_enable = in_write_enable;
-assign out_complete_idx = in_complete_idx;
+assign out_complete_idx = in_allocate_idx; //We pass "ready to commit" to the ROB.
 assign out_complete = !out_stall && (in_instr_type == `INSTR_TYPE_LOAD || in_instr_type == `INSTR_TYPE_STORE);    //TODO: Manage stores. We have to see how do we do the logic
                                                                             //with the SB and the ROB
 /*
@@ -86,16 +90,30 @@ tlb_miss tlb_miss (
 wire [31:0] final_physical_address = dtlb_hit ? dtlb_physical_address : tlb_miss_physical_address;
 */
 
+//Combined stall
+wire cache_stall;
+wire sb_stall;
+assign out_stall = cache_stall | sb_stall;
+
+wire [31:0]     sb_to_cache_addr;
+wire [31:0]     sb_to_cache_data;
+wire [2:0]      sb_to_cache_funct3; 
+wire            write_sb_entry_to_cache;
+
+//When loading, we must look for bypass from SB. It could save us from having to stall to look for the line in memory.
+wire sb_bypass_found;
+
 cache d_cache(
     .clk(clk),
     .reset(reset),
 
     //INPUT
-    .in_addr(in_alu_out),
-    .in_write_data(in_write_data),
-    .in_write_en(in_write_en),
+    .in_addr(sb_to_cache_addr),
+    .in_write_data(sb_to_cache_data),
+    .in_write_en(write_sb_entry_to_cache),
     .in_read_en(in_read_en),
-    .in_funct3(in_funct3),
+    .in_bypass_found(sb_bypass_found),
+    .in_funct3(sb_to_cache_funct3),
 
     //MEM IFACE
     .in_mem_read_data(in_mem_read_data),
@@ -103,7 +121,7 @@ cache d_cache(
 
     //OUTPUT
     .out_read_data(out_read_data),
-    .out_busy(out_stall),
+    .out_busy(cache_stall),
     .out_hit(),
 
     //MEM IFACE
@@ -120,13 +138,24 @@ store_buffer store_buffer(
     //INPUT
     .in_addr(in_alu_out),
     .in_data(in_write_data),
-    .in_funct3(),
-    .in_store_instr(),
+    .in_funct3(in_funct3),
+    .in_store_instr(in_write_en),
+    .in_load_instr(in_read_en),
+    
+    //ROB
+    .in_rob_idx(in_allocate_idx),  //Allocate
+    .in_complete(in_complete),
+    .in_complete_idx(in_complete_idx),
+    .in_exception(in_exception),
+
 
     //OUTPUT
-    .out_addr(),
-    .out_data(),
-    .out_stall()
+    .out_addr(sb_to_cache_addr),
+    .out_data(sb_to_cache_data),
+    .out_funct3(sb_to_cache_funct3),
+    .out_hit(sb_bypass_found),
+    .out_write_to_cache(write_sb_entry_to_cache),
+    .out_stall(sb_stall)
 );
 
 endmodule

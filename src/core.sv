@@ -619,7 +619,7 @@ stage_cache cache(
     .in_mem_ready(in_dmem_ready),
 
     //ROB
-    .in_complete_idx(EXMEM_to_cache_and_rob_complete_idx),
+    .in_allocate_idx(EXMEM_to_cache_and_rob_complete_idx),
     .in_instr_type(EXMEM_to_cache_instr_type),
 
 
