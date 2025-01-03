@@ -26,12 +26,16 @@ module stage_cache #(
     input wire [CACHE_LINE_SIZE-1:0] in_mem_read_data,
     input wire          in_mem_ready,
 
-    //ROB
+    //FOR ROB
     //Here the difference with Ex. is that we pass idx to ROB as if it was completed (same as Ex.), but won't commit to cache until ROB issues the completion flag.
     //So we need 2 different idxs. One for sending to rob as "ready to commit" and the other to know which to commit when ROB signals it.
     input [3:0]         in_allocate_idx,
     input [2:0]         in_instr_type,
+
+    //FROM ROB
+    input               in_complete,
     input [3:0]         in_complete_idx,
+    input [2:0]         in_instr_type_ROB,
     input               in_exception,
 
 
@@ -61,8 +65,7 @@ assign out_rd = in_rd;
 assign out_mem_to_reg = in_mem_to_reg;
 assign out_write_enable = in_write_enable;
 assign out_complete_idx = in_allocate_idx; //We pass "ready to commit" to the ROB.
-assign out_complete = !out_stall && (in_instr_type == `INSTR_TYPE_LOAD || in_instr_type == `INSTR_TYPE_STORE);    //TODO: Manage stores. We have to see how do we do the logic
-                                                                            //with the SB and the ROB
+assign out_complete = !out_stall && (in_instr_type == `INSTR_TYPE_LOAD || in_instr_type == `INSTR_TYPE_STORE);   
 /*
 // Instantiate the DTLB
 dtlb dtlb (
@@ -102,6 +105,8 @@ wire            write_sb_entry_to_cache;
 
 //When loading, we must look for bypass from SB. It could save us from having to stall to look for the line in memory.
 wire sb_bypass_found;
+wire [31:0] cache_data_out;
+assign out_read_data = sb_bypass_found ? sb_to_cache_data : cache_data_out;
 
 cache d_cache(
     .clk(clk),
@@ -120,7 +125,7 @@ cache d_cache(
     .in_mem_ready(in_mem_ready),
 
     //OUTPUT
-    .out_read_data(out_read_data),
+    .out_read_data(cache_data_out),
     .out_busy(cache_stall),
     .out_hit(),
 
@@ -144,7 +149,7 @@ store_buffer store_buffer(
     
     //ROB
     .in_rob_idx(in_allocate_idx),  //Allocate
-    .in_complete(in_complete),
+    .in_complete(in_instr_type_ROB == `INSTR_TYPE_STORE),      //TODO: Can't use in_complete directly from the ROB in core.sv. I don't know why, the execution simply doesn't go past cycle 17
     .in_complete_idx(in_complete_idx),
     .in_exception(in_exception),
 

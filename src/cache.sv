@@ -75,7 +75,7 @@ module cache #(
     integer way_to_replace;
 
     reg [CACHE_LINE_SIZE-1:0] cache_line;
-    wire read_cache = in_read_en && in_bypass_found;
+    wire read_cache = in_read_en && !in_bypass_found;
 
     // Combinational hit detection and data read/write
     always @(*) begin
@@ -84,7 +84,7 @@ module cache #(
         out_hit = 0;
         out_read_data = 32'b0;
         
-        if (in_read_en || in_write_en) begin
+        if (read_cache || in_write_en) begin
             // Check all ways in parallel
             for (int i = 0; i < NUM_WAYS; i++) begin
                 if (valid[set_index][i] && tags[set_index][i] == tag) begin

@@ -20,7 +20,7 @@ module reorder_buffer #(
     input  wire [31:0]  in_complete_value,
     input  wire [2:0]   in_exception,
 
-    //From cache (LOADS)
+    //From cache OR sb (LOADS)
     input wire          in_cache_complete,
     input wire [3:0]    in_cache_complete_idx,
     input wire [31:0]   in_cache_out,
@@ -54,6 +54,8 @@ module reorder_buffer #(
     
     //To decode
     output wire [3:0]   out_alloc_idx,
+    //To cache
+    output reg  [3:0]   out_complete_idx,    
     //Control
     output wire         out_full,
 
@@ -127,18 +129,25 @@ always @(*) begin
 end
 
 always @(*) begin
+    count = 0;
+    for (int i = 0; i < ROB_SIZE; i++) begin
+        if (valid[i]) count = count + 1;
+    end
     if (!in_stall && valid[head] && complete[head]) begin
         if (exception[head] != 3'b0) begin
             out_PC <= PC[head];                         //Send to rm0
             out_miss_addr <= addr_miss[head];           //Send to rm1
         end else begin
-            out_ready <= complete[head] && (instr_type[head] == `INSTR_TYPE_ALU || instr_type[head] == `INSTR_TYPE_MUL || instr_type[head] == `INSTR_TYPE_LOAD);
+            out_ready <= complete[head] && (instr_type[head] == `INSTR_TYPE_ALU || instr_type[head] == `INSTR_TYPE_MUL || instr_type[head] == `INSTR_TYPE_LOAD || instr_type[head] == `INSTR_TYPE_STORE);
             out_value <= value[head];
             out_rd <= rd[head];
             out_exception <= exception[head];
             out_instr_type <= instr_type[head];
+            out_complete_idx <= head;
         end
-    end    
+    end else begin
+        out_ready <= 0;
+    end
 end
 
 always @(posedge clk) begin
@@ -174,7 +183,7 @@ always @(posedge clk) begin
             exception[in_allocate_idx] <= 3'b0;
             
             //in_allocate_idx <= (tail + 1) % ROB_SIZE;
-            count <= count + 1;
+            //count <= count + 1;
         end
         
         // Completion. Even on stalled cycles (for now)
@@ -197,12 +206,12 @@ always @(posedge clk) begin
         end
         
         //Entry completed
-        if (valid[head] && complete[head]) begin
+        if (!in_stall && valid[head] && complete[head]) begin
             valid[head] <= 0;
             complete[head] <= 0;
 
             head <= (head + 1) % ROB_SIZE;
-            count <= count - 1;
+            //if (count > 0) count <= count - 1 ;
         end else begin
             out_ready <= 0;
         end

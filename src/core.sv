@@ -70,6 +70,7 @@ stage_fetch fetch(
     .branch_taken(execute_to_fetch_branch_taken),
     .new_pc(execute_to_fetch_PC),
     .pc_write_disable(pc_write_disable),
+    .in_d_cache_stall(d_cache_stall),
 
     //MEM IFACE
     .in_mem_read_data(in_imem_read_data),
@@ -193,7 +194,7 @@ wire [31:0] decode_to_ROB_instr_addr_miss;
 //FROM ROB
 wire [31:0] ROB_to_decode_value;
 wire [4:0] ROB_to_decode_rd;
-wire        ROB_to_decode_write_enable;
+wire ROB_to_decode_and_cache_ready;
 //TO ROB
 wire decode_to_ROB_allocate;
 wire [3:0] decode_to_ROB_allocate_idx;
@@ -210,7 +211,7 @@ stage_decode decode(
 
     //INPUT FROM ROB
     //This should come from control from WB
-    .in_write_enable(ROB_to_decode_write_enable),
+    .in_write_enable(ROB_to_decode_and_cache_ready),
     //This should come from control from WB
     .in_write_reg(ROB_to_decode_rd),
     //This should come from WB
@@ -596,6 +597,10 @@ wire cache_to_MEMWB_write_enable;
 wire [3:0] cache_to_MEMWB_complete_idx;
 wire cache_to_MEMWB_complete;
 
+wire [3:0] ROB_to_cache_complete_idx;
+wire [2:0] ROB_to_cache_instr_type;
+wire ROB_to_cache_exception;
+
 stage_cache cache(
     .clk(clk),
     .reset(reset),
@@ -618,10 +623,15 @@ stage_cache cache(
     .in_mem_read_data(in_dmem_read_data),
     .in_mem_ready(in_dmem_ready),
 
-    //ROB
+    //FOR ROB
     .in_allocate_idx(EXMEM_to_cache_and_rob_complete_idx),
     .in_instr_type(EXMEM_to_cache_instr_type),
 
+    //FROM ROB
+    .in_complete_idx(ROB_to_cache_complete_idx),
+    //.in_complete(ROB_to_decode_and_cache_ready),
+    .in_instr_type_ROB(ROB_to_cache_instr_type),
+    .in_exception(ROB_to_cache_exception),
 
     //OUTPUT
     .out_alu_out(cache_to_MEMWB_alu_out),
@@ -784,15 +794,16 @@ reorder_buffer rob(
     .in_execute_rs2(execute_to_ROB_rs2),
 
     //OUTPUT
-    .out_ready(ROB_to_decode_write_enable),
+    .out_ready(ROB_to_decode_and_cache_ready),
     .out_value(ROB_to_decode_value),
     .out_miss_addr(),                           //TLB MISS          Write to rm0, rm1
     .out_PC(),                                  //TODO: TLB MISS
     .out_rd(ROB_to_decode_rd),  
-    .out_exception(),                           //TODO: On exception, nuke rob, flush pipeline and save PC and address of exception
-    .out_instr_type(),                          //Maybe not needed, just used as logic inside ROB for deciding if w.enable
-    .out_full(),                           //Stalling when full
-    .out_alloc_idx(rob_to_registers_IFID_idx),   //This is the index of the instruction in the ROB
+    .out_exception(ROB_to_cache_exception),                           //TODO: On exception, nuke rob, flush pipeline and save PC and address of exception
+    .out_instr_type(ROB_to_cache_instr_type),   //Maybe not needed, just used as logic inside ROB for deciding if w.enable
+    .out_full(),                                //Stalling when full
+    .out_alloc_idx(rob_to_registers_IFID_idx),  //This is the index of the instruction in the ROB
+    .out_complete_idx(ROB_to_cache_complete_idx),
     //BYPASS
     .out_rs1_bypass(ROB_to_execute_bypass_rs1),
     .out_rs1_bypass_value(ROB_to_execute_bypass_rs1_value),

@@ -11,6 +11,7 @@ module stage_fetch #(
     input branch_taken,
     input [31:0] new_pc,
     input pc_write_disable,
+    input in_d_cache_stall,
 
     //MEM IFACE
     input [CACHE_LINE_SIZE-1:0] in_mem_read_data,
@@ -43,7 +44,7 @@ end
 always @(posedge clk or posedge reset) begin
     if (reset) 
         PC <= INIT_ADDR;
-    else if (!pc_write_disable) begin
+    else if (!pc_write_disable && !in_d_cache_stall) begin
         if (branch_taken)
             PC <= new_pc;
         else if (!out_stall)
@@ -85,6 +86,7 @@ cache icache(
 
     //INPUT
     .in_read_en(1'b1),
+    .in_bypass_found(1'b0),
     .in_write_en(in_write_en),
     .in_addr(PC),
     .in_write_data(in_write_data),

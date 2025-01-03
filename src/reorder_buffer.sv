@@ -22,8 +22,8 @@ module reorder_buffer #(
     input wire [31:0]   in_cache_out,
     input wire [3:0]    in_complete_cache_idx,
     input wire [4:0]    in_cache_rd,
-    input wire [31:0]       in_addr_miss_instr,
-    input wire [31:0]       in_addr_miss_data,
+    input wire [31:0]   in_addr_miss_instr,
+    input wire [31:0]   in_addr_miss_data,
 
     //Control
     input wire          in_stall,

@@ -72,7 +72,7 @@ module soc_testbench();
         );
         
         $display("\nOUTPUTS:");
-        $display("  Ready=%b value=%h rd=%d exception=%b instr_type=%b out_full=%b\nrs1_bypass=%b rs1_bypass_value=%h rs2_bypass=%b rs2_bypass_value=%h",
+        $display("  Ready=%b value=%h rd=%d exception=%b instr_type=%b out_full=%b\nrs1_bypass=%b rs1_bypass_value=%h rs2_bypass=%b rs2_bypass_value=%h\n(For SB) out_complete_idx=%d",
             dut.core.rob.out_ready,
             dut.core.rob.out_value,
             dut.core.rob.out_rd,
@@ -82,9 +82,10 @@ module soc_testbench();
             dut.core.rob.out_rs1_bypass,
             dut.core.rob.out_rs1_bypass_value,
             dut.core.rob.out_rs2_bypass,
-            dut.core.rob.out_rs2_bypass_value
+            dut.core.rob.out_rs2_bypass_value,
+            dut.core.rob.out_complete_idx,
         );
-        $display("  Full=%b alloc_idx=%d",
+        $display("Full=%b alloc_idx=%d",
             dut.core.rob.out_full,
             dut.core.rob.out_alloc_idx
         );
@@ -279,7 +280,7 @@ module soc_testbench();
         $display("Store counter: %d  Oldest: %d", dut.core.cache.store_buffer.store_counter, dut.core.cache.store_buffer.oldest);
         $display("Hit: %b Stall: %b", dut.core.cache.store_buffer.out_hit, dut.core.cache.store_buffer.out_stall);
         for (int i = 0; i < 4; i++) begin
-            $display("  Entry %0d: \naddr=%h \ndata=%h \nfunct3=%b rob_idx=%d", i, dut.core.cache.store_buffer.out_addr[i], dut.core.cache.store_buffer.out_data[i], dut.core.cache.store_buffer.out_funct3[i], dut.core.cache.store_buffer.rob_idx[i]);
+            $display("  Entry %0d: \naddr=%h \ndata=%h \nfunct3=%b rob_idx=%d", i, dut.core.cache.store_buffer.addr[i], dut.core.cache.store_buffer.data[i], dut.core.cache.store_buffer.funct3[i], dut.core.cache.store_buffer.rob_idx[i]);
         end
 
         // Cache internals
@@ -295,7 +296,7 @@ module soc_testbench();
                 $display("  Set %0d Way %0d:", i, j);
                 $display("    Valid: %b", dut.core.cache.d_cache.valid[i][j]);
                 $display("    Dirty: %b", dut.core.cache.d_cache.dirty[i][j]);
-                $display("    Tag: 0x%b", dut.core.cache.d_cache.tags[i][j]);
+                $display("    Tag: %b", dut.core.cache.d_cache.tags[i][j]);
                 $display("    Data: 0x%h", dut.core.cache.d_cache.data[i][j]);
             end
             $display("    LRU: %b", dut.core.cache.d_cache.lru[i]);
