@@ -26,11 +26,6 @@ The following are the intended features to be implemented on this processor.
 - [X] bypass from sb
 - [ ] Performance data
 
-# CURRENT IMPLEMENTATION DIAGRAM
-This diagram shows (more or less) the current implementation of the processor, it will be updated along with the processor.
-
-<img width="1510" alt="Screenshot 2024-12-02 at 22 59 33" src="https://github.com/user-attachments/assets/e81c719a-5c4d-4d0c-8e6b-a1caeaa5774e">
-
 # CODE STRUCTURE
 The top module is SoC.sv, in which both core and memory modules are instantiated. Each stage has one module file (stageX_name.sv) and each set of pipeline registers has another one (registersX_name.sv). All the stages and registers modules are instantiated in the core.sv file. All combinational logic is inside its respective stage module.
 
@@ -40,7 +35,7 @@ Wires that connect two modules inside the core are declared before the first of 
 # TESTING
 To run the tests, from src directory:
 ```bash
-./run_test.sh testbench.sv
+./run_test.sh testbench.sv > output.txt
 ```
 The script will compile the testbench with icarus Verilog and run it, leaving the executable and thew waveform in the Build directory
-The core testbench can be used to debug the whole core, it contains a lot of displayed information of each stage as they execute
+The core testbench can be used to debug the whole core, it contains a lot of displayed information of each stage as they execute. I would recommend to redirect the std output to a text file, since the outputted information is abundant
