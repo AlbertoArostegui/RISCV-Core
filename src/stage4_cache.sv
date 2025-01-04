@@ -57,13 +57,15 @@ module stage_cache #(
 
     //ROB
     output [3:0]        out_complete_idx,
-    output              out_complete
+    output              out_complete,
+    output [2:0]        out_instr_type
 );
 
 assign out_alu_out = in_alu_out;
 assign out_rd = in_rd;
 assign out_mem_to_reg = in_mem_to_reg;
 assign out_write_enable = in_write_enable;
+assign out_instr_type = in_instr_type;
 assign out_complete_idx = in_allocate_idx; //We pass "ready to commit" to the ROB.
 assign out_complete = !out_stall && (in_instr_type == `INSTR_TYPE_LOAD || in_instr_type == `INSTR_TYPE_STORE);   
 /*

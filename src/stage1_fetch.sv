@@ -2,7 +2,7 @@
 //Here everything should be a wire (its comb. logic)
 module stage_fetch #(
     parameter CACHE_LINE_SIZE = 128,
-    parameter INIT_ADDR = 32'h200
+    parameter INIT_ADDR = 32'h1000
 ) (
     input clk,
     input reset,

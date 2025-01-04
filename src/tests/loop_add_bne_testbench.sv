@@ -19,7 +19,7 @@ module soc_testbench();
         $dumpvars(0, soc_testbench);
         $dumpvars(0, dut);
 
-        $readmemh("/Users/alberto/pa/src/tests/hex/loop_add_bne.hex", dut.memory.memory, 32'h80, 32'h87);
+        $readmemh("/Users/alberto/pa/src/tests/hex/loop_add_bne.hex", dut.memory.memory, 32'h400, 32'h407);
         /*
             addi x1, x0, 50
             addi x2, x0, 50
@@ -29,7 +29,7 @@ module soc_testbench();
             bne x2, x0, loop
         */
 
-        for(int i = 32'h80; i < 32'h87; i = i+1) begin
+        for(int i = 32'h400; i < 32'h407; i = i+1) begin
             $display("%h", dut.memory.memory[i]);
         end
 
@@ -205,6 +205,7 @@ module soc_testbench();
             dut.core.registers_MEMWB.out_write_enable
         );
 
+        /*
         // WRITEBACK STAGE
         $display("\n[✍️ WRITEBACK STAGE]");
         $display("OUT: rd=%d data=%h write_enable=%b",
@@ -212,6 +213,7 @@ module soc_testbench();
             dut.core.writeback.out_data,
             dut.core.writeback.out_write_enable
         );
+        */
 
         // Register File State
         $display("\n[📊 REGISTER FILE STATE]");

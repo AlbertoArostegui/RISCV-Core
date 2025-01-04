@@ -15,22 +15,18 @@ module soc_testbench();
     always #1 clk = ~clk;
 
     initial begin
-        $dumpfile("store_load_rob.vcd");
+        $dumpfile("mul_testbench.vcd");
         $dumpvars(0, soc_testbench);
         $dumpvars(0, dut);
 
-        $readmemh("/Users/alberto/pa/src/tests/hex/store_load.hex", dut.memory.memory, 32'h400, 32'h406);
+        $readmemh("/Users/alberto/pa/src/tests/hex/mul.hex", dut.memory.memory, 32'h400, 32'h402);
         /*
-        addi x1, x0, 50
-        addi x3, x0, 160
-        sw x1, 0(x3)
-        lw x2, 0(x3)
-        addi x3, x3, 4
-        sw x1, 0(x3)
-        lw x4, 0(x3)
+        addi x3, x0, 50
+        addi x2, x0, 50
+        mul x1, x2, x3
         */
 
-        for(int i = 32'h400; i <= 32'h406; i = i+1) begin
+        for(int i = 32'h400; i <= 32'h402; i = i+1) begin
             $display("%h", dut.memory.memory[i]);
         end
 
@@ -315,6 +311,50 @@ module soc_testbench();
             dut.core.registers_MEMWB.out_write_enable
         );
 
+        // M3/M4 Pipeline Registers
+        $display("\n[🔄 M3/M4 REGISTERS]");
+        $display("OUT: mul_out=%h rob_idx=%d exception=%b instr_type=%b",
+            dut.core.registers_M3M4.out_mul_out,
+            dut.core.registers_M3M4.out_rob_idx,
+            dut.core.registers_M3M4.out_exception_vector,
+            dut.core.registers_M3M4.out_instr_type
+        );
+
+        // M4/M5 Pipeline Registers
+        $display("\n[🔄 M4/M5 REGISTERS]");
+        $display("OUT: mul_out=%h rob_idx=%d exception=%b instr_type=%b",
+            dut.core.registers_M4M5.out_mul_out,
+            dut.core.registers_M4M5.out_rob_idx,
+            dut.core.registers_M4M5.out_exception_vector,
+            dut.core.registers_M4M5.out_instr_type
+        );
+
+        // Add after Memory Stage and before MEM/WB Registers:
+
+        // MULTIPLY STAGE
+        $display("\n[✖️ MULTIPLY STAGE]");
+        $display("IN: mul_out=%h rob_idx=%d exception=%b instr_type=%b",
+            dut.core.stage_multiply.in_mul_out,
+            dut.core.stage_multiply.in_rob_idx,
+            dut.core.stage_multiply.in_exception_vector,
+            dut.core.stage_multiply.in_instr_type
+        );
+        $display("OUT: result=%h rob_idx=%d complete=%b exception=%b",
+            dut.core.stage_multiply.out_mul_out,
+            dut.core.stage_multiply.out_rob_idx,
+            dut.core.stage_multiply.out_complete,
+            dut.core.stage_multiply.out_exception_vector
+        );
+
+        // M5/WB Pipeline Registers
+        $display("\n[🔄 M5/WB REGISTERS]");
+        $display("OUT: mul_out=%h rob_idx=%d complete=%b exception=%b",
+            dut.core.M5WB_to_ROB_complete_value,
+            dut.core.M5WB_to_ROB_complete_idx,
+            dut.core.M5WB_to_ROB_complete,
+            dut.core.M5WB_to_ROB_exception_vector
+        );
+
         // Register File State
         $display("\n[📊 REGISTER FILE STATE]");
         for(int i = 0; i < 32; i += 4) begin
@@ -366,8 +406,9 @@ module soc_testbench();
                 case ({funct7, funct3})
                     10'b0000000000: asm = $sformatf("add x%0d,x%0d,x%0d", rd, rs1, rs2);
                     10'b0100000000: asm = $sformatf("sub x%0d,x%0d,x%0d", rd, rs1, rs2);
-                    default: asm = "unknown-R";
-                endcase
+                    10'b0000001000: asm = $sformatf("mul x%0d,x%0d,x%0d", rd, rs1, rs2);
+                default: asm = "unknown-R";
+            endcase
             end
             7'b0010011: asm = $sformatf("addi x%0d,x%0d,%0d", rd, rs1, $signed(imm_i));
             7'b1100011: begin // B-type

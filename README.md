@@ -12,9 +12,9 @@ The following are the intended features to be implemented on this processor.
 - [ ] ptw
 - [X] LB, LH, LW
 - [X] SB, SH, SW
-- [ ] Store Buffer
-- [ ] Common Memory
-- [ ] ROB
+- [X] Store Buffer
+- [X] Common Memory
+- [X] ROB
 - [ ] iret
 - [ ] csrrw
 - [ ] exceptions
@@ -22,8 +22,8 @@ The following are the intended features to be implemented on this processor.
 - [ ] TLB miss
 - [ ] TLB write
 - [ ] sb drain
-- [ ] 5 stage multiplication
-- [ ] bypass from sb
+- [X] 5 stage multiplication
+- [X] bypass from sb
 - [ ] Performance data
 
 # CURRENT IMPLEMENTATION DIAGRAM

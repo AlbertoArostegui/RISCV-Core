@@ -2,16 +2,7 @@
 `ifndef DEFINES
 `define DEFINES
 
-
-`define	WORD_SIZE 32
-
-`define PC_EXCEPTION 32'h00002000
-`define PC_INITIAL   32'h00000000
-
-/*
- * Number of total architectural registers.
- * Size of minimum index needed to address them.
- */
+`define WORD_SIZE 32
 
 `define NUM_ARCH_REGS 32
 `define ARCH_REG_INDEX_SIZE $clog2(`NUM_ARCH_REGS)

@@ -13,6 +13,7 @@ module registers_MEMWB(
     //ROB
     input in_complete,
     input [3:0] in_complete_idx,
+    input [2:0] in_instr_type,
 
     //OUTPUT
     output reg [31:0] out_alu_out,
@@ -24,7 +25,8 @@ module registers_MEMWB(
 
     //ROB
     output reg out_complete,
-    output reg [3:0] out_complete_idx
+    output reg [3:0] out_complete_idx,
+    output reg [2:0] out_instr_type
 );
 
 initial begin
@@ -33,6 +35,7 @@ initial begin
     out_rd = 0;
     out_mem_to_reg = 0;
     out_write_enable = 0;
+    out_instr_type = 0;
 end
 
 always @(posedge clk) begin
@@ -45,6 +48,7 @@ always @(posedge clk) begin
         //ROB
         out_complete <= 0;
         out_complete_idx <= 0;
+        out_instr_type <= 0;
     end
     out_alu_out <= in_alu_out;
     out_mem_out <= in_mem_out;
@@ -56,6 +60,7 @@ always @(posedge clk) begin
     //ROB
     out_complete <= in_complete;
     out_complete_idx <= in_complete_idx;
+    out_instr_type <= in_instr_type;
 end
 
 endmodule

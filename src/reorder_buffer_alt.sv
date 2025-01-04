@@ -86,7 +86,6 @@ reg [3:0] count;
 assign out_full = (count == ROB_SIZE);
 assign out_alloc_idx = in_allocate_idx;
 
-//TODO: Fix this forwarding. For the case of the loop bne, the third instruction has to forwared the value for r1, since rs2 is r1 in the 3rd instruction. It is written to r1 correctly, but the value is not forwarded.
 //Forwarding logic
 reg [3:0] idx;
 reg found_rs1;

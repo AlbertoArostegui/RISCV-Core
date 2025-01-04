@@ -11,6 +11,7 @@
 `include "registers4_MEMWB.sv"
 `include "registers4_M2M3.sv"
 `include "stage5_writeback.sv"
+`include "stage5_multiply.sv"
 `include "registers5_M3M4.sv"
 `include "registers6_M4M5.sv"
 `include "registers7_M5WB.sv"
@@ -596,6 +597,7 @@ wire cache_to_MEMWB_write_enable;
 //ROB
 wire [3:0] cache_to_MEMWB_complete_idx;
 wire cache_to_MEMWB_complete;
+wire [2:0] cache_to_MEMWB_instr_type;
 
 wire [3:0] ROB_to_cache_complete_idx;
 wire [2:0] ROB_to_cache_instr_type;
@@ -653,21 +655,23 @@ stage_cache cache(
 
     //ROB
     .out_complete_idx(cache_to_MEMWB_complete_idx),
-    .out_complete(cache_to_MEMWB_complete)
+    .out_complete(cache_to_MEMWB_complete),
+    .out_instr_type(cache_to_MEMWB_instr_type)
     
 );
 
 //wires for
 //MEMWB Registers --> Writeback Stage
-wire [31:0] MEMWB_to_writeback_alu_out;
+wire [31:0] MEMWB_to_M3M4_mul_out;
 wire [31:0] MEMWB_to_ROB_mem_out;
 
 wire MEMWB_to_writeback_mem_to_reg;
 wire MEMWB_to_execute_and_writeback_write_enable;
 
 //ROB
-wire [3:0] MEMWB_to_ROB_complete_idx;
+wire [3:0] MEMWB_to_ROB_and_M3M4_complete_idx;
 wire MEMWB_to_ROB_complete;
+wire [2:0] MEMWB_to_M3M4_instr_type;
 
 registers_MEMWB registers_MEMWB(
     .clk(clk),
@@ -684,9 +688,10 @@ registers_MEMWB registers_MEMWB(
     //ROB
     .in_complete_idx(cache_to_MEMWB_complete_idx),
     .in_complete(cache_to_MEMWB_complete),
+    .in_instr_type(cache_to_MEMWB_instr_type),
 
     //OUTPUT
-    .out_alu_out(MEMWB_to_writeback_alu_out),
+    .out_alu_out(MEMWB_to_M3M4_mul_out),
     .out_mem_out(MEMWB_to_ROB_mem_out),
 
     .out_rd(MEMWB_to_execute_and_writeback_rd),
@@ -694,29 +699,82 @@ registers_MEMWB registers_MEMWB(
     .out_write_enable(MEMWB_to_execute_and_writeback_write_enable),
 
     //ROB
-    .out_complete_idx(MEMWB_to_ROB_complete_idx),
-    .out_complete(MEMWB_to_ROB_complete)
+    .out_complete_idx(MEMWB_to_ROB_and_M3M4_complete_idx),
+    .out_complete(MEMWB_to_ROB_complete),
+    .out_instr_type(MEMWB_to_M3M4_instr_type)
 );
 
-/*
-stage_writeback writeback(
+//wires for
+//Registers M3M4 --> M4M5
+wire [31:0] M3M4_to_M4M5_mul_out;
+wire [3:0] M3M4_to_M4M5_complete_idx;
+wire [2:0] M3M4_to_M4M5_exception_vector;
+wire [2:0] M3M4_to_M4M5_instr_type;
+
+registers_M3M4 registers_M3M4(
     .clk(clk),
     .reset(reset),
 
     //INPUT
-    .in_alu_out(MEMWB_to_writeback_alu_out),
-    .in_mem_out(MEMWB_to_writeback_mem_out),
-
-    .in_rd(MEMWB_to_execute_and_writeback_rd),
-    .in_mem_to_reg(MEMWB_to_writeback_mem_to_reg),
-    .in_write_enable(MEMWB_to_execute_and_writeback_write_enable),
+    .in_mul_out(MEMWB_to_M3M4_mul_out),
+    .in_rob_idx(MEMWB_to_ROB_and_M3M4_complete_idx),
+    .in_exception_vector(),
+    .in_instr_type(MEMWB_to_M3M4_instr_type),
 
     //OUTPUT
-    .out_data(writeback_to_decode_and_execute_out_data),
-    .out_rd(writeback_to_decode_rd),
-    .out_write_enable(writeback_to_decode_write_enable)
+    .out_mul_out(M3M4_to_M4M5_mul_out),
+    .out_rob_idx(M3M4_to_M4M5_complete_idx),
+    .out_exception_vector(M3M4_to_M4M5_exception_vector),
+    .out_instr_type(M3M4_to_M4M5_instr_type)
 );
-*/
+
+//wires for
+//Registers M4M5 --> M5WB
+wire [31:0] M4M5_to_multiply_mul_out;
+wire [3:0] M4M5_to_multiply_complete_idx;
+wire [2:0] M4M5_to_multiply_exception_vector;
+wire [2:0] M4M5_to_multiply_instr_type;
+
+registers_M4M5 registers_M4M5(
+    .clk(clk),
+    .reset(reset),
+
+    //INPUT
+    .in_mul_out(M3M4_to_M4M5_mul_out),
+    .in_rob_idx(M3M4_to_M4M5_complete_idx),
+    .in_exception_vector(M3M4_to_M4M5_exception_vector),
+    .in_instr_type(M3M4_to_M4M5_instr_type),
+
+    //OUTPUT
+    .out_mul_out(M4M5_to_multiply_mul_out),
+    .out_rob_idx(M4M5_to_multiply_complete_idx),
+    .out_exception_vector(M4M5_to_multiply_exception_vector),
+    .out_instr_type(M4M5_to_multiply_instr_type)
+);
+
+//wires for
+//Multiply Stage --> Registers M5WB
+wire [31:0] multiply_to_M5WB_out_value;
+wire [3:0] multiply_to_M5WB_complete_idx;
+wire multiply_to_M5WB_complete;
+wire [2:0] multiply_to_M5WB_exception_vector;
+
+stage_multiply stage_multiply(
+    .clk(clk),
+    .reset(reset),
+
+    //INPUT
+    .in_mul_out(M4M5_to_multiply_mul_out),
+    .in_rob_idx(M4M5_to_multiply_complete_idx),
+    .in_exception_vector(M4M5_to_multiply_exception_vector),
+    .in_instr_type(M4M5_to_multiply_instr_type),    
+
+    //OUTPUT
+    .out_mul_out(multiply_to_M5WB_out_value),
+    .out_rob_idx(multiply_to_M5WB_complete_idx),
+    .out_complete(multiply_to_M5WB_complete),
+    .out_exception_vector(multiply_to_M5WB_exception_vector)
+);
 
 //wires for
 //Registers M5WB --> ROB
@@ -730,10 +788,10 @@ registers_M5WB registers_M5WB(
     .reset(reset),
 
     //INPUT
-    .in_mul_out(),
-    .in_complete_idx(),
-    .in_complete(),
-    .in_exception_vector(),
+    .in_mul_out(multiply_to_M5WB_out_value),
+    .in_complete_idx(multiply_to_M5WB_complete_idx),
+    .in_complete(multiply_to_M5WB_complete),
+    .in_exception_vector(multiply_to_M5WB_exception_vector),
 
     //OUTPUT
     .out_mul_out(M5WB_to_ROB_complete_value),
@@ -777,7 +835,7 @@ reorder_buffer rob(
     //FROM CACHE
     .in_cache_complete(MEMWB_to_ROB_complete),
     .in_cache_out(MEMWB_to_ROB_mem_out),
-    .in_cache_complete_idx(MEMWB_to_ROB_complete_idx),
+    .in_cache_complete_idx(MEMWB_to_ROB_and_M3M4_complete_idx),
     .in_cache_exception(),
 
     //FROM MUL
