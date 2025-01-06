@@ -41,7 +41,7 @@ module cache #(
     localparam SW = 3'b010;
 
     reg [CACHE_LINE_SIZE-1:0] data [NUM_SETS-1:0][NUM_WAYS-1:0];
-    reg [19:0] tags [NUM_SETS-1:0][NUM_WAYS-1:0];  
+    reg [26:0] tags [NUM_SETS-1:0][NUM_WAYS-1:0];  
     reg valid [NUM_SETS-1:0][NUM_WAYS-1:0];        
     reg dirty [NUM_SETS-1:0][NUM_WAYS-1:0];
     reg [NUM_WAYS-1:0] lru;         
@@ -128,7 +128,7 @@ module cache #(
                     out_mem_read_en <= 0;
                     out_mem_write_en <= 0;
                     
-                    if ((in_read_en || in_write_en) && !out_hit) begin
+                    if ((in_read_en && in_tlb_hit) && !out_hit) begin
                         way_to_replace = lru[set_index];
 
                         if (in_write_en) begin
@@ -145,7 +145,6 @@ module cache #(
                             state <= MEM_READ;
                         end
                     end
-                    $display("in_write_en: %b, out_hit: %b", in_write_en, out_hit);
                     if (in_write_en && out_hit) begin
                         for (int i = 0; i < NUM_WAYS; i++) begin
                             if (valid[set_index][i] && tags[set_index][i] == tag) begin

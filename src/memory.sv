@@ -44,8 +44,7 @@ module memory (
         memory[32'h401] = 32'h00009073; //movrm rm0, x1 (In reality, this is csrrw x0, ustatus, x1. We will use it as mov into rm0 the value from x1)
         memory[32'h402] = 32'h10200073; //sret (iret)
 
-        memory[32'h800] = 32'h00008093; //addi x1, x0, 14
-        memory[32'h801] = 32'h00009073; //addi x2, x0, 15
+        memory[32'h800] = 32'h1042003A; //addi x1, x0, 14
     end
 
     always @(posedge clk or posedge reset) begin

@@ -164,9 +164,9 @@ module soc_testbench();
         $display("  Read/Write: %b/%b", dut.core.fetch.icache.in_read_en, dut.core.fetch.icache.in_write_en);
         
         $display("\nSTATE:");
-        $display("╔════╤════╤════════════╤══════════════════════════════════╤═══════╤═══════╗");
-        $display("║ Set│ Way│    Tag     │              Data                │ Valid │ Dirty ║");
-        $display("╠════╪════╪════════════╪══════════════════════════════════╪═══════╪═══════╣");
+        $display("╔════╤════╤══════════════╤══════════════════════════════════╤═══════╤═══════╗");
+        $display("║ Set│ Way│     Tag      │              Data                │ Valid │ Dirty ║");
+        $display("╠════╪════╪══════════════╪══════════════════════════════════╪═══════╪═══════╣");
         for(int i = 0; i < 2; i++) begin
             for(int j = 0; j < 2; j++) begin
                 $display("║ %2d │ %2d │      %h │ %32h │   %b   │   %b   ║",
@@ -177,9 +177,9 @@ module soc_testbench();
                     dut.core.fetch.icache.dirty[i][j]
                 );
             end
-            if (i == 0) $display("╟────┼────┼────────────┼──────────────────────────────────┼───────┼───────╢");
+            if (i == 0) $display("╟────┼────┼──────────────┼──────────────────────────────────┼───────┼───────╢");
         end
-        $display("╚════╧════╧════════════╧══════════════════════════════════╧═══════╧═══════╝");
+        $display("╚════╧════╧══════════════╧══════════════════════════════════╧═══════╧═══════╝");
         $display("LRU: Set0=%b Set1=%b", dut.core.fetch.icache.lru[0], dut.core.fetch.icache.lru[1]);
         
         $display("\nOUTPUTS:");

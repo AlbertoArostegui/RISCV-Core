@@ -35,6 +35,10 @@ module privileged_regs(
             out_overwrite_PC = 1;
             out_new_address = rm[0];
         end
+        if (in_exception_vector != 3'b000) begin
+            out_new_address = 32'h2000;
+            out_overwrite_PC = 1;
+        end
     end
 
     always @(posedge clk) begin
@@ -48,8 +52,6 @@ module privileged_regs(
                 rm[1] <= in_fault_addr; 
                 rm[2] <= in_additional_info;
                 rm[4][0] <= 1;     // Switch to supervisor
-                out_new_address <= 32'h2000;
-                out_overwrite_PC <= 1;
             end else if (in_write_enable) begin
                 rm[in_rm_idx] <= in_write_data;
                 if (in_rm_idx == 4) begin //If iret
