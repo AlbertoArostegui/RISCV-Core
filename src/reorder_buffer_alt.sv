@@ -18,7 +18,7 @@ module reorder_buffer #(
     input  wire         in_complete,
     input  wire [3:0]   in_complete_idx,
     input  wire [31:0]  in_complete_value,
-    input  wire [2:0]   in_exception,
+    input  wire [2:0]   in_exception_vector,
 
     //From cache OR sb (LOADS)
     input wire          in_cache_complete,
@@ -49,8 +49,9 @@ module reorder_buffer #(
     output reg  [31:0]  out_miss_addr,
     output reg  [31:0]  out_PC,
     output reg  [4:0]   out_rd,
-    output reg  [2:0]   out_exception,
+    output reg  [2:0]   out_exception_vector,
     output reg  [2:0]   out_instr_type,
+    output reg          out_rob_nuke,
     
     //To decode
     output wire [3:0]   out_alloc_idx,
@@ -58,6 +59,11 @@ module reorder_buffer #(
     output reg  [3:0]   out_complete_idx,    
     //Control
     output wire         out_full,
+
+    //Supervisor
+    output reg          out_priv_write_enable,
+    output reg [2:0]    out_priv_rm_idx,
+    output reg [31:0]   out_priv_write_data,
 
     //Bypass
     output reg          out_rs1_bypass,  
@@ -86,11 +92,13 @@ reg [3:0] count;
 assign out_full = (count == ROB_SIZE);
 assign out_alloc_idx = in_allocate_idx;
 
-//Forwarding logic
+
+
 reg [3:0] idx;
 reg found_rs1;
 reg found_rs2;
 
+//BYPASSING
 always @(*) begin
     out_rs1_bypass = 0;
     out_rs2_bypass = 0;
@@ -129,23 +137,55 @@ end
 
 always @(*) begin
     count = 0;
+    out_PC = 0;
+    out_miss_addr = 0;
+    out_exception_vector = 3'b0;
+    out_ready = 0;
+    out_value = 0;
+    out_rd = 0;
+    out_instr_type = 0;
+    out_complete_idx = 0;
+    out_priv_write_enable = 0;
+    out_priv_rm_idx = 0;
+    out_priv_write_data = 0;
     for (int i = 0; i < ROB_SIZE; i++) begin
         if (valid[i]) count = count + 1;
     end
+
     if (!in_stall && valid[head] && complete[head]) begin
-        if (exception[head] != 3'b0) begin
-            out_PC <= PC[head];                         //Send to rm0
-            out_miss_addr <= addr_miss[head];           //Send to rm1
-        end else begin
-            out_ready <= complete[head] && (instr_type[head] == `INSTR_TYPE_ALU || instr_type[head] == `INSTR_TYPE_MUL || instr_type[head] == `INSTR_TYPE_LOAD || instr_type[head] == `INSTR_TYPE_STORE);
-            out_value <= value[head];
-            out_rd <= rd[head];
-            out_exception <= exception[head];
-            out_instr_type <= instr_type[head];
-            out_complete_idx <= head;
+        if (exception[head] == 3'b000) begin
+            case (instr_type[head])
+                `INSTR_TYPE_IRET: begin
+                    out_ready = 0;
+                    out_priv_write_enable = 1;
+                    out_priv_rm_idx = 3'd4; //rm4
+                    out_priv_write_data = 32'h0;
+                end
+                `INSTR_TYPE_MOVRM: begin
+                    out_ready = 0;
+                    out_priv_write_enable = 1;
+                    out_priv_rm_idx = rd[head];
+                    out_priv_write_data = value[head];
+                end
+                default: begin
+                    out_priv_write_enable <= 0;
+                    out_ready = complete[head] && (instr_type[head] == `INSTR_TYPE_ALU || instr_type[head] == `INSTR_TYPE_MUL || instr_type[head] == `INSTR_TYPE_LOAD || instr_type[head] == `INSTR_TYPE_STORE);
+                    out_value = value[head];
+                    out_rd = rd[head];
+                    out_exception_vector = exception[head];
+                    out_instr_type = instr_type[head];
+                    out_complete_idx = head;
+                end
+            endcase
+        end 
+        if (3'b001 == exception[head]) begin
+            out_PC = PC[head];                         //Send to rm0
+            out_miss_addr = PC[head];                  //Send to rm1
+            out_exception_vector = exception[head];
+            out_priv_write_enable = 1;
         end
     end else begin
-        out_ready <= 0;
+        out_ready = 0;
     end
 end
 
@@ -189,7 +229,7 @@ always @(posedge clk) begin
         if (in_complete) begin
             value[in_complete_idx] <= in_complete_value;
             complete[in_complete_idx] <= 1;
-            exception[in_complete_idx] <= in_exception;
+            exception[in_complete_idx] <= in_exception_vector;
         end
 
         if (in_cache_complete) begin
@@ -221,6 +261,7 @@ task automatic invalidate_rob;
     for (int i = 0; i < ROB_SIZE; i++) begin
         valid[i] <= 0;
         complete[i] <= 0;
+        out_rob_nuke <= 1;
     end
 endtask
 

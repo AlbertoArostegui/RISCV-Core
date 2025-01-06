@@ -36,7 +36,7 @@ module stage_cache #(
     input               in_complete,
     input [3:0]         in_complete_idx,
     input [2:0]         in_instr_type_ROB,
-    input               in_exception,
+    input [2:0]         in_exception_vector,
 
 
     //OUTPUT
@@ -153,7 +153,7 @@ store_buffer store_buffer(
     .in_rob_idx(in_allocate_idx),  //Allocate
     .in_complete(in_instr_type_ROB == `INSTR_TYPE_STORE),      //TODO: Can't use in_complete directly from the ROB in core.sv. I don't know why, the execution simply doesn't go past cycle 17
     .in_complete_idx(in_complete_idx),
-    .in_exception(in_exception),
+    .in_exception_vector(in_exception_vector),
 
 
     //OUTPUT

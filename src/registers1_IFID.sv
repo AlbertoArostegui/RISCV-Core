@@ -34,7 +34,7 @@ module registers_IFID(
     end
 
     always @(posedge clk) begin
-        if (reset || in_IFID_flush /*|| in_i_cache_stall*/) begin //Flush IFID or stall on iCache: sends NOPs down the pipeline
+        if (reset || in_IFID_flush || in_i_cache_stall) begin //Flush IFID or stall on iCache: sends NOPs down the pipeline
             out_instruction <= 32'b0;
             out_PC <= 32'b0;
             out_complete_idx <= 4'b0;

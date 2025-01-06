@@ -3,13 +3,10 @@
 `include "registers1_IFID.sv"
 `include "stage2_decode.sv"
 `include "registers2_IDEX.sv"
-`include "registers2_IDM1.sv"
 `include "stage3_execute.sv"
-`include "registers3_M1M2.sv"
 `include "registers3_EXMEM.sv"
 `include "stage4_cache.sv"
 `include "registers4_MEMWB.sv"
-`include "registers4_M2M3.sv"
 `include "stage5_writeback.sv"
 `include "stage5_multiply.sv"
 `include "registers5_M3M4.sv"
@@ -63,6 +60,16 @@ wire d_cache_stall;
 //Exception vector
 wire [2:0] fetch_to_registers_exception_vector;
 
+//ROB Exception
+wire [2:0] ROB_to_fetch_and_cache_exception_vector;
+wire [31:0] ROB_to_fetch_fault_PC;
+wire [31:0] ROB_to_fetch_fault_addr;
+
+//ROB Supervisor
+wire ROB_to_fetch_priv_write_enable;
+wire [2:0] ROB_to_fetch_priv_rm_idx;
+wire [31:0] ROB_to_fetch_priv_write_data;
+
 stage_fetch fetch(
     .clk(clk),    
     .reset(reset),
@@ -76,6 +83,16 @@ stage_fetch fetch(
     //MEM IFACE
     .in_mem_read_data(in_imem_read_data),
     .in_mem_ready(in_imem_ready),
+
+    //ROB Exception
+    .in_exception_vector(ROB_to_fetch_and_cache_exception_vector),
+    .in_rob_fault_PC(ROB_to_fetch_fault_PC),
+    .in_rob_fault_addr(ROB_to_fetch_fault_addr),
+
+    //ROB Supervisor
+    .in_priv_write_enable(ROB_to_fetch_priv_write_enable),
+    .in_priv_rm_idx(ROB_to_fetch_priv_rm_idx),
+    .in_priv_write_data(ROB_to_fetch_priv_write_data),
 
     //OUTPUT
     .out_PC(fetch_to_registers_pc),
@@ -520,7 +537,7 @@ wire [3:0]      EXMEM_to_cache_and_rob_complete_idx;
 wire            EXMEM_to_rob_complete;
 
 //Exception vector
-wire [2:0]      EXMEM_to_cache_exception_vector;
+wire [2:0]      EXMEM_to_cache_and_ROB_exception_vector;
 
 //Passing by
 wire EXMEM_to_cache_mem_to_reg;
@@ -583,7 +600,7 @@ registers_EXMEM registers_EXMEM(
     .out_complete(EXMEM_to_rob_complete),                   //If alu instruction, write to ROB
 
     //Exception
-    .out_exception_vector(EXMEM_to_cache_exception_vector)
+    .out_exception_vector(EXMEM_to_cache_and_ROB_exception_vector)
 );
 
 //wires for
@@ -601,7 +618,6 @@ wire [2:0] cache_to_MEMWB_instr_type;
 
 wire [3:0] ROB_to_cache_complete_idx;
 wire [2:0] ROB_to_cache_instr_type;
-wire ROB_to_cache_exception;
 
 stage_cache cache(
     .clk(clk),
@@ -628,12 +644,13 @@ stage_cache cache(
     //FOR ROB
     .in_allocate_idx(EXMEM_to_cache_and_rob_complete_idx),
     .in_instr_type(EXMEM_to_cache_instr_type),
+    //.in_exception_vector(EXMEM_to_cache_and_ROB_exception_vector), //This should be the one to send to the ROB from the pipeline. The other is the one to signal a completed exception, to nuke SB.
 
     //FROM ROB
     .in_complete_idx(ROB_to_cache_complete_idx),
     //.in_complete(ROB_to_decode_and_cache_ready),
     .in_instr_type_ROB(ROB_to_cache_instr_type),
-    .in_exception(ROB_to_cache_exception),
+    .in_exception_vector(ROB_to_fetch_and_cache_exception_vector),
 
     //OUTPUT
     .out_alu_out(cache_to_MEMWB_alu_out),
@@ -657,7 +674,6 @@ stage_cache cache(
     .out_complete_idx(cache_to_MEMWB_complete_idx),
     .out_complete(cache_to_MEMWB_complete),
     .out_instr_type(cache_to_MEMWB_instr_type)
-    
 );
 
 //wires for
@@ -801,11 +817,13 @@ registers_M5WB registers_M5WB(
 );
 
 wire allocate = !execute_to_fetch_branch_taken && decode_to_ROB_allocate; //If a branch is taken, next instr after the branch should not be allocated
+wire rob_nuke;
 //ROB Index
 reg [3:0] rob_idx;
 initial rob_idx = 0;
 always @(posedge clk) begin 
     if (reset) rob_idx <= 0;
+    if (rob_nuke) rob_idx <= 0;
     if (execute_to_fetch_branch_taken) rob_idx <= execute_to_registers_complete_idx;
     else if (!d_cache_stall && !i_cache_stall) rob_idx <= (rob_idx + 1) % 10;
 end
@@ -830,7 +848,7 @@ reorder_buffer rob(
     .in_complete(EXMEM_to_rob_complete),
     .in_complete_idx(EXMEM_to_cache_and_rob_complete_idx),
     .in_complete_value(EXMEM_to_execute_and_cache_and_ROB_alu_out),
-    .in_exception(),
+    .in_exception_vector(EXMEM_to_cache_and_ROB_exception_vector),
 
     //FROM CACHE
     .in_cache_complete(MEMWB_to_ROB_complete),
@@ -854,14 +872,19 @@ reorder_buffer rob(
     //OUTPUT
     .out_ready(ROB_to_decode_and_cache_ready),
     .out_value(ROB_to_decode_value),
-    .out_miss_addr(),                           //TLB MISS          Write to rm0, rm1
-    .out_PC(),                                  //TODO: TLB MISS
+    .out_miss_addr(ROB_to_fetch_fault_addr),                           //TLB MISS          Write to rm0, rm1
+    .out_PC(ROB_to_fetch_fault_PC),                                  //TODO: TLB MISS
     .out_rd(ROB_to_decode_rd),  
-    .out_exception(ROB_to_cache_exception),                           //TODO: On exception, nuke rob, flush pipeline and save PC and address of exception
+    .out_exception_vector(ROB_to_fetch_and_cache_exception_vector),                           //TODO: On exception, nuke rob, flush pipeline and save PC and address of exception
     .out_instr_type(ROB_to_cache_instr_type),   //Maybe not needed, just used as logic inside ROB for deciding if w.enable
     .out_full(),                                //Stalling when full
     .out_alloc_idx(rob_to_registers_IFID_idx),  //This is the index of the instruction in the ROB
     .out_complete_idx(ROB_to_cache_complete_idx),
+    .out_rob_nuke(rob_nuke),
+    //Supervisor
+    .out_priv_write_enable(ROB_to_fetch_priv_write_enable),
+    .out_priv_rm_idx(ROB_to_fetch_priv_rm_idx),
+    .out_priv_write_data(ROB_to_fetch_priv_write_data),
     //BYPASS
     .out_rs1_bypass(ROB_to_execute_bypass_rs1),
     .out_rs1_bypass_value(ROB_to_execute_bypass_rs1_value),

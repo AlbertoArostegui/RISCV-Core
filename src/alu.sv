@@ -92,6 +92,19 @@ module alu (
                 branch_taken = 0;
                 alu_out = operand1 + immediate;
             end
+            7'b1110011: begin //SYSTEM
+                branch_taken = 0;
+                case (funct3)
+                    3'b000: //IRET
+                        alu_out = 0;
+                    3'b001: //MOVRM
+                        alu_out = operand1;
+                    3'b111: //TLBWRITE
+                        alu_out = 0;
+                    default:
+                        alu_out = 0;
+                endcase
+            end
             default: begin
                 branch_taken = 0;
                 alu_out = 0;

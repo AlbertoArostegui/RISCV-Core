@@ -19,14 +19,15 @@ module soc_testbench();
         $dumpvars(0, soc_testbench);
         $dumpvars(0, dut);
 
-        $readmemh("/Users/alberto/pa/src/tests/hex/mul.hex", dut.memory.memory, 32'h400, 32'h402);
+        $readmemh("/Users/alberto/pa/src/tests/hex/mul.hex", dut.memory.memory, 32'h14, 32'h16);
         /*
         addi x3, x0, 50
         addi x2, x0, 50
         mul x1, x2, x3
         */
 
-        for(int i = 32'h400; i <= 32'h402; i = i+1) begin
+        $display("At 0x1000: %h", dut.memory.memory[32'h400]);
+        for(int i = 32'h800; i <= 32'h802; i = i+1) begin
             $display("%h", dut.memory.memory[i]);
         end
 
@@ -41,6 +42,16 @@ module soc_testbench();
     end
     task automatic display_processor_state;
         $display("\n╔═══════════════════ CYCLE %0d ════════════════════╗", $time/2);
+
+        $display("\n[🔐 PRIVILEGED REGISTERS]");
+        $display("IN: write_enable=%b rm_idx=%d write_data=%h", dut.core.fetch.privileged_regs.in_write_enable, dut.core.fetch.privileged_regs.in_rm_idx, dut.core.fetch.privileged_regs.in_write_data);
+        $display("Current Mode: %s", dut.core.fetch.privileged_regs.out_supervisor_mode ? "Supervisor" : "User");
+        $display("rm0 (fault PC): %h", dut.core.fetch.privileged_regs.rm[0]);
+        $display("rm1 (fault addr): %h", dut.core.fetch.privileged_regs.rm[1]);
+        $display("rm2 (additional): %h", dut.core.fetch.privileged_regs.rm[2]);
+        $display("rm4 (status): %h", dut.core.fetch.privileged_regs.rm[4]);
+
+        $display("out_overwrite_PC=%b out_new_address=%h", dut.core.fetch.privileged_regs.out_overwrite_PC, dut.core.fetch.privileged_regs.out_new_address);
         
         $display("\n[📋 REORDER BUFFER STATE]");
         $display("INPUTS:");
@@ -51,11 +62,11 @@ module soc_testbench();
             dut.core.rob.in_instr_type,
             dut.core.rob.in_stall
         );
-        $display("  Execute complete=%b idx=%d value=%h exception=%b",
+        $display("  Execute complete=%b idx=%d value=%h exception=%3b",
             dut.core.rob.in_complete,
             dut.core.rob.in_complete_idx,
             dut.core.rob.in_complete_value,
-            dut.core.rob.in_exception
+            dut.core.rob.in_exception_vector
         );
         $display("  Cache complete=%b idx=%d value=%h exception=%b",
             dut.core.rob.in_cache_complete,
@@ -63,7 +74,7 @@ module soc_testbench();
             dut.core.rob.in_cache_out,
             dut.core.rob.in_cache_exception
         );
-        $display("  Mul complete=%b idx=%d value=%h exception=%b",
+        $display("  Mul complete=%b idx=%d value=%h exception=%3b",
             dut.core.rob.in_mul_complete,
             dut.core.rob.in_mul_complete_idx,
             dut.core.rob.in_mul_complete_value,
@@ -71,11 +82,11 @@ module soc_testbench();
         );
         
         $display("\nOUTPUTS:");
-        $display("  Ready=%b value=%h rd=%d exception=%b instr_type=%b out_full=%b\nrs1_bypass=%b rs1_bypass_value=%h rs2_bypass=%b rs2_bypass_value=%h\n(For SB) out_complete_idx=%d",
+        $display("  Ready=%b value=%h rd=%d exception=%3b instr_type=%b out_full=%b\nrs1_bypass=%b rs1_bypass_value=%h rs2_bypass=%b rs2_bypass_value=%h\n(For SB) out_complete_idx=%d\nPrivileged write enable=%b Privileged rm idx=%d",
             dut.core.rob.out_ready,
             dut.core.rob.out_value,
             dut.core.rob.out_rd,
-            dut.core.rob.out_exception,
+            dut.core.rob.out_exception_vector,
             dut.core.rob.out_instr_type,
             dut.core.rob.out_full,
             dut.core.rob.out_rs1_bypass,
@@ -83,6 +94,8 @@ module soc_testbench();
             dut.core.rob.out_rs2_bypass,
             dut.core.rob.out_rs2_bypass_value,
             dut.core.rob.out_complete_idx,
+            dut.core.rob.out_priv_write_enable,
+            dut.core.rob.out_priv_rm_idx
         );
         $display("Full=%b alloc_idx=%d",
             dut.core.rob.out_full,
@@ -96,7 +109,7 @@ module soc_testbench();
             dut.core.rob.count
         );
         $display("╔════╤══════════╤══════════╤═════╤═══════╤═════════╤═════════════╤════════════╗");
-        $display("║ ## │    PC    │  VALUE   │ RD  │ VALID │COMPLETE │  EXCEPTION  │ INST_TYPE  ║");
+        $display("║ ## │    PC    │  VALUE   │ RD  │ VALID │COMPLETE │  EXCEPTION  │ INSTR_TYPE ║");
         $display("╠════╪══════════╪══════════╪═════╪═══════╪═════════╪═════════════╪════════════╣");
         for(int i = 0; i < 10; i++) begin
             $display("║ %2d │ %6h │ %6h │ %3d │   %b   │    %b    │     %b     │    %b     ║",
@@ -115,11 +128,69 @@ module soc_testbench();
         // FETCH STAGE
         $display("\n[📍 FETCH STAGE]");
         $display("IN:");
-        $display("  branch_taken=%b new_PC=%h pc_write_disable=%b", 
+        $display("  branch_taken=%b next_PC=%h pc_write_disable=%b", 
             dut.core.fetch.branch_taken,
-            dut.core.fetch.new_pc,
+            dut.core.fetch.next_pc,
             dut.core.fetch.pc_write_disable
         );
+
+        $display("PC: %h", dut.core.fetch.PC);
+
+        // TLB STATE 
+        $display("\n[📖 INSTRUCTION TLB STATE]");
+        $display("╔════╤═══════════╤════════════╤═══════╗");
+        $display("║ ## │ Virtual @ │ Physical @ │ Valid ║");
+        $display("╠════╪═══════════╪════════════╪═══════╣");
+        for(int i = 0; i < 4; i++) begin
+            $display("║ %2d │  %h │      %h │   %b   ║",
+                i,
+                dut.core.fetch.itlb.v_addr[i],
+                dut.core.fetch.itlb.p_addr[i],
+                dut.core.fetch.itlb.valid[i]
+            );
+        end
+        $display("╚════╧═══════════╧════════════╧═══════╝");
+        $display("TLB OUT: out_physical_address=%h out_tlb_hit=%b out_exception_vector=%b",
+            dut.core.fetch.itlb.out_physical_address,
+            dut.core.fetch.itlb.out_tlb_hit,
+            dut.core.fetch.out_exception_vector
+        );
+
+        // INSTRUCTION CACHE STATE
+        $display("\n[💻 INSTRUCTION CACHE STATE]");
+        $display("INPUTS:");
+        $display("  Address: %h", dut.core.fetch.icache.in_addr);
+        $display("  TLB Hit: %b", dut.core.fetch.icache.in_tlb_hit);
+        $display("  Read/Write: %b/%b", dut.core.fetch.icache.in_read_en, dut.core.fetch.icache.in_write_en);
+        
+        $display("\nSTATE:");
+        $display("╔════╤════╤════════════╤══════════════════════════════════╤═══════╤═══════╗");
+        $display("║ Set│ Way│    Tag     │              Data                │ Valid │ Dirty ║");
+        $display("╠════╪════╪════════════╪══════════════════════════════════╪═══════╪═══════╣");
+        for(int i = 0; i < 2; i++) begin
+            for(int j = 0; j < 2; j++) begin
+                $display("║ %2d │ %2d │      %h │ %32h │   %b   │   %b   ║",
+                    i, j,
+                    dut.core.fetch.icache.tags[i][j],
+                    dut.core.fetch.icache.data[i][j],
+                    dut.core.fetch.icache.valid[i][j],
+                    dut.core.fetch.icache.dirty[i][j]
+                );
+            end
+            if (i == 0) $display("╟────┼────┼────────────┼──────────────────────────────────┼───────┼───────╢");
+        end
+        $display("╚════╧════╧════════════╧══════════════════════════════════╧═══════╧═══════╝");
+        $display("LRU: Set0=%b Set1=%b", dut.core.fetch.icache.lru[0], dut.core.fetch.icache.lru[1]);
+        
+        $display("\nOUTPUTS:");
+        $display("  Data Out: %h", dut.core.fetch.icache.out_read_data);
+        $display("  Hit: %b  Busy: %b", dut.core.fetch.icache.out_hit, dut.core.fetch.icache.out_busy);
+        $display("  Memory Interface: addr=%h read=%b write=%b",
+            dut.core.fetch.icache.out_mem_addr,
+            dut.core.fetch.icache.out_mem_read_en,
+            dut.core.fetch.icache.out_mem_write_en
+        );
+        
         $display("OUT:");
         $display("  PC=%h instruction=%h (%s)", 
             dut.core.fetch.out_PC,
@@ -238,9 +309,10 @@ module soc_testbench();
             decode_forward(dut.core.execute.forwarding_unit.forwardB, dut.core.execute.in_rs2_ROB_bypass)
         );
         $display("OUT:");
-        $display("  ALU: result=%h branch_taken=%b",
+        $display("  ALU: result=%h branch_taken=%b\n exception_vector=%3b",
             dut.core.execute.out_alu_out,
-            dut.core.execute.out_branch_taken
+            dut.core.execute.out_branch_taken,
+            dut.core.execute.out_exception_vector
         );
         $display("  Forward: A=%b B=%b",
             dut.core.execute.forwarding_unit.forwardA,
@@ -249,10 +321,11 @@ module soc_testbench();
 
         // EX/MEM Pipeline Registers
         $display("\n[🔄 EX/MEM REGISTERS]");
-        $display("OUT: alu_out=%h mem_data=%h rd=%d",
+        $display("OUT: alu_out=%h mem_data=%h rd=%d exception_vector=%3b",
             dut.core.registers_EXMEM.out_alu_out,
             dut.core.registers_EXMEM.out_mem_data,
-            dut.core.registers_EXMEM.out_rd
+            dut.core.registers_EXMEM.out_rd,
+            dut.core.registers_EXMEM.out_exception_vector
         );
         $display("  Control: mem_write=%b mem_read=%b memToReg=%b regWrite=%b",
             dut.core.registers_EXMEM.out_mem_write,
@@ -275,31 +348,70 @@ module soc_testbench();
             dut.core.cache.out_rd
         );
 
-        $display("\n Store Buffer: \n");
-        $display("Store counter: %d  Oldest: %d", dut.core.cache.store_buffer.store_counter, dut.core.cache.store_buffer.oldest);
-        $display("Hit: %b Stall: %b", dut.core.cache.store_buffer.out_hit, dut.core.cache.store_buffer.out_stall);
-        for (int i = 0; i < 4; i++) begin
-            $display("  Entry %0d: \naddr=%h \ndata=%h \nfunct3=%b rob_idx=%d", i, dut.core.cache.store_buffer.addr[i], dut.core.cache.store_buffer.data[i], dut.core.cache.store_buffer.funct3[i], dut.core.cache.store_buffer.rob_idx[i]);
+        $display("\n[📦 STORE BUFFER STATE]");
+        $display("COUNTERS:");
+        $display("  Stores: %d  Oldest: %d", 
+            dut.core.cache.store_buffer.store_counter, 
+            dut.core.cache.store_buffer.oldest
+        );
+        $display("STATUS:");
+        $display("  Hit: %b  Stall: %b", 
+            dut.core.cache.store_buffer.out_hit, 
+            dut.core.cache.store_buffer.out_stall
+        );
+        
+        $display("\nENTRIES:");
+        $display("╔════╤════════════╤════════════╤══════════╤══════════╤═══════╗");
+        $display("║ ## │   Address  │    Data    │  Funct3  │ ROB Idx  │ Valid ║");
+        $display("╠════╪════════════╪════════════╪══════════╪══════════╪═══════╣");
+        for(int i = 0; i < 4; i++) begin
+            $display("║ %2d │   %h │   %h │    %3b   │    %2d    │   %b   ║",
+                i,
+                dut.core.cache.store_buffer.addr[i],
+                dut.core.cache.store_buffer.data[i],
+                dut.core.cache.store_buffer.funct3[i],
+                dut.core.cache.store_buffer.rob_idx[i],
+                dut.core.cache.store_buffer.valid[i]
+            );
+            if (i < 3) $display("╟────┼────────────┼────────────┼──────────┼──────────┼───────╢");
         end
+        $display("╚════╧════════════╧════════════╧══════════╧══════════╧═══════╝");
 
-        // Cache internals
-        $display("\nCache Internals:\n");
-        $display("Full address: 0x%b", {dut.core.cache.d_cache.tag, dut.core.cache.d_cache.set_index, dut.core.cache.d_cache.word_offset, dut.core.cache.d_cache.byte_offset});
-        $display("Set Index: %b", dut.core.cache.d_cache.set_index);
-        $display("Tag: 0x%b", dut.core.cache.d_cache.tag);
-        $display("Word Offset: %b", dut.core.cache.d_cache.word_offset);
-        $display("Byte Offset: %b", dut.core.cache.d_cache.byte_offset);
-
-        for (int i = 0; i < 2; i++) begin
-            for (int j = 0; j < 2; j++) begin
-                $display("  Set %0d Way %0d:", i, j);
-                $display("    Valid: %b", dut.core.cache.d_cache.valid[i][j]);
-                $display("    Dirty: %b", dut.core.cache.d_cache.dirty[i][j]);
-                $display("    Tag: %b", dut.core.cache.d_cache.tags[i][j]);
-                $display("    Data: 0x%h", dut.core.cache.d_cache.data[i][j]);
+        // DATA CACHE STATE
+        $display("\n[💾 DATA CACHE STATE]");
+        $display("INPUTS:");
+        $display("  Address: %h", dut.core.cache.d_cache.in_addr);
+        $display("  Write Data: %h", dut.core.cache.d_cache.in_write_data);
+        $display("  Read/Write: %b/%b", dut.core.cache.d_cache.in_read_en, dut.core.cache.d_cache.in_write_en);
+        $display("  Function3: %b", dut.core.cache.d_cache.in_funct3);
+        
+        $display("\nSTATE:");
+        $display("╔════╤════╤════════════╤══════════════════════════════════╤═══════╤═══════╗");
+        $display("║Set │Way │    Tag     │              Data                │ Valid │ Dirty ║");
+        $display("╠════╪════╪════════════╪══════════════════════════════════╪═══════╪═══════╣");
+        for(int i = 0; i < 2; i++) begin
+            for(int j = 0; j < 2; j++) begin
+                $display("║ %2d │ %2d │      %h │ %32h │   %b   │   %b   ║",
+                    i, j,
+                    dut.core.cache.d_cache.tags[i][j],
+                    dut.core.cache.d_cache.data[i][j],
+                    dut.core.cache.d_cache.valid[i][j],
+                    dut.core.cache.d_cache.dirty[i][j]
+                );
             end
-            $display("    LRU: %b", dut.core.cache.d_cache.lru[i]);
+            if (i == 0) $display("╟────┼────┼────────────┼──────────────────────────────────┼───────┼───────╢");
         end
+        $display("╚════╧════╧════════════╧══════════════════════════════════╧═══════╧═══════╝");
+        $display("LRU: Set0=%b Set1=%b", dut.core.cache.d_cache.lru[0], dut.core.cache.d_cache.lru[1]);
+        
+        $display("\nOUTPUTS:");
+        $display("  Data Out: %h", dut.core.cache.d_cache.out_read_data);
+        $display("  Hit: %b  Busy: %b", dut.core.cache.d_cache.out_hit, dut.core.cache.d_cache.out_busy);
+        $display("  Memory Interface: addr=%h read=%b write=%b",
+            dut.core.cache.d_cache.out_mem_addr,
+            dut.core.cache.d_cache.out_mem_read_en,
+            dut.core.cache.d_cache.out_mem_write_en
+        );
 
         // MEM/WB Pipeline Registers
         $display("\n[🔄 MEM/WB REGISTERS]");
@@ -410,6 +522,14 @@ module soc_testbench();
                 default: asm = "unknown-R";
             endcase
             end
+            7'b1110011: begin // System instructions
+                case (funct3)
+                    3'b000: asm = "iret";                                     // IRET
+                    3'b010: asm = $sformatf("tlbwrite x%0d,x%0d", rs1, rs2);  // TLBWRITE
+                    3'b001: asm = $sformatf("movrm x%0d,rm%0d", rd, rs1);     // MOVRM
+                    default: asm = "unknown-system";
+                endcase
+            end
             7'b0010011: asm = $sformatf("addi x%0d,x%0d,%0d", rd, rs1, $signed(imm_i));
             7'b1100011: begin // B-type
                 case (funct3)
@@ -446,5 +566,17 @@ module soc_testbench();
         3'b001: return "ROB";
         default: return "REG";
     endcase
+    endfunction
+
+    function string decode_exception;
+        input [2:0] exception_vector;
+        begin
+            case(exception_vector)
+                3'b001: return "TLB Miss";
+                3'b010: return "Illegal Instruction";
+                3'b100: return "Privilege Violation";
+                default: return "No Exception";
+            endcase
+        end
     endfunction
 endmodule

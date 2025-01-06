@@ -1,7 +1,11 @@
 `include "defines2.sv"
 
 module decoder(
+    //INPUT
     input [31:0] instr,
+    input supervisor_mode,
+    
+    //OUTPUT
     output [4:0] rs1,
     output [4:0] rs2,
     output [4:0] rd,
@@ -9,7 +13,8 @@ module decoder(
     output [6:0] funct7,
     output [2:0] funct3,
     output [6:0] opcode,
-    output [2:0] instr_type
+    output [2:0] instr_type,
+    output [2:0] exception_vector
 );
 
     //OUTPUT
@@ -29,6 +34,7 @@ module decoder(
     wire instr_AUIPC   = (opcode == `OPCODE_AUIPC);
     wire instr_LUI     = (opcode == `OPCODE_LUI);
     wire instr_NOP     = (opcode == `OPCODE_NOP);
+    wire instr_SYSTEM  = (opcode == `OPCODE_SYSTEM);
 
 
     wire instr_R_type  = instr_ALU;
@@ -38,7 +44,12 @@ module decoder(
     wire instr_J_type  = instr_JUMP;
     wire instr_U_type  = instr_AUIPC || instr_LUI;
 
-    assign instr_type = (instr_R_type && funct7 == `MUL_FUNCT7) ? `INSTR_TYPE_MUL : 
+    assign exception_vector = {{instr_SYSTEM && !supervisor_mode}, 2'b00}; //Exception type privileged instruction
+
+    assign instr_type = (instr_SYSTEM && funct3 == `IRET_FUNCT3) ? `INSTR_TYPE_IRET :
+                        (instr_SYSTEM && funct3 == `MOVRM_FUNCT3) ? `INSTR_TYPE_MOVRM :
+                        (instr_SYSTEM && funct3 == `TLBWRITE_FUNCT3) ? `INSTR_TYPE_TLBWRITE :
+                        (instr_R_type && funct7 == `MUL_FUNCT7) ? `INSTR_TYPE_MUL : 
                         ((instr_R_type && funct7 != `MUL_FUNCT7) || instr_AUIPC || instr_ALU_IMM || instr_NOP) ? `INSTR_TYPE_ALU :
                         (instr_LOAD || instr_LUI) ? `INSTR_TYPE_LOAD : 
                         instr_STORE ? `INSTR_TYPE_STORE : 

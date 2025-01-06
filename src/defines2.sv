@@ -4,9 +4,6 @@
 
 `define WORD_SIZE 32
 
-`define NUM_ARCH_REGS 32
-`define ARCH_REG_INDEX_SIZE $clog2(`NUM_ARCH_REGS)
-
 `define OPCODE_ALU      7'b0110011
 `define OPCODE_ALU_IMM  7'b0010011
 `define OPCODE_BRANCH   7'b1100011
@@ -16,21 +13,26 @@
 `define OPCODE_AUIPC    7'b0010111
 `define OPCODE_LUI      7'b0110111
 `define OPCODE_NOP      7'b0000000
+`define OPCODE_SYSTEM   7'b1110011
 
-
+/* alu funct3 */
 `define OR_FUNCT3       3'b110 
 `define AND_FUNCT3      3'b111 
 `define ADD_FUNCT3      3'b000
-`define ADDI_FUNCT3     3'b000 //solo se necesita f3 para addi
+`define ADDI_FUNCT3     3'b000 
 `define SLLI_FUNCT3		3'b001
 `define SRLI_FUNCT3		3'b101
- 
 
-/* Funct3 of branches */
+/* branch funct3 */
 `define BEQ_FUNCT3      3'b000
 `define BNE_FUNCT3		3'b010
 `define BLT_FUNCT3      3'b100
 `define BGE_FUNCT3      3'b101
+
+/* privileged funct3 */
+`define IRET_FUNCT3     3'b000
+`define TLBWRITE_FUNCT3 3'b111
+`define MOVRM_FUNCT3    3'b001
 
 `define SUB_FUNCT7      7'b0100000
 `define MUL_FUNCT7      7'b0000001
@@ -69,62 +71,21 @@
 `define MEM_DELAY_CYCLES 10
 `define MEM_SIZE (1 << 18)
 
+`define INSTR_TYPE_ALU      3'b000
+`define INSTR_TYPE_MUL      3'b001
+`define INSTR_TYPE_NO_WB    3'b010
+`define INSTR_TYPE_STORE    3'b011
+`define INSTR_TYPE_LOAD     3'b100
+`define INSTR_TYPE_IRET     3'b110
+`define INSTR_TYPE_MOVRM    3'b111
+`define INSTR_TYPE_TLBWRITE 3'b101
 
-/*
- * Internal defines
- *
- * They're used to know when to write into the ROB. 
- *   - ALU writes after Ex stage            (F D E WB) 
- *   - MEM writes after MEM stage           (F D E M WB)
- *   - MUL write at the end of the pipeline (F D E M2 M3 M4 M5 WB)
- *   - The rest don't write into ROB (invalid or jumps)
- */
-`define INSTR_TYPE_SZ 3
-
-`define INSTR_TYPE_ALU     3'b000
-`define INSTR_TYPE_MUL     3'b001
-`define INSTR_TYPE_NO_WB   3'b010
-`define INSTR_TYPE_STORE   3'b011
-`define INSTR_TYPE_LOAD    3'b100
-
-
-`define PAGE_WIDTH 20
-`define TLB_ENTRIES 512
-`define TLB_DELAY 5 
-`define TLB_DELAY_WIDTH $clog2(`TLB_DELAY)
-
-// Think about maximum latency: 
-// load (cache miss)
-// addi x(N)
-// how many entries do we need to not stall?
-`define ROB_NUM_ENTRIES 14
-
-// Invalid rob id (for bubbles or jumps) we have to
-// assign them some value that nobody is going to 
-// consume so that our bypass logic works
-`define ROB_INVALID_ENTRY (`ROB_NUM_ENTRIES + 1) 
-
-`define ROB_ENTRY_WIDTH $clog2(`ROB_INVALID_ENTRY)
-
+`define EXCEPTION_TYPE_ILLEGAL 3'b010
+`define EXCEPTION_TYPE_PRIV    3'b100
+`define EXCEPTION_TYPE_DTLBMISS 3'b101
+`define EXCEPTION_TYPE_ITLBMISS 3'b001
 
 `define STORE_BUFFER_ENTRIES	4
-
-`define SIZE_WRITE_WIDTH 3
-
-// unsigned..
-`define BYTE_SIZE	3'b000
-`define HALF_SIZE	3'b001
-`define FULL_WORD_SIZE	3'b010
-
-`define ADDRESS_WIDTH 32
-
-
-
-`define assert(signal, value) \
-        if (signal !== value) begin \
-            $display("ASSERTION FAILED in %m: signal != value"); \
-            $finish; \
-        end
 
 `endif
 

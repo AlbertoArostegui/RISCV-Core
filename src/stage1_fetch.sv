@@ -1,5 +1,7 @@
 `include "cache.sv"
-//Here everything should be a wire (its comb. logic)
+`include "tlb.sv"
+`include "privileged_regs.sv"
+`include "defines2.sv"
 module stage_fetch #(
     parameter CACHE_LINE_SIZE = 128,
     parameter INIT_ADDR = 32'h1000
@@ -16,6 +18,16 @@ module stage_fetch #(
     //MEM IFACE
     input [CACHE_LINE_SIZE-1:0] in_mem_read_data,
     input in_mem_ready,
+
+    //ROB Exception
+    input [2:0] in_exception_vector,
+    input [31:0] in_rob_fault_PC,
+    input [31:0] in_rob_fault_addr,
+
+    //ROB Supervisor
+    input in_priv_write_enable,
+    input [2:0] in_priv_rm_idx,
+    input [31:0] in_priv_write_data,
 
     //OUTPUT
     output [31:0] out_PC,
@@ -35,11 +47,14 @@ module stage_fetch #(
 reg [31:0] PC;
 
 assign out_PC = PC;
-assign out_exception_vector = 3'b0;
 
 initial begin 
     PC = 32'h0;
 end
+
+wire [31:0] next_pc = (branch_taken) ? new_pc :
+                (overwrite_PC) ? overwrite_PC_addr :
+                PC + 4;
 
 always @(posedge clk or posedge reset) begin
     if (reset) 
@@ -47,56 +62,82 @@ always @(posedge clk or posedge reset) begin
     else if (!pc_write_disable && !in_d_cache_stall) begin
         if (branch_taken)
             PC <= new_pc;
+        else if (overwrite_PC)
+            PC <= overwrite_PC_addr;
         else if (!out_stall)
             PC <= PC + 4;
     end
 end
-/*
-// Instantiate the ITLB
-itlb itlb (
+
+wire supervisor_mode;
+wire [31:0] itlb_physical_address;
+wire itlb_hit;
+wire overwrite_PC;
+wire [31:0] overwrite_PC_addr;
+wire [31:0] out_cache_instr;
+
+assign out_instruction = itlb_hit ? out_cache_instr : 32'h0;
+assign out_exception_vector = !itlb_hit ? `EXCEPTION_TYPE_ITLBMISS : 3'b0;
+
+privileged_regs privileged_regs(
     .clk(clk),
     .reset(reset),
-    .virtual_address(PC),
-    .physical_address(itlb_physical_address),
-    .tlb_hit(itlb_hit)
+
+    //INPUT
+    .in_rm_idx(in_priv_rm_idx),
+    .in_write_enable(in_priv_write_enable),
+    .in_write_data(in_priv_write_data),
+    .in_exception_vector(in_exception_vector),
+    //FROM ROB
+    .in_fault_pc(in_rob_fault_PC),
+    .in_fault_addr(in_rob_fault_addr),
+    .in_additional_info(),
+
+    //OUTPUT
+    .out_new_address(overwrite_PC_addr),
+    .out_overwrite_PC(overwrite_PC),
+    .out_supervisor_mode(supervisor_mode)
 );
 
-wire [31:0] tlb_miss_physical_address;
-wire tlb_update;
-
-tlb_miss tlb_miss (
+tlb itlb (
     .clk(clk),
     .reset(reset),
-    .virtual_address(PC),
-    .tlb_miss_detected(~itlb_hit),
-    .os_offset(32'h1000),
-    .tlb_miss_physical_address(tlb_miss_physical_address),
-    .tlb_update(tlb_update)
+
+    //INPUT
+    .in_supervisor_mode(supervisor_mode),
+    .in_virtual_address(PC),
+
+    .in_write_enable(),
+    .in_write_virtual_address(),
+    .in_write_physical_address(),
+
+    //OUTPUT
+    .out_fault_addr(),
+    .out_physical_address(itlb_physical_address),
+    .out_tlb_hit(itlb_hit),
+    .out_exception_vector()
 );
-
-wire [31:0] final_physical_address = itlb_hit ? itlb_physical_address : tlb_miss_physical_address;
-
-*/
-wire [31:0] in_write_data;      
-
 
 cache icache(
     .clk(clk),
     .reset(reset),
 
     //INPUT
+    .in_tlb_hit(itlb_hit),
     .in_read_en(1'b1),
     .in_bypass_found(1'b0),
-    .in_write_en(in_write_en),
-    .in_addr(PC),
-    .in_write_data(in_write_data),
+    .in_write_en(1'b0),
+    .in_addr(itlb_physical_address),
+    .in_write_data(32'h0),
     .in_funct3(3'b010),
 
     //MEM IFACE
     .in_mem_read_data(in_mem_read_data),
     .in_mem_ready(in_mem_ready),
+
+
     //OUTPUT
-    .out_read_data(out_instruction),
+    .out_read_data(out_cache_instr),
     .out_busy(out_stall),
     .out_hit(),
 

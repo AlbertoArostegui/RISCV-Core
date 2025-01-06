@@ -1,3 +1,4 @@
+`include "defines2.sv"
 module tlb #(
     parameter int N = 4
 )(
@@ -5,46 +6,53 @@ module tlb #(
     input reset,
 
     //INPUT
-    input               supervisor_mode,
-    input [31:0]        virtual_address,
+    input               in_supervisor_mode,
+    input [31:0]        in_virtual_address,
 
-    input               write_enable,
-    input [31:0]        write_virtual_address,
-    input [19:0]        write_physical_address,
+    input               in_write_enable,
+    input [31:0]        in_write_virtual_address,
+    input [19:0]        in_write_physical_address,
 
     //OUTPUT
-    output reg [31:0]   physical_address,
-    output reg          tlb_hit,
-    output reg          page_fault,
+    output reg [31:0]   out_fault_addr,
+    output reg [31:0]   out_physical_address,
+    output reg          out_tlb_hit,
+    output reg [2:0]    out_exception_vector
 );
 
+    /*
     typedef struct packed {
         logic [31:0] v_addr;
         logic [19:0] p_addr;
         logic valid;
     } tlb_entry_t;
+    tlb_entry_t entries [N-1:0];
+    */
+    reg [31:0] v_addr [N-1:0];
+    reg [19:0] p_addr [N-1:0];
+    reg valid [N-1:0];
 
-    tlb_entry_t tlb [N-1:0];
     reg [$clog2(N)-1:0] replace_ptr;
 
     always @(*) begin
-        hit = 0;
-        fault = 0;
-        physical_address = 0;
-        if (!supervisor_mode) begin
+        out_tlb_hit = 0;
+        out_exception_vector = 0;
+        out_physical_address = 0;
+        out_fault_addr = 0;
+        if (!in_supervisor_mode) begin
             for (int i = 0; i < N; i = i + 1) begin
-                if (tlb[i].valid && tlb[i].v_addr == virtual_address) begin
-                    hit = 1;
-                    physical_address = tlb[i].p_addr;
-                    break;
+                if (valid[i] && v_addr[i] == in_virtual_address) begin
+                    out_tlb_hit = 1;
+                    out_physical_address = p_addr[i];
                 end
             end
-            if (!hit) begin
-                fault = 1;
+            if (!out_tlb_hit) begin
+                out_exception_vector = 3'b000;
+                out_fault_addr = in_virtual_address;
             end
         end else begin
-            physical_address = virtual_address[19:0];
-            hit = 1;
+            out_physical_address = in_virtual_address[19:0];
+            out_tlb_hit = 1;
         end
     end
 
@@ -52,14 +60,16 @@ module tlb #(
         if (reset) begin
             integer i;
             for (i = 0; i < 16; i = i + 1) begin
-                dtlb[i].valid <= 0;
+                valid[i] <= 0;
             end
             replace_ptr <= 0;
-        end else (write_enable) begin
-            entries[replace_ptr].valid <= 1;
-            entries[replace_ptr].v_addr <= write_virtual_address;
-            entries[replace_ptr].p_addr <= write_physical_address;
-            replace_ptr <= replace_ptr + 1;
+        end else if (in_write_enable) begin
+            if (in_supervisor_mode) begin
+                valid[replace_ptr] <= 1;
+                v_addr[replace_ptr] <= in_write_virtual_address;
+                p_addr[replace_ptr] <= in_write_physical_address;
+                replace_ptr <= replace_ptr + 1;
+            end else out_exception_vector <= `EXCEPTION_TYPE_PRIV;
         end
     end
 endmodule

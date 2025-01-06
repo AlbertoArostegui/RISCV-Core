@@ -96,7 +96,7 @@ assign out_write_enable = in_write_enable;
 assign out_funct3 = in_funct3;
 assign out_exception_vector = in_exception_vector; //TODO: Exception handling. Here should be divide by zero
 assign out_instr_type = in_instr_type;                          //This propagates the instruction type to the next stage
-assign out_complete = (in_instr_type == `INSTR_TYPE_ALU) && (in_opcode == `OPCODE_ALU || in_opcode == `OPCODE_ALU_IMM);     //This is for the ROB, to see if we write from this stage or not. We write if the instr is ALU type. Either way, we propagate the idx
+assign out_complete = (in_exception_vector != 3'b000) || (in_instr_type == `INSTR_TYPE_IRET) || (in_instr_type == `INSTR_TYPE_MOVRM) || (in_instr_type == `INSTR_TYPE_ALU) && (in_opcode == `OPCODE_ALU || in_opcode == `OPCODE_ALU_IMM);     //This is for the ROB, to see if we write from this stage or not. We write if the instr is ALU type. Either way, we propagate the idx
 assign out_complete_idx = in_complete_idx;
 assign out_rs1_ROB = in_rs1;
 assign out_rs2_ROB = in_rs2;

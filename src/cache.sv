@@ -7,6 +7,7 @@ module cache #(
     input wire reset,
 
     //INPUT
+    input wire in_tlb_hit,
     input wire [31:0] in_addr,
     input wire [31:0] in_write_data,
     input wire in_write_en,
@@ -99,7 +100,7 @@ module cache #(
                     end
                 end
             end
-            if (!out_hit) out_busy = 1;
+            if (in_tlb_hit && !out_hit) out_busy = 1; //If we don't hit TLB, we don't have to wait for cache, we have to propagate the exception, so no cache stall.
             if (in_mem_ready) out_mem_read_en = 0;
         end
     end

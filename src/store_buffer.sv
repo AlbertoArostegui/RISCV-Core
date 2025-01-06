@@ -15,7 +15,7 @@ module store_buffer #(
     input [3:0]         in_rob_idx,                         //Allocate
     input               in_complete,                        //Instruction completed ? commit to cache    
     input [3:0]         in_complete_idx,                    //Index of completed instruction
-    input               in_exception,                       //Exception, nuke the store buffer
+    input [2:0]         in_exception_vector,                //Exception, nuke the store buffer
 
     /*The ROB is used only for control*/
 
@@ -44,6 +44,7 @@ reg [31:0] addr      [SB_SIZE-1:0];
 reg [31:0] data      [SB_SIZE-1:0];
 reg [2:0]  funct3    [SB_SIZE-1:0];
 reg [3:0]  rob_idx   [SB_SIZE-1:0];
+reg        valid     [SB_SIZE-1:0];
 
 reg [1:0] store_counter; 
 reg [1:0] oldest;
@@ -81,7 +82,7 @@ always @(*) begin
     //TODO: SB bypass. Handle case in which we have more than one store for the same addr. Youngest should be returned.
     else if (in_load_instr) begin
         for (int i = 0; i < SB_SIZE; i++) begin
-            if (addr[i] == in_addr) begin
+            if (valid[i] && addr[i] == in_addr) begin
                 out_addr <= addr[i];
                 out_data <= data[i];
                 out_funct3 <= funct3[i];
@@ -93,15 +94,20 @@ end
 
 //TODO: Drain store buffer. Figure out when is it needed to drain.
 always @(posedge clk) begin
-    if (reset || in_exception) reset_sb();                              //Case exception        --> Nuke Store Buffer (precise exceptions) or simply reset
+    if (reset || in_exception_vector != 3'b000) reset_sb();                              //Case exception        --> Nuke Store Buffer (precise exceptions) or simply reset
     else if (in_store_instr) begin                                                          //Case we store         --> We save into the entries the store
         addr[store_counter] <= in_addr;
         data[store_counter] <= in_data;
         funct3[store_counter] <= in_funct3;
         rob_idx[store_counter] <= in_rob_idx;
+        valid[store_counter] <= 1;
         store_counter <= store_counter + 1;
-    //if (out_hit) store_counter <= store_counter - 1;                    //Case we bypass load   --> We remove from our entries the data we loaded
-    if (in_complete) store_counter <= store_counter - 1;                //Case we commit 2 cache --> We remove from our entries the data we are committing
+    end
+    if (in_complete) begin
+        for (int i = 0; i < SB_SIZE; i++) begin
+            if (rob_idx[i] == in_complete_idx) valid[i] <= 0;
+        end
+        store_counter <= store_counter - 1;                //Case we commit 2 cache --> We remove from our entries the data we are committing
     end
 end
 
@@ -111,6 +117,7 @@ task reset_sb;
         data[i] <= 0;
         funct3[i] <= 0;
         rob_idx[i] <= 0;
+        valid[i] <= 0;
     end
     store_counter <= 0;
     oldest <= 0;
