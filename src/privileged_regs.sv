@@ -16,7 +16,8 @@ module privileged_regs(
     //OUTPUT
     output out_supervisor_mode,    // rm4[0]
     output reg out_overwrite_PC,
-    output reg [31:0] out_new_address
+    output reg [31:0] out_new_address,
+    output reg [2:0] out_exception_vector
 );
 
     reg [31:0] rm [5];  // rm0-rm4
@@ -28,6 +29,7 @@ module privileged_regs(
         rm[4] = 32'h1;  // Boot in supervisor mode
         out_overwrite_PC = 0;
         out_new_address = 0;
+        out_exception_vector = 3'b0;
     end
 
     always @(*) begin
@@ -52,6 +54,7 @@ module privileged_regs(
                 rm[1] <= in_fault_addr; 
                 rm[2] <= in_additional_info;
                 rm[4][0] <= 1;     // Switch to supervisor
+                out_exception_vector <= in_exception_vector;
             end else if (in_write_enable) begin
                 rm[in_rm_idx] <= in_write_data;
                 if (in_rm_idx == 4) begin //If iret

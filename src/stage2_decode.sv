@@ -87,15 +87,21 @@ assign out_allocate = (out_instr_type != `INSTR_TYPE_NO_WB);
 //On taken branches we will wipe the ROB
 
 decoder decoder(
-    .instr(in_instruction),     //In
-    .rs1(decoder_to_rf_rs1),    //Out
+    //INPUT
+    .instr(in_instruction),     
+    .in_supervisor_mode(),
+    .in_exception_vector(),
+
+    //OUTPUT
+    .rs1(decoder_to_rf_rs1),    
     .rs2(decoder_to_rf_rs2),
     .rd(out_rd),
     .imm(out_immediate),
     .funct7(out_funct7),
     .funct3(out_funct3),
     .opcode(out_opcode),
-    .instr_type(out_instr_type)
+    .instr_type(out_instr_type),
+    .out_exception_vector()
 );
 
 assign out_rs1 = decoder_to_rf_rs1;

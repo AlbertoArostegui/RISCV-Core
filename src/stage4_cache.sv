@@ -15,7 +15,6 @@ module stage_cache #(
     input               in_write_en,
     input               in_read_en,
     input [2:0]         in_funct3,
-    input               mode, // 0 for INSTRUCTION, 1 for DATA
 
     //Control passing by
     input [4:0]         in_rd,
@@ -28,7 +27,7 @@ module stage_cache #(
 
     //FOR ROB
     //Here the difference with Ex. is that we pass idx to ROB as if it was completed (same as Ex.), but won't commit to cache until ROB issues the completion flag.
-    //So we need 2 different idxs. One for sending to rob as "ready to commit" and the other to know which to commit when ROB signals it.
+    //So we need 2 different idxs. One for sending to rob as "ready to commit" and the other to know when and which entry to commit when ROB signals it.
     input [3:0]         in_allocate_idx,
     input [2:0]         in_instr_type,
 
@@ -36,7 +35,10 @@ module stage_cache #(
     input               in_complete,
     input [3:0]         in_complete_idx,
     input [2:0]         in_instr_type_ROB,
-    input [2:0]         in_exception_vector,
+    input [2:0]         in_exception_vector_ROB,
+
+    //Supervisor
+    input               in_supervisor_mode,
 
 
     //OUTPUT
@@ -58,6 +60,7 @@ module stage_cache #(
     //ROB
     output [3:0]        out_complete_idx,
     output              out_complete,
+    output [2:0]        out_exception_vector,
     output [2:0]        out_instr_type
 );
 
@@ -68,39 +71,38 @@ assign out_write_enable = in_write_enable;
 assign out_instr_type = in_instr_type;
 assign out_complete_idx = in_allocate_idx; //We pass "ready to commit" to the ROB.
 assign out_complete = !out_stall && (in_instr_type == `INSTR_TYPE_LOAD || in_instr_type == `INSTR_TYPE_STORE);   
-/*
-// Instantiate the DTLB
-dtlb dtlb (
+assign out_exception_vector = (sb_bypass_found) ? 3'b000 : dtlb_exception_vector; //Assuming we only generate exceptions in this stage if we have a TLB miss 
+
+tlb dtlb (
     .clk(clk),
     .reset(reset),
-    .virtual_address(in_alu_out),
-    .physical_address(dtlb_physical_address),
-    .tlb_hit(dtlb_hit)
+    
+    //INPUT
+    .in_supervisor_mode(in_supervisor_mode),
+    .in_virtual_address(sb_to_tlb_addr),
+    .in_write_enable(),
+    .in_write_virtual_address(),
+    .in_write_physical_address(),
+
+    
+    //OUTPUT
+    .out_fault_addr(),
+    .out_physical_address(tlb_to_cache_physical_address),
+    .out_tlb_hit(tlb_hit),
+    .out_exception_vector(dtlb_exception_vector)
 );
 
-// Handle TLB miss
-wire [31:0] tlb_miss_physical_address;
-wire tlb_update;
-
-tlb_miss tlb_miss (
-    .clk(clk),
-    .reset(reset),
-    .virtual_address(in_alu_out),
-    .tlb_miss_detected(~dtlb_hit),
-    .os_offset(32'h1000), // Example offset, adjust as needed
-    .tlb_miss_physical_address(tlb_miss_physical_address),
-    .tlb_update(tlb_update)
-);
-
-wire [31:0] final_physical_address = dtlb_hit ? dtlb_physical_address : tlb_miss_physical_address;
-*/
+//TLB
+wire [2:0] dtlb_exception_vector;
+wire [31:0] tlb_to_cache_physical_address;
+wire tlb_hit;
 
 //Combined stall
 wire cache_stall;
 wire sb_stall;
 assign out_stall = cache_stall | sb_stall;
 
-wire [31:0]     sb_to_cache_addr;
+wire [31:0]     sb_to_tlb_addr;
 wire [31:0]     sb_to_cache_data;
 wire [2:0]      sb_to_cache_funct3; 
 wire            write_sb_entry_to_cache;
@@ -115,7 +117,8 @@ cache d_cache(
     .reset(reset),
 
     //INPUT
-    .in_addr(sb_to_cache_addr),
+    .in_tlb_hit(tlb_hit),
+    .in_addr(tlb_to_cache_physical_address),
     .in_write_data(sb_to_cache_data),
     .in_write_en(write_sb_entry_to_cache),
     .in_read_en(in_read_en),
@@ -153,11 +156,11 @@ store_buffer store_buffer(
     .in_rob_idx(in_allocate_idx),  //Allocate
     .in_complete(in_instr_type_ROB == `INSTR_TYPE_STORE),      //TODO: Can't use in_complete directly from the ROB in core.sv. I don't know why, the execution simply doesn't go past cycle 17
     .in_complete_idx(in_complete_idx),
-    .in_exception_vector(in_exception_vector),
+    .in_exception_vector(in_exception_vector_ROB),
 
 
     //OUTPUT
-    .out_addr(sb_to_cache_addr),
+    .out_addr(sb_to_tlb_addr),
     .out_data(sb_to_cache_data),
     .out_funct3(sb_to_cache_funct3),
     .out_hit(sb_bypass_found),

@@ -3,7 +3,8 @@
 module decoder(
     //INPUT
     input [31:0] instr,
-    input supervisor_mode,
+    input in_supervisor_mode,
+    input in_exception_vector,
     
     //OUTPUT
     output [4:0] rs1,
@@ -14,7 +15,7 @@ module decoder(
     output [2:0] funct3,
     output [6:0] opcode,
     output [2:0] instr_type,
-    output [2:0] exception_vector
+    output [2:0] out_exception_vector
 );
 
     //OUTPUT
@@ -44,7 +45,11 @@ module decoder(
     wire instr_J_type  = instr_JUMP;
     wire instr_U_type  = instr_AUIPC || instr_LUI;
 
-    assign exception_vector = {{instr_SYSTEM && !supervisor_mode}, 2'b00}; //Exception type privileged instruction
+    /*
+    If in supervisor mode, we are either servicing an exception or executing privileged instructions (theoretically can't cause exceptions), so we propagate the input vector.
+    If not in supervisor mode, an exception could be raised if we are trying to execute a privileged instruction, so we generate a new vector.
+    */
+    assign out_exception_vector = (in_supervisor_mode) ? in_exception_vector : {{instr_SYSTEM && !in_supervisor_mode}, 2'b00};  
 
     assign instr_type = (instr_SYSTEM && funct3 == `IRET_FUNCT3) ? `INSTR_TYPE_IRET :
                         (instr_SYSTEM && funct3 == `MOVRM_FUNCT3) ? `INSTR_TYPE_MOVRM :

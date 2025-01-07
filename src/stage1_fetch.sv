@@ -75,9 +75,11 @@ wire itlb_hit;
 wire overwrite_PC;
 wire [31:0] overwrite_PC_addr;
 wire [31:0] out_cache_instr;
+wire [2:0] service_exception_vector;
 
 assign out_instruction = itlb_hit ? out_cache_instr : 32'h0;
-assign out_exception_vector = !itlb_hit ? `EXCEPTION_TYPE_ITLBMISS : 3'b0;
+assign out_exception_vector = (supervisor_mode) ? service_exception_vector : 
+                            !itlb_hit ? `EXCEPTION_TYPE_ITLBMISS : 3'b0;
 
 privileged_regs privileged_regs(
     .clk(clk),
@@ -96,7 +98,8 @@ privileged_regs privileged_regs(
     //OUTPUT
     .out_new_address(overwrite_PC_addr),
     .out_overwrite_PC(overwrite_PC),
-    .out_supervisor_mode(supervisor_mode)
+    .out_supervisor_mode(supervisor_mode),
+    .out_exception_vector(service_exception_vector)
 );
 
 tlb itlb (

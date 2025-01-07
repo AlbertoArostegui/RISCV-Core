@@ -324,7 +324,7 @@ wire [3:0] IDEX_to_execute_complete_idx;
 //Exception vector
 wire [2:0] IDEX_to_execute_exception_vector;
 
-registers_IDEX registers_IDEX(
+registers_IDEX registers_IDEX( //IDM1
     .clk(clk),
     .reset(reset),
 
@@ -542,7 +542,7 @@ wire [2:0]      EXMEM_to_cache_and_ROB_exception_vector;
 //Passing by
 wire EXMEM_to_cache_mem_to_reg;
 
-registers_EXMEM registers_EXMEM(
+registers_EXMEM registers_EXMEM( //M1M2
     .clk(clk),
     .reset(reset),
 
@@ -644,13 +644,13 @@ stage_cache cache(
     //FOR ROB
     .in_allocate_idx(EXMEM_to_cache_and_rob_complete_idx),
     .in_instr_type(EXMEM_to_cache_instr_type),
-    //.in_exception_vector(EXMEM_to_cache_and_ROB_exception_vector), //This should be the one to send to the ROB from the pipeline. The other is the one to signal a completed exception, to nuke SB.
+    .in_exception_vector(EXMEM_to_cache_and_ROB_exception_vector), //This should be the one to send to the ROB from the pipeline. The other is the one to signal a completed exception, to nuke SB.
 
     //FROM ROB
     .in_complete_idx(ROB_to_cache_complete_idx),
     //.in_complete(ROB_to_decode_and_cache_ready),
     .in_instr_type_ROB(ROB_to_cache_instr_type),
-    .in_exception_vector(ROB_to_fetch_and_cache_exception_vector),
+    .in_exception_vector_ROB(ROB_to_fetch_and_cache_exception_vector),
 
     //OUTPUT
     .out_alu_out(cache_to_MEMWB_alu_out),
@@ -688,8 +688,9 @@ wire MEMWB_to_execute_and_writeback_write_enable;
 wire [3:0] MEMWB_to_ROB_and_M3M4_complete_idx;
 wire MEMWB_to_ROB_complete;
 wire [2:0] MEMWB_to_M3M4_instr_type;
+wire [2:0] MEMWB_to_ROB_exception_vector;
 
-registers_MEMWB registers_MEMWB(
+registers_MEMWB registers_MEMWB( //M2M3
     .clk(clk),
     .reset(reset),
 
@@ -717,6 +718,7 @@ registers_MEMWB registers_MEMWB(
     //ROB
     .out_complete_idx(MEMWB_to_ROB_and_M3M4_complete_idx),
     .out_complete(MEMWB_to_ROB_complete),
+    .out_exception_vector(MEMWB_to_ROB_exception_vector),
     .out_instr_type(MEMWB_to_M3M4_instr_type)
 );
 
@@ -854,7 +856,7 @@ reorder_buffer rob(
     .in_cache_complete(MEMWB_to_ROB_complete),
     .in_cache_out(MEMWB_to_ROB_mem_out),
     .in_cache_complete_idx(MEMWB_to_ROB_and_M3M4_complete_idx),
-    .in_cache_exception(),
+    .in_cache_exception(MEMWB_to_ROB_exception_vector),
 
     //FROM MUL
     .in_mul_complete(M5WB_to_ROB_complete),

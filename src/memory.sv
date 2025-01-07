@@ -40,11 +40,20 @@ module memory (
         for (int i = 0; i < MEM_SIZE; i++) begin
             memory[i] = 32'b0;
         end
+        /*
+        Boot sequence. We boot in supervisor mode at PC = 0x1000 (0x400 in memory), 
+        point to a direction to the program start PC = 0x80 and then we exec sret.
+        */
         memory[32'h400] = 32'h05008093; //addi x1, x1, 80 
         memory[32'h401] = 32'h00009073; //movrm rm0, x1 (In reality, this is csrrw x0, ustatus, x1. We will use it as mov into rm0 the value from x1)
         memory[32'h402] = 32'h10200073; //sret (iret)
 
-        memory[32'h800] = 32'h1042003A; //addi x1, x0, 14
+        /*
+        Service exceptions. We jump to PC = 0x2000 (0x800 in memory),
+        which is the exception handler. We service the exceptions according to the exception vector.
+        */
+
+        memory[32'h800] = 32'h0; 
     end
 
     always @(posedge clk or posedge reset) begin
