@@ -608,6 +608,7 @@ registers_EXMEM registers_EXMEM( //M1M2
 wire [31:0] cache_to_MEMWB_alu_out;         //Not used with ROB
 wire [31:0] cache_to_MEMWB_cache_out;
 wire [4:0] cache_to_MEMWB_rd;               //Not used with ROB
+wire [2:0] cache_to_MEMWB_exception_vector;
 wire cache_to_MEMWB_mem_to_reg;
 wire cache_to_MEMWB_write_enable;
 
@@ -673,7 +674,8 @@ stage_cache cache(
     //ROB
     .out_complete_idx(cache_to_MEMWB_complete_idx),
     .out_complete(cache_to_MEMWB_complete),
-    .out_instr_type(cache_to_MEMWB_instr_type)
+    .out_instr_type(cache_to_MEMWB_instr_type),
+    .out_exception_vector(cache_to_MEMWB_exception_vector)
 );
 
 //wires for
@@ -701,6 +703,7 @@ registers_MEMWB registers_MEMWB( //M2M3
     .in_rd(cache_to_MEMWB_rd),
     .in_mem_to_reg(cache_to_MEMWB_mem_to_reg),
     .in_write_enable(cache_to_MEMWB_write_enable),
+    .in_exception_vector(cache_to_MEMWB_exception_vector),
 
     //ROB
     .in_complete_idx(cache_to_MEMWB_complete_idx),

@@ -10,6 +10,7 @@ module stage_cache #(
     //INPUT
     input [31:0]        in_alu_out, //in_addr
     input [31:0]        in_write_data,
+    input [2:0]         in_exception_vector,
 
     //Control
     input               in_write_en,
@@ -40,10 +41,11 @@ module stage_cache #(
     //Supervisor
     input               in_supervisor_mode,
 
-
     //OUTPUT
     output [31:0]       out_alu_out,
     output [31:0]       out_read_data,
+
+    //Stall
     output              out_stall,   
 
     //Control passing by
