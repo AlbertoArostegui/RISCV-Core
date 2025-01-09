@@ -50,24 +50,6 @@
 /* WORD_SIZE - line index bits - byte offset bits. Associativity increases tag size */
 `define TAG_SIZE (`WORD_SIZE - $clog2(`CACHE_N_LINES) - `OFFSET_SIZE + `CACHE_ASSOCIATIVITY)
 
-`define REPLACEMENT_POLICY_LRU 3'000
-
-`define I_CACHE_LINE_SIZE `CACHE_LINE_SIZE
-`define I_CACHE_N_LINES   `CACHE_N_LINES
-`define I_CACHE_ASSOCIATIVITY `CACHE_ASSOCIATIVITY
-
-`define D_CACHE_LINE_SIZE `CACHE_LINE_SIZE
-`define D_CACHE_N_LINES   `CACHE_N_LINES
-`define D_CACHE_ASSOCIATIVITY `CACHE_ASSOCIATIVITY
-
-/*
- * MEMORY DEFINES
- *
- * [0x0000, 0xFFFF]
- *
- */
-// do a dummy diagram to see when the data is available
-// lw: F D E Miss1 Miss2 Miss3 ... Fill, Hit¿?¿?
 `define MEM_DELAY_CYCLES 10
 `define MEM_SIZE (1 << 18)
 
@@ -79,6 +61,7 @@
 `define INSTR_TYPE_IRET     3'b110
 `define INSTR_TYPE_MOVRM    3'b111
 `define INSTR_TYPE_TLBWRITE 3'b101
+`define INSTR_TYPE
 
 `define EXCEPTION_TYPE_ILLEGAL 3'b010
 `define EXCEPTION_TYPE_PRIV    3'b100

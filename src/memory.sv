@@ -51,9 +51,18 @@ module memory (
         /*
         Service exceptions. We jump to PC = 0x2000 (0x800 in memory),
         which is the exception handler. We service the exceptions according to the exception vector.
+        Current design only services TLBMiss.
         */
 
-        memory[32'h800] = 32'h0; 
+        //Code for TLBMiss
+        memory[32'h800] = 32'hfa402023; //sw x5, 4000(x0)
+        memory[32'h801] = 32'hfa402223; //sw x6, 4004(x0)
+        memory[32'h802] = 32'h; //movrm x5, rm1 //we'll see how to make this
+        memory[32'h803] = 32'hbb828313; //addi x6, x5, 8000
+        memory[32'h804] = 32'h; //tlbwrite x6, x5
+        memory[32'h805] = 32'hfa002283; //lw x5, 4000(x0)
+        memory[32'h806] = 32'hfa402303; //lw x6, 4004(x0)
+        memory[32'h807] = 32'h10200073; //sret (iret)
     end
 
     always @(posedge clk or posedge reset) begin
