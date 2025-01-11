@@ -10,6 +10,7 @@ module store_buffer #(
     input [2:0]         in_funct3,
     input               in_store_instr,
     input               in_load_instr,
+    input               in_cache_stall,
 
     //ROB
     input [3:0]         in_rob_idx,                         //Allocate
@@ -59,24 +60,17 @@ initial out_stall <= 0;
 
 always @(*) begin
     //Case full and new store enters -> Stall
+    /*
     out_hit <= 0;
     out_addr <= 0;
     out_data <= 0;
     out_funct3 <= 0;
     out_write_to_cache <= 0;
+    */
     if (stall) out_stall <= 1;
+    
 
-    //Case rob indicates instr completion -> commit to cache
-    else if (in_complete) begin
-        for (int i = 0; i < SB_SIZE; i++) begin
-            if (rob_idx[i] == in_complete_idx) begin
-                out_addr <= addr[i];
-                out_data <= data[i];
-                out_funct3 <= funct3[i];
-                out_write_to_cache <= 1;
-            end
-        end
-    end
+    
 
     //Case load instr -> check if addr in store buffer. This is sb bypass
     //TODO: SB bypass. Handle case in which we have more than one store for the same addr. Youngest should be returned.
@@ -92,6 +86,8 @@ always @(*) begin
     end
 end
 
+
+
 //TODO: Drain store buffer. Figure out when is it needed to drain.
 always @(posedge clk) begin
     if (reset || in_exception_vector != 3'b000) reset_sb();                              //Case exception        --> Nuke Store Buffer (precise exceptions) or simply reset
@@ -103,11 +99,20 @@ always @(posedge clk) begin
         valid[store_counter] <= 1;
         store_counter <= store_counter + 1;
     end
-    if (in_complete) begin
+    if (in_complete) begin    
         for (int i = 0; i < SB_SIZE; i++) begin
-            if (rob_idx[i] == in_complete_idx) valid[i] <= 0;
+            if (rob_idx[i] == in_complete_idx && valid[i]) begin
+                out_addr <= addr[i];
+                out_data <= data[i];
+                out_funct3 <= funct3[i];
+                out_write_to_cache <= 1;
+                valid[i] <= 0;
+            end
         end
         store_counter <= store_counter - 1;                //Case we commit 2 cache --> We remove from our entries the data we are committing
+    end else begin
+        if (out_write_to_cache && !in_cache_stall)
+            out_write_to_cache <= 0;
     end
 end
 
@@ -121,6 +126,8 @@ task reset_sb;
     end
     store_counter <= 0;
     oldest <= 0;
+    out_data <= 0;
+    out_hit <= 0;
 endtask
 
 endmodule

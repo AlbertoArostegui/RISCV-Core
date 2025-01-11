@@ -55,12 +55,14 @@ module soc_testbench();
         
         $display("\n[📋 REORDER BUFFER STATE]");
         $display("INPUTS:");
-        $display("  Allocate=%b in_PC=%h rd=%d instr_type=%b\n     stall=%b", 
+        $display("  Allocate=%b in_PC=%h rd=%d instr_type=%b\n     stall=%b (IFID_to_ROB_wait_stall = %b | d_cache_stall = %b)", 
             dut.core.rob.in_allocate,
             dut.core.rob.in_PC,
             dut.core.rob.in_rd,
             dut.core.rob.in_instr_type,
-            dut.core.rob.in_stall
+            dut.core.rob.in_stall,
+            dut.core.IFID_to_ROB_wait_stall,
+            dut.core.d_cache_stall
         );
         $display("  Execute complete=%b idx=%d value=%h exception=%3b",
             dut.core.rob.in_complete,
@@ -104,7 +106,6 @@ module soc_testbench();
         
         $display("\nROB ENTRIES (head=%d in_allocate_idx=%d count=%d):", 
             dut.core.rob.head,
-            //dut.core.rob.tail,
             dut.core.rob.in_allocate_idx,
             dut.core.rob.count
         );
@@ -142,7 +143,7 @@ module soc_testbench();
         $display("║ ## │ Virtual @ │ Physical @ │ Valid ║");
         $display("╠════╪═══════════╪════════════╪═══════╣");
         for(int i = 0; i < 4; i++) begin
-            $display("║ %2d │  %h │      %h │   %b   ║",
+            $display("║ %2d │     %h │      %h │   %b   ║",
                 i,
                 dut.core.fetch.itlb.v_addr[i],
                 dut.core.fetch.itlb.p_addr[i],
@@ -150,10 +151,14 @@ module soc_testbench();
             );
         end
         $display("╚════╧═══════════╧════════════╧═══════╝");
-        $display("TLB OUT: out_physical_address=%h out_tlb_hit=%b out_exception_vector=%b",
+        $display("INPUTS: in_write_enable= %b in_write_virtual_address= %h in_write_physical_address= %h", 
+            dut.core.fetch.itlb.in_write_enable,
+            dut.core.fetch.itlb.in_write_virtual_address,
+            dut.core.fetch.itlb.in_write_physical_address
+        );
+        $display("TLB OUT: out_physical_address=%h out_tlb_hit=%b",
             dut.core.fetch.itlb.out_physical_address,
-            dut.core.fetch.itlb.out_tlb_hit,
-            dut.core.fetch.out_exception_vector
+            dut.core.fetch.itlb.out_tlb_hit
         );
 
         // INSTRUCTION CACHE STATE
@@ -192,10 +197,11 @@ module soc_testbench();
         );
         
         $display("OUT:");
-        $display("  PC=%h instruction=%h (%s)", 
+        $display("  PC=%h instruction=%h (%s)\n exception_vector=%3b", 
             dut.core.fetch.out_PC,
             dut.core.fetch.out_instruction,
-            decode_instruction(dut.core.fetch.out_instruction)
+            decode_instruction(dut.core.fetch.out_instruction),
+            dut.core.fetch.out_exception_vector
         );
 
         $display("\n[rob_idx reg = %d]", dut.core.rob_idx);
@@ -208,6 +214,7 @@ module soc_testbench();
             decode_instruction(dut.core.registers_IFID.out_instruction),
             dut.core.registers_IFID.out_complete_idx
         );
+        $display(" Control: exception=%3b", dut.core.registers_IFID.out_exception_vector);
 
         // DECODE STAGE
         $display("\n[🔍 DECODE STAGE]");
@@ -237,14 +244,15 @@ module soc_testbench();
             dut.core.decode.out_data_b,
             dut.core.decode.out_immediate
         );
-        $display("  Control: alu_src=%b alu_op=%b mem_write=%b mem_read=%b branch=%b memToReg=%b regWrite=%b",
+        $display("  Control: alu_src=%b alu_op=%b mem_write=%b mem_read=%b branch=%b memToReg=%b regWrite=%b exception=%3b",
             dut.core.decode.EX_alu_src,
             dut.core.decode.EX_alu_op,
             dut.core.decode.MEM_mem_write,
             dut.core.decode.MEM_mem_read,
             dut.core.decode.MEM_branch_inst,
             dut.core.decode.WB_write_mem_to_reg,
-            dut.core.decode.WB_write_enable
+            dut.core.decode.WB_write_enable,
+            dut.core.decode.out_exception_vector
         );
         $display("  Hazard: pc_stall=%b IFID_stall=%b",
             dut.core.decode.out_pc_write_disable,
@@ -267,14 +275,15 @@ module soc_testbench();
             dut.core.registers_IDEX.out_data_rs2,
             dut.core.registers_IDEX.out_immediate
         );
-        $display("  Control: alu_src=%b alu_op=%b mem_write=%b mem_read=%b branch=%b memToReg=%b regWrite=%b",
+        $display("  Control: alu_src=%b alu_op=%b mem_write=%b mem_read=%b branch=%b memToReg=%b regWrite=%b exception=%3b",
             dut.core.registers_IDEX.out_alu_src,
             dut.core.registers_IDEX.out_alu_op,
             dut.core.registers_IDEX.out_mem_write,
             dut.core.registers_IDEX.out_mem_read,
             dut.core.registers_IDEX.out_branch_inst,
             dut.core.registers_IDEX.out_mem_to_reg,
-            dut.core.registers_IDEX.out_write_enable
+            dut.core.registers_IDEX.out_write_enable,
+            dut.core.registers_IDEX.out_exception_vector
         );
 
         // EXECUTE STAGE
@@ -318,6 +327,12 @@ module soc_testbench();
             dut.core.execute.forwarding_unit.forwardA,
             dut.core.execute.forwarding_unit.forwardB
         );
+        $display(" out_itlb_write_enable=%b out_dtlb_write_enable=%b\nout_tlb_virtual_address=%h out_tlb_physical_address=%h",
+            dut.core.execute.out_itlb_write_enable,
+            dut.core.execute.out_dtlb_write_enable,
+            dut.core.execute.out_tlb_virtual_address,
+            dut.core.execute.out_tlb_physical_address
+        );
 
         // EX/MEM Pipeline Registers
         $display("\n[🔄 EX/MEM REGISTERS]");
@@ -349,6 +364,12 @@ module soc_testbench();
         );
 
         $display("\n[📦 STORE BUFFER STATE]");
+        $display("ROB INPUTS: in_rob_idx=%d in_complete=%b in_complete_idx=%d in_exception_vector=%3b",
+            dut.core.cache.store_buffer.in_rob_idx,
+            dut.core.cache.store_buffer.in_complete,
+            dut.core.cache.store_buffer.in_complete_idx,
+            dut.core.cache.store_buffer.in_exception_vector
+        );
         $display("COUNTERS:");
         $display("  Stores: %d  Oldest: %d", 
             dut.core.cache.store_buffer.store_counter, 
@@ -376,6 +397,33 @@ module soc_testbench();
             if (i < 3) $display("╟────┼────────────┼────────────┼──────────┼──────────┼───────╢");
         end
         $display("╚════╧════════════╧════════════╧══════════╧══════════╧═══════╝");
+        $display("OUTPUTS: out_addr=%h out_data=%h out_funct3=%3b out_write_to_cache=%b\nout_hit=%b out_stall=%b",
+            dut.core.cache.store_buffer.out_addr,
+            dut.core.cache.store_buffer.out_data,
+            dut.core.cache.store_buffer.out_funct3,
+            dut.core.cache.store_buffer.out_write_to_cache,
+            dut.core.cache.store_buffer.out_hit,
+            dut.core.cache.store_buffer.out_stall
+        );
+
+        // DATA TLB STATE 
+        $display("\n[📖 DATA TLB STATE]");
+        $display("╔════╤═══════════╤════════════╤═══════╗");
+        $display("║ ## │ Virtual @ │ Physical @ │ Valid ║");
+        $display("╠════╪═══════════╪════════════╪═══════╣");
+        for(int i = 0; i < 4; i++) begin
+            $display("║ %2d │     %h │      %h │   %b   ║",
+                i,
+                dut.core.cache.dtlb.v_addr[i],
+                dut.core.cache.dtlb.p_addr[i],
+                dut.core.cache.dtlb.valid[i]
+            );
+        end
+        $display("╚════╧═══════════╧════════════╧═══════╝");
+        $display("TLB OUT: out_physical_address=%h out_tlb_hit=%b",
+            dut.core.cache.dtlb.out_physical_address,
+            dut.core.cache.dtlb.out_tlb_hit
+        );
 
         // DATA CACHE STATE
         $display("\n[💾 DATA CACHE STATE]");
@@ -391,7 +439,7 @@ module soc_testbench();
         $display("╠════╪════╪════════════╪══════════════════════════════════╪═══════╪═══════╣");
         for(int i = 0; i < 2; i++) begin
             for(int j = 0; j < 2; j++) begin
-                $display("║ %2d │ %2d │      %h │ %32h │   %b   │   %b   ║",
+                $display("║ %2d │ %2d │    %h │ %32h │   %b   │   %b   ║",
                     i, j,
                     dut.core.cache.d_cache.tags[i][j],
                     dut.core.cache.d_cache.data[i][j],
@@ -552,6 +600,13 @@ module soc_testbench();
                     3'b001: asm = $sformatf("sh x%0d,%0d(x%0d)", rs2, $signed(imm_s), rs1); // sh
                     3'b000: asm = $sformatf("sb x%0d,%0d(x%0d)", rs2, $signed(imm_s), rs1); // sb
                     default: asm = "unknown-store";
+                endcase
+            end
+            7'b0001000: begin
+                case (funct3)
+                    3'b000: asm = $sformatf("itlbwrite x%0d, x%0d", rs1, rs2);
+                    3'b001: asm = $sformatf("dtlbwrite x%0d, x%0d", rs1, rs2);
+                    default: asm = "unknown-tlbwrite";
                 endcase
             end
             default: asm = instruction == 32'h00000013 ? "nop" : "unknown";

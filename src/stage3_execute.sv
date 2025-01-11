@@ -57,6 +57,9 @@ module stage_execute(
     //Exception vector
     input [2:0] in_exception_vector,
 
+    //PRIV. REGS
+    input [31:0] in_rm1,
+
 
     //OUTPUT
     output [31:0] out_alu_out,
@@ -84,7 +87,13 @@ module stage_execute(
 
     //ROB Bypass
     output [4:0] out_rs1_ROB,
-    output [4:0] out_rs2_ROB
+    output [4:0] out_rs2_ROB,
+
+    //TLBWRITE
+    output out_itlb_write_enable,
+    output out_dtlb_write_enable,
+    output [31:0] out_tlb_virtual_address,
+    output [31:0] out_tlb_physical_address
 );
 
 assign out_rd = in_IDEX_rd;
@@ -94,9 +103,9 @@ assign out_branch_inst = in_branch_inst;
 assign out_mem_to_reg = in_mem_to_reg;
 assign out_write_enable = in_write_enable;
 assign out_funct3 = in_funct3;
-assign out_exception_vector = in_exception_vector; //TODO: Exception handling. Here should be divide by zero
+assign out_exception_vector = in_exception_vector; 
 assign out_instr_type = in_instr_type;                          //This propagates the instruction type to the next stage
-assign out_complete = (in_exception_vector != 3'b000) || (in_instr_type == `INSTR_TYPE_IRET) || (in_instr_type == `INSTR_TYPE_MOVRM) || (in_instr_type == `INSTR_TYPE_ALU) && (in_opcode == `OPCODE_ALU || in_opcode == `OPCODE_ALU_IMM);     //This is for the ROB, to see if we write from this stage or not. We write if the instr is ALU type. Either way, we propagate the idx
+assign out_complete = (in_exception_vector != 3'b000) || (in_instr_type == `INSTR_TYPE_IRET) || (in_instr_type == `INSTR_TYPE_MOVRM) || (in_instr_type == `INSTR_TYPE_ALU) && (in_opcode == `OPCODE_ALU || in_opcode == `OPCODE_ALU_IMM) || (in_instr_type == `INSTR_TYPE_TLBWRITE) || (in_instruction == 32'h00000013/*complete NOPs*/);     //This is for the ROB, to see if we write from this stage or not. We write if the instr is ALU type. Either way, we propagate the idx
 assign out_complete_idx = in_complete_idx;
 assign out_rs1_ROB = in_rs1;
 assign out_rs2_ROB = in_rs2;
@@ -148,12 +157,18 @@ alu alu(
     .operand2(alu_operand2),
     .immediate(in_immediate),
     .PC(in_PC),
+    .in_rm1(in_rm1),
 
     //OUTPUT
     .alu_out(out_alu_out),
     .out_PC(out_PC),
     .branch_taken(out_branch_taken)
 );
+
+assign out_itlb_write_enable = in_instruction[6:0] == `OPCODE_TLBWRITE && in_instruction[14:12] == `ITLBWRITE_FUNCT3;
+assign out_dtlb_write_enable = in_instruction[6:0] == `OPCODE_TLBWRITE && in_instruction[14:12] == `DTLBWRITE_FUNCT3;
+assign out_tlb_virtual_address = alu_operand1;
+assign out_tlb_physical_address = alu_operand2;
     
 assign out_flush = out_branch_taken;
 

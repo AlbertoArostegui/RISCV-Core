@@ -17,11 +17,13 @@ module privileged_regs(
     output out_supervisor_mode,    // rm4[0]
     output reg out_overwrite_PC,
     output reg [31:0] out_new_address,
-    output reg [2:0] out_exception_vector
+    output reg [2:0] out_exception_vector,
+    output [31:0] out_rm1
 );
 
     reg [31:0] rm [5];  // rm0-rm4
     assign out_supervisor_mode = rm[4][0];
+    assign out_rm1 = rm[1];
 
     initial begin
         rm[0] = 32'h1000;
@@ -58,7 +60,6 @@ module privileged_regs(
             end else if (in_write_enable) begin
                 rm[in_rm_idx] <= in_write_data;
                 if (in_rm_idx == 4) begin //If iret
-                    out_overwrite_PC <= 1;
                     out_new_address <= rm[0];
                 end
             end else begin

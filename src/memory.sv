@@ -38,13 +38,13 @@ module memory (
 
     initial begin
         for (int i = 0; i < MEM_SIZE; i++) begin
-            memory[i] = 32'b0;
+            memory[i] = 32'h00000013;
         end
         /*
         Boot sequence. We boot in supervisor mode at PC = 0x1000 (0x400 in memory), 
         point to a direction to the program start PC = 0x80 and then we exec sret.
         */
-        memory[32'h400] = 32'h05008093; //addi x1, x1, 80 
+        memory[32'h400] = 32'h05000093; //addi x1, x0, 80 
         memory[32'h401] = 32'h00009073; //movrm rm0, x1 (In reality, this is csrrw x0, ustatus, x1. We will use it as mov into rm0 the value from x1)
         memory[32'h402] = 32'h10200073; //sret (iret)
 
@@ -55,14 +55,21 @@ module memory (
         */
 
         //Code for TLBMiss
-        memory[32'h800] = 32'hfa402023; //sw x5, 4000(x0)
-        memory[32'h801] = 32'hfa402223; //sw x6, 4004(x0)
-        memory[32'h802] = 32'h; //movrm x5, rm1 //we'll see how to make this
-        memory[32'h803] = 32'hbb828313; //addi x6, x5, 8000
-        memory[32'h804] = 32'h; //tlbwrite x6, x5
-        memory[32'h805] = 32'hfa002283; //lw x5, 4000(x0)
-        memory[32'h806] = 32'hfa402303; //lw x6, 4004(x0)
-        memory[32'h807] = 32'h10200073; //sret (iret)
+        
+        memory[32'h800] = 32'h00502423; //sw x5, 8(x0)
+        memory[32'h801] = 32'h00602623; //sw x6, 12(x0)
+        memory[32'h802] = 32'h800002b3; //movrm x5, rm1 //This is really add x1, x0, x0, but with a special funct7 to take rm1
+        memory[32'h803] = 32'h7d000393; //addi x7, x0, 2000
+
+        memory[32'h804] = 32'h7d038393; //addi x7, x7, 2000
+        memory[32'h805] = 32'h7d038393; //addi x7, x7, 2000
+        memory[32'h806] = 32'h7d038393; //addi x7, x7, 2000
+        memory[32'h807] = 32'h00728333; //add x6, x5, x7 //So x6 = VA (in x5) + 8000
+
+        memory[32'h808] = 32'h00628008; //itlbwrite x5, x6 //dtlb would be with funct3 = 001
+        memory[32'h809] = 32'h00802283; //lw x5, 8(x0)
+        memory[32'h80a] = 32'h00c02303; //lw x6, 12(x0)
+        memory[32'h80b] = 32'h10200073; //sret (iret)
     end
 
     always @(posedge clk or posedge reset) begin

@@ -36,6 +36,7 @@ module decoder(
     wire instr_LUI     = (opcode == `OPCODE_LUI);
     wire instr_NOP     = (opcode == `OPCODE_NOP);
     wire instr_SYSTEM  = (opcode == `OPCODE_SYSTEM);
+    wire instr_TLBWRITE= (opcode == `OPCODE_TLBWRITE);
 
 
     wire instr_R_type  = instr_ALU;
@@ -53,7 +54,7 @@ module decoder(
 
     assign instr_type = (instr_SYSTEM && funct3 == `IRET_FUNCT3) ? `INSTR_TYPE_IRET :
                         (instr_SYSTEM && funct3 == `MOVRM_FUNCT3) ? `INSTR_TYPE_MOVRM :
-                        (instr_SYSTEM && funct3 == `TLBWRITE_FUNCT3) ? `INSTR_TYPE_TLBWRITE :
+                        (instr_TLBWRITE) ? `INSTR_TYPE_TLBWRITE :
                         (instr_R_type && funct7 == `MUL_FUNCT7) ? `INSTR_TYPE_MUL : 
                         ((instr_R_type && funct7 != `MUL_FUNCT7) || instr_AUIPC || instr_ALU_IMM || instr_NOP) ? `INSTR_TYPE_ALU :
                         (instr_LOAD || instr_LUI) ? `INSTR_TYPE_LOAD : 

@@ -1,5 +1,4 @@
 `include "defines.sv"
-
 module control(
     input [31:0] in_instruction,
 

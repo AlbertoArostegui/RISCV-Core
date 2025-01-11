@@ -197,25 +197,24 @@ always @(posedge clk) begin
         out_ready <= 0;
         
         invalidate_rob();
-
-    end else if (exception[head] != 3'b0) begin
+    end else if (exception[head] != 3'b0 && complete[head] && valid[head]) begin
         head <= 0;
         //in_allocate_idx <= 0;
         count <= 0;
         out_ready <= 0;
         invalidate_rob();
-    end
-
-    else begin
-
-        //in_allocate_idx <= (tail + 1) % ROB_SIZE;
-        //count <= count + 1;
+    end else begin
+        
+        out_rob_nuke <= 0;
 
         // Allocation. From decode. Once per cycle. Only on non-stalled cycles. 
         if (in_allocate && !out_full && !in_stall) begin
             PC[in_allocate_idx] <= in_PC;
             addr_miss[in_allocate_idx] <= in_addr_miss;
-            rd[in_allocate_idx] <= in_rd;
+            if (in_instr_type == `INSTR_TYPE_STORE)
+                rd[in_allocate_idx] <= 0;
+            else 
+                rd[in_allocate_idx] <= in_rd;
             instr_type[in_allocate_idx] <= in_instr_type;
             valid[in_allocate_idx] <= 1;
             complete[in_allocate_idx] <= 0;

@@ -131,12 +131,6 @@ module cache #(
                     if ((in_read_en && in_tlb_hit) && !out_hit) begin
                         way_to_replace = lru[set_index];
 
-                        if (in_write_en) begin
-                            pending_store <= 1;
-                            pending_store_data <= in_write_data;
-                            pending_funct3 <= in_funct3;
-                        end
-
                         if (valid[set_index][way_to_replace] && dirty[set_index][way_to_replace]) begin
                             state <= MEM_WRITE;
                         end else begin
@@ -144,8 +138,7 @@ module cache #(
                             out_mem_read_en <= 1;
                             state <= MEM_READ;
                         end
-                    end
-                    if (in_write_en && out_hit) begin
+                    end else if (in_write_en && out_hit) begin
                         for (int i = 0; i < NUM_WAYS; i++) begin
                             if (valid[set_index][i] && tags[set_index][i] == tag) begin
                                 case (in_funct3)
@@ -163,7 +156,16 @@ module cache #(
                                 lru[set_index] <= ~i;
                             end
                         end
-                    end
+                    end else if (in_write_en && !out_hit) begin
+                        way_to_replace = lru[set_index];
+                        if (valid[set_index][way_to_replace] && dirty[set_index][way_to_replace]) begin
+                            state <= MEM_WRITE;
+                        end else begin
+                            out_mem_addr <= {tag, set_index, 4'b0000};
+                            out_mem_read_en <= 1;
+                            state <= MEM_READ;
+                        end
+                end
                 end
                 MEM_WRITE: begin
                     //Initiate petition to write to memory
@@ -184,12 +186,12 @@ module cache #(
                         out_mem_read_en <= 0;
                         data[set_index][way_to_replace] <= in_mem_read_data;
 
-                        if (pending_store) begin
+                        if (in_write_en) begin
                             word_data = in_mem_read_data[word_offset*32 +: 32];
-                            case (pending_funct3)
-                                SB: word_data[byte_offset*8 +: 8] <= pending_store_data[7:0];
-                                SH: word_data[byte_offset*16 +: 16] <= pending_store_data[15:0];
-                                SW: word_data <= pending_store_data;
+                            case (in_funct3)
+                                SB: word_data[byte_offset*8 +: 8] <= in_write_data[7:0];
+                                SH: word_data[byte_offset*16 +: 16] <= in_write_data[15:0];
+                                SW: word_data <= in_write_data;
                             endcase
                             data[set_index][way_to_replace][word_offset*32 +: 32] <= word_data;
                             dirty[set_index][way_to_replace] <= 1;

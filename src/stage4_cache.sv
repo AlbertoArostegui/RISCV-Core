@@ -41,6 +41,11 @@ module stage_cache #(
     //Supervisor
     input               in_supervisor_mode,
 
+    //TLBWRITE
+    input              in_dtlb_write_enable,
+    input [31:0]       in_tlb_virtual_address,
+    input [31:0]       in_tlb_physical_address,
+
     //OUTPUT
     output [31:0]       out_alu_out,
     output [31:0]       out_read_data,
@@ -82,9 +87,10 @@ tlb dtlb (
     //INPUT
     .in_supervisor_mode(in_supervisor_mode),
     .in_virtual_address(sb_to_tlb_addr),
-    .in_write_enable(),
-    .in_write_virtual_address(),
-    .in_write_physical_address(),
+
+    .in_write_enable(in_dtlb_write_enable),
+    .in_write_virtual_address(in_tlb_virtual_address),
+    .in_write_physical_address(in_tlb_physical_address),
 
     
     //OUTPUT
@@ -143,6 +149,8 @@ cache d_cache(
     .out_mem_write_data(out_mem_write_data)
 );
 
+wire complete_store = in_complete && in_instr_type_ROB == `INSTR_TYPE_STORE;
+
 store_buffer store_buffer(
     .clk(clk),
     .reset(reset),
@@ -153,10 +161,11 @@ store_buffer store_buffer(
     .in_funct3(in_funct3),
     .in_store_instr(in_write_en),
     .in_load_instr(in_read_en),
+    .in_cache_stall(cache_stall),
     
     //ROB
     .in_rob_idx(in_allocate_idx),  //Allocate
-    .in_complete(in_instr_type_ROB == `INSTR_TYPE_STORE),      //TODO: Can't use in_complete directly from the ROB in core.sv. I don't know why, the execution simply doesn't go past cycle 17
+    .in_complete(complete_store),  
     .in_complete_idx(in_complete_idx),
     .in_exception_vector(in_exception_vector_ROB),
 

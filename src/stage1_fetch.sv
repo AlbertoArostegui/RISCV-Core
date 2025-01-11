@@ -29,6 +29,12 @@ module stage_fetch #(
     input [2:0] in_priv_rm_idx,
     input [31:0] in_priv_write_data,
 
+    //TLBWRITE
+    input in_itlb_write_enable,
+    input [31:0] in_tlb_virtual_address,
+    input [31:0] in_tlb_physical_address,
+
+
     //OUTPUT
     output [31:0] out_PC,
     output [31:0] out_instruction,
@@ -41,7 +47,10 @@ module stage_fetch #(
     output [CACHE_LINE_SIZE-1:0] out_mem_write_data,
 
     //Exception
-    output [2:0] out_exception_vector
+    output [2:0] out_exception_vector,
+
+    //PRIV. REGS
+    output [31:0] out_rm1
 );
 
 reg [31:0] PC;
@@ -78,8 +87,7 @@ wire [31:0] out_cache_instr;
 wire [2:0] service_exception_vector;
 
 assign out_instruction = itlb_hit ? out_cache_instr : 32'h0;
-assign out_exception_vector = (supervisor_mode) ? service_exception_vector : 
-                            !itlb_hit ? `EXCEPTION_TYPE_ITLBMISS : 3'b0;
+assign out_exception_vector = itlb_hit ? 3'b0 : `EXCEPTION_TYPE_ITLBMISS;
 
 privileged_regs privileged_regs(
     .clk(clk),
@@ -99,7 +107,8 @@ privileged_regs privileged_regs(
     .out_new_address(overwrite_PC_addr),
     .out_overwrite_PC(overwrite_PC),
     .out_supervisor_mode(supervisor_mode),
-    .out_exception_vector(service_exception_vector)
+    .out_exception_vector(service_exception_vector),
+    .out_rm1(out_rm1)
 );
 
 tlb itlb (
@@ -110,9 +119,9 @@ tlb itlb (
     .in_supervisor_mode(supervisor_mode),
     .in_virtual_address(PC),
 
-    .in_write_enable(),
-    .in_write_virtual_address(),
-    .in_write_physical_address(),
+    .in_write_enable(in_itlb_write_enable),
+    .in_write_virtual_address(in_tlb_virtual_address),
+    .in_write_physical_address(in_tlb_physical_address),
 
     //OUTPUT
     .out_fault_addr(),

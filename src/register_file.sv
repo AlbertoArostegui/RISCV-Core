@@ -14,7 +14,7 @@ reg [31:0] registers [0:31];
 
 initial begin
     for (integer i=0; i <32; i++) 
-        registers[i] = 0;
+        registers[i] = i;
 end
 
 always @(*) begin

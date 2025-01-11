@@ -1,4 +1,6 @@
 module alu (
+
+    //INPUT
     input [6:0] opcode,
     input [2:0] funct3,
     input [6:0] funct7,
@@ -6,6 +8,9 @@ module alu (
     input [31:0] operand2,
     input [31:0] immediate,
     input [31:0] PC,
+    input [31:0] in_rm1,
+    
+    //OUTPUT
     output reg [31:0] alu_out,
     output reg [31:0] out_PC,
     output reg branch_taken
@@ -35,6 +40,9 @@ module alu (
                             default:
                                 alu_out = 0;
                         endcase
+                    //Special case for moving privileged register to general purpose register
+                    7'b1000000: //MOVRM rX, rm1
+                        alu_out = in_rm1;
                     default:
                         alu_out = 0;
                 endcase

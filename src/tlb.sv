@@ -11,7 +11,7 @@ module tlb #(
 
     input               in_write_enable,
     input [31:0]        in_write_virtual_address,
-    input [19:0]        in_write_physical_address,
+    input [31:0]        in_write_physical_address,
 
     //OUTPUT
     output reg [31:0]   out_fault_addr,
@@ -28,7 +28,7 @@ module tlb #(
     } tlb_entry_t;
     tlb_entry_t entries [N-1:0];
     */
-    reg [31:0] v_addr [N-1:0];
+    reg [19:0] v_addr [N-1:0];
     reg [19:0] p_addr [N-1:0];
     reg valid [N-1:0];
 
@@ -41,9 +41,9 @@ module tlb #(
         out_fault_addr = 0;
         if (!in_supervisor_mode) begin
             for (int i = 0; i < N; i = i + 1) begin
-                if (valid[i] && v_addr[i] == in_virtual_address) begin
+                if (valid[i] && v_addr[i] == (in_virtual_address[19:0])) begin
                     out_tlb_hit = 1;
-                    out_physical_address = p_addr[i];
+                    out_physical_address = {p_addr[i], in_virtual_address[11:0]};
                 end
             end
             if (!out_tlb_hit) begin
@@ -51,7 +51,7 @@ module tlb #(
                 out_fault_addr = in_virtual_address;
             end
         end else begin
-            out_physical_address = in_virtual_address[19:0];
+            out_physical_address = in_virtual_address;
             out_tlb_hit = 1;
         end
     end
@@ -66,8 +66,8 @@ module tlb #(
         end else if (in_write_enable) begin
             if (in_supervisor_mode) begin
                 valid[replace_ptr] <= 1;
-                v_addr[replace_ptr] <= in_write_virtual_address;
-                p_addr[replace_ptr] <= in_write_physical_address;
+                v_addr[replace_ptr] <= in_write_virtual_address[19:0];
+                p_addr[replace_ptr] <= in_write_physical_address[19:0];
                 replace_ptr <= replace_ptr + 1;
             end else out_exception_vector <= `EXCEPTION_TYPE_PRIV;
         end

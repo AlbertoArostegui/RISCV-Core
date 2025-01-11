@@ -14,6 +14,7 @@
 `define OPCODE_LUI      7'b0110111
 `define OPCODE_NOP      7'b0000000
 `define OPCODE_SYSTEM   7'b1110011
+`define OPCODE_TLBWRITE 7'b0001000
 
 /* alu funct3 */
 `define OR_FUNCT3       3'b110 
@@ -33,6 +34,10 @@
 `define IRET_FUNCT3     3'b000
 `define TLBWRITE_FUNCT3 3'b111
 `define MOVRM_FUNCT3    3'b001
+
+/* tlbwrite funct3 */
+`define DTLBWRITE_FUNCT3 3'b001
+`define ITLBWRITE_FUNCT3 3'b000
 
 `define SUB_FUNCT7      7'b0100000
 `define MUL_FUNCT7      7'b0000001

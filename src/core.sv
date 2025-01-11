@@ -1,4 +1,3 @@
-`include "defines.sv"
 `include "stage1_fetch.sv"
 `include "registers1_IFID.sv"
 `include "stage2_decode.sv"
@@ -70,6 +69,15 @@ wire ROB_to_fetch_priv_write_enable;
 wire [2:0] ROB_to_fetch_priv_rm_idx;
 wire [31:0] ROB_to_fetch_priv_write_data;
 
+//PRIV. REGS
+wire [31:0] fetch_to_execute_rm1;
+
+//TLBWRITE
+wire execute_to_fetch_itlb_write_enable;
+wire execute_to_cache_dtlb_write_enable;
+wire [31:0] execute_to_TLB_virtual_address;
+wire [31:0] execute_to_TLB_physical_address;
+
 stage_fetch fetch(
     .clk(clk),    
     .reset(reset),
@@ -94,6 +102,11 @@ stage_fetch fetch(
     .in_priv_rm_idx(ROB_to_fetch_priv_rm_idx),
     .in_priv_write_data(ROB_to_fetch_priv_write_data),
 
+    //TLBWRITE
+    .in_itlb_write_enable(execute_to_fetch_itlb_write_enable),
+    .in_tlb_virtual_address(execute_to_TLB_virtual_address),
+    .in_tlb_physical_address(execute_to_TLB_physical_address),
+
     //OUTPUT
     .out_PC(fetch_to_registers_pc),
     .out_instruction(fetch_to_registers_inst),
@@ -106,7 +119,10 @@ stage_fetch fetch(
     .out_mem_write_data(out_imem_write_data),
 
     //Exception
-    .out_exception_vector(fetch_to_registers_exception_vector)
+    .out_exception_vector(fetch_to_registers_exception_vector),
+
+    //PRIV. REGS
+    .out_rm1(fetch_to_execute_rm1)
 );
 
 //wires for
@@ -488,6 +504,10 @@ stage_execute execute(
     //Exception vector
     .in_exception_vector(IDEX_to_execute_exception_vector),
 
+    //PRIV. REGS
+    .in_rm1(fetch_to_execute_rm1),
+
+
     //OUTPUT
     .out_alu_out(execute_to_registers_alu_out),
     .out_mem_in_data(execute_to_registers_mem_data),
@@ -517,7 +537,13 @@ stage_execute execute(
     .out_rs2_ROB(execute_to_ROB_rs2),
 
     //Exception vector
-    .out_exception_vector(execute_to_registers_exception_vector)
+    .out_exception_vector(execute_to_registers_exception_vector),
+
+    //TLBWRITE
+    .out_itlb_write_enable(execute_to_fetch_itlb_write_enable),
+    .out_dtlb_write_enable(execute_to_cache_dtlb_write_enable),
+    .out_tlb_virtual_address(execute_to_TLB_virtual_address),
+    .out_tlb_physical_address(execute_to_TLB_physical_address)
 );
 
 //wires for
@@ -649,9 +675,15 @@ stage_cache cache(
 
     //FROM ROB
     .in_complete_idx(ROB_to_cache_complete_idx),
-    //.in_complete(ROB_to_decode_and_cache_ready),
+    .in_complete(ROB_to_decode_and_cache_ready),
     .in_instr_type_ROB(ROB_to_cache_instr_type),
     .in_exception_vector_ROB(ROB_to_fetch_and_cache_exception_vector),
+
+    //TLBWRITE
+    .in_dtlb_write_enable(execute_to_cache_dtlb_write_enable),
+    .in_tlb_virtual_address(execute_to_TLB_virtual_address),
+    .in_tlb_physical_address(execute_to_TLB_physical_address),
+
 
     //OUTPUT
     .out_alu_out(cache_to_MEMWB_alu_out),
