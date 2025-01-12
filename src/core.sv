@@ -473,6 +473,7 @@ wire [31:0] EXMEM_to_execute_and_cache_and_ROB_alu_out; //For EX data hazards
 //ROB
 wire [3:0] execute_to_registers_complete_idx;
 wire execute_to_registers_complete;
+wire execute_to_ROB_allocate_addr_miss;
 
 //ROB Bypass
 wire [4:0] execute_to_ROB_rs1;
@@ -567,6 +568,8 @@ stage_execute execute(
     //ROB
     .out_complete_idx(execute_to_registers_complete_idx),
     .out_complete(execute_to_registers_complete),
+
+    .out_allocate_addr_miss(execute_to_ROB_allocate_addr_miss),
 
     //ROB Bypass
     .out_rs1_ROB(execute_to_ROB_rs1),
@@ -926,8 +929,9 @@ reorder_buffer rob(
     .in_allocate(allocate),
     .in_allocate_idx(decode_to_ROB_allocate_idx),
     .in_PC(decode_to_registers_and_ROB_PC),
-    .in_addr_miss_instr(),
-    .in_addr_miss_data(),
+    .in_addr_miss(execute_to_registers_alu_out),
+    .in_allocate_addr_miss(execute_to_ROB_allocate_addr_miss),
+    .in_allocate_addr_miss_idx(execute_to_registers_complete_idx),
     .in_rd(decode_to_registers_and_ROB_rd),
     .in_instr_type(decode_to_registers_and_ROB_instr_type),
 

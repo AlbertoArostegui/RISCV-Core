@@ -10,6 +10,8 @@ module reorder_buffer #(
     input  wire         in_allocate,
     input  wire [3:0]   in_allocate_idx,
     input  wire [31:0]  in_PC,
+    input  wire         in_allocate_addr_miss,
+    input  wire [3:0]   in_allocate_addr_miss_idx,
     input  wire [31:0]  in_addr_miss,
     input  wire [4:0]   in_rd,
     input  wire [2:0]   in_instr_type,
@@ -189,6 +191,11 @@ always @(*) begin
             out_miss_addr = PC[head];                  //Send to rm1
             out_exception_vector = exception[head];
             out_priv_write_enable = 1;
+        end else if (exception[head] == `EXCEPTION_TYPE_DTLBMISS) begin
+            out_PC = PC[head];                         //Send to rm0
+            out_miss_addr = addr_miss[head];           //Send to rm1
+            out_exception_vector = exception[head];
+            out_priv_write_enable = 1;
         end
     end else begin
         out_ready = 0;
@@ -228,6 +235,10 @@ always @(posedge clk) begin
             
             //in_allocate_idx <= (tail + 1) % ROB_SIZE;
             //count <= count + 1;
+        end
+
+        if (in_allocate_addr_miss) begin
+            addr_miss[in_allocate_addr_miss_idx] <= in_addr_miss;
         end
         
         // Completion. Even on stalled cycles (for now)

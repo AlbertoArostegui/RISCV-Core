@@ -61,11 +61,13 @@ initial out_stall <= 0;
 
 always @(*) begin
     //Case full and new store enters -> Stall
+    /*
     out_hit <= 0;
     out_addr <= 0;
     out_data <= 0;
     out_funct3 <= 0;
     out_write_to_cache <= 0;
+    */
 
     if (stall) out_stall <= 1;
     else if (in_load_instr) begin

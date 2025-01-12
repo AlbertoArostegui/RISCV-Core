@@ -88,6 +88,8 @@ module stage_execute(
     output out_complete,
     output [3:0] out_complete_idx,
 
+    output out_allocate_addr_miss,
+
     //ROB Bypass
     output [4:0] out_rs1_ROB,
     output [4:0] out_rs2_ROB,
@@ -122,6 +124,7 @@ assign out_complete_idx = in_complete_idx;
 assign out_supervisor_mode = in_supervisor_mode;
 assign out_rs1_ROB = in_rs1;
 assign out_rs2_ROB = in_rs2;
+assign out_allocate_addr_miss = (in_instr_type == `INSTR_TYPE_LOAD || in_instr_type == `INSTR_TYPE_STORE);
 
 forwarding_unit forwarding_unit(
     .clk(clk),
