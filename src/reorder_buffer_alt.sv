@@ -247,6 +247,9 @@ always @(posedge clk) begin
         if (!in_stall && valid[head] && complete[head]) begin
             valid[head] <= 0;
             complete[head] <= 0;
+            rd[head] <= 0;
+            exception[head] <= 0;
+            value[head] <= 0;
 
             head <= (head + 1) % ROB_SIZE;
             //if (count > 0) count <= count - 1 ;

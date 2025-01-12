@@ -19,7 +19,7 @@ module soc_testbench();
         $dumpvars(0, soc_testbench);
         $dumpvars(0, dut);
 
-        $readmemh("/Users/alberto/pa/src/tests/hex/mul.hex", dut.memory.memory, 32'h14, 32'h16);
+        $readmemh("/Users/alberto/pa/src/tests/hex/mul.hex", dut.memory.memory, 32'h414, 32'h416);
         /*
         addi x3, x0, 50
         addi x2, x0, 50
@@ -156,6 +156,10 @@ module soc_testbench();
             dut.core.fetch.itlb.in_write_virtual_address,
             dut.core.fetch.itlb.in_write_physical_address
         );
+        $display("INPUTS: in_supervisor_mode=%b in_virtual_address=%h", 
+            dut.core.fetch.itlb.in_supervisor_mode,
+            dut.core.fetch.itlb.in_virtual_address
+        );
         $display("TLB OUT: out_physical_address=%h out_tlb_hit=%b",
             dut.core.fetch.itlb.out_physical_address,
             dut.core.fetch.itlb.out_tlb_hit
@@ -168,9 +172,9 @@ module soc_testbench();
         $display("  TLB Hit: %b", dut.core.fetch.icache.in_tlb_hit);
         $display("  Read/Write: %b/%b", dut.core.fetch.icache.in_read_en, dut.core.fetch.icache.in_write_en);
         
-        $display("\nSTATE:");
+        $display("\nSTATE: %2b", dut.core.fetch.icache.state);
         $display("╔════╤════╤══════════════╤══════════════════════════════════╤═══════╤═══════╗");
-        $display("║ Set│ Way│     Tag      │              Data                │ Valid │ Dirty ║");
+        $display("║ Set│ Way│      Tag     │              Data                │ Valid │ Dirty ║");
         $display("╠════╪════╪══════════════╪══════════════════════════════════╪═══════╪═══════╣");
         for(int i = 0; i < 2; i++) begin
             for(int j = 0; j < 2; j++) begin
@@ -463,9 +467,10 @@ module soc_testbench();
 
         // MEM/WB Pipeline Registers
         $display("\n[🔄 MEM/WB REGISTERS]");
-        $display("OUT: alu_out=%h mem_out=%h rd=%d memToReg=%b regWrite=%b",
+        $display("OUT: alu_out=%h mem_out=%h exception_vector=%3b rd=%d memToReg=%b regWrite=%b",
             dut.core.registers_MEMWB.out_alu_out,
             dut.core.registers_MEMWB.out_mem_out,
+            dut.core.registers_MEMWB.out_exception_vector,
             dut.core.registers_MEMWB.out_rd,
             dut.core.registers_MEMWB.out_mem_to_reg,
             dut.core.registers_MEMWB.out_write_enable

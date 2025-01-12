@@ -41,7 +41,8 @@ module tlb #(
         out_fault_addr = 0;
         if (!in_supervisor_mode) begin
             for (int i = 0; i < N; i = i + 1) begin
-                if (valid[i] && v_addr[i] == (in_virtual_address[19:0])) begin
+                if (valid[i] && v_addr[i] == (in_virtual_address[31:12])) begin
+                    $display("TLB input virtual[19:0] = %h", in_virtual_address[31:12]);
                     out_tlb_hit = 1;
                     out_physical_address = {p_addr[i], in_virtual_address[11:0]};
                 end
@@ -66,8 +67,8 @@ module tlb #(
         end else if (in_write_enable) begin
             if (in_supervisor_mode) begin
                 valid[replace_ptr] <= 1;
-                v_addr[replace_ptr] <= in_write_virtual_address[19:0];
-                p_addr[replace_ptr] <= in_write_physical_address[19:0];
+                v_addr[replace_ptr] <= in_write_virtual_address[31:12];
+                p_addr[replace_ptr] <= in_write_physical_address[31:12];
                 replace_ptr <= replace_ptr + 1;
             end else out_exception_vector <= `EXCEPTION_TYPE_PRIV;
         end

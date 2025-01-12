@@ -722,7 +722,7 @@ wire MEMWB_to_execute_and_writeback_write_enable;
 wire [3:0] MEMWB_to_ROB_and_M3M4_complete_idx;
 wire MEMWB_to_ROB_complete;
 wire [2:0] MEMWB_to_M3M4_instr_type;
-wire [2:0] MEMWB_to_ROB_exception_vector;
+wire [2:0] MEMWB_to_M3M4_and_ROB_exception_vector;
 
 registers_MEMWB registers_MEMWB( //M2M3
     .clk(clk),
@@ -753,7 +753,7 @@ registers_MEMWB registers_MEMWB( //M2M3
     //ROB
     .out_complete_idx(MEMWB_to_ROB_and_M3M4_complete_idx),
     .out_complete(MEMWB_to_ROB_complete),
-    .out_exception_vector(MEMWB_to_ROB_exception_vector),
+    .out_exception_vector(MEMWB_to_M3M4_and_ROB_exception_vector),
     .out_instr_type(MEMWB_to_M3M4_instr_type)
 );
 
@@ -771,7 +771,7 @@ registers_M3M4 registers_M3M4(
     //INPUT
     .in_mul_out(MEMWB_to_M3M4_mul_out),
     .in_rob_idx(MEMWB_to_ROB_and_M3M4_complete_idx),
-    .in_exception_vector(),
+    .in_exception_vector(MEMWB_to_M3M4_and_ROB_exception_vector),
     .in_instr_type(MEMWB_to_M3M4_instr_type),
 
     //OUTPUT
@@ -891,7 +891,7 @@ reorder_buffer rob(
     .in_cache_complete(MEMWB_to_ROB_complete),
     .in_cache_out(MEMWB_to_ROB_mem_out),
     .in_cache_complete_idx(MEMWB_to_ROB_and_M3M4_complete_idx),
-    .in_cache_exception(MEMWB_to_ROB_exception_vector),
+    .in_cache_exception(MEMWB_to_M3M4_and_ROB_exception_vector),
 
     //FROM MUL
     .in_mul_complete(M5WB_to_ROB_complete),

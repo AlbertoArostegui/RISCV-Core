@@ -128,7 +128,7 @@ module cache #(
                     out_mem_read_en <= 0;
                     out_mem_write_en <= 0;
                     
-                    if ((in_read_en && in_tlb_hit) && !out_hit) begin
+                    if (in_read_en && in_tlb_hit && !out_hit) begin
                         way_to_replace = lru[set_index];
 
                         if (valid[set_index][way_to_replace] && dirty[set_index][way_to_replace]) begin
@@ -205,6 +205,7 @@ module cache #(
                         out_busy <= 0;
                         state <= IDLE;
                     end
+                    if (out_mem_addr != in_addr) out_mem_addr <= in_addr;
                 end
             endcase
         end

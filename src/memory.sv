@@ -21,7 +21,7 @@ module memory (
     output reg out_dmem_ready
 );
 
-    localparam MEM_SIZE = 16384; //words, so 64KB
+    localparam MEM_SIZE = 16384; //words, so 4MiB
     reg [31:0] memory [0:MEM_SIZE-1];
 
     typedef enum logic [1:0] {
@@ -54,8 +54,7 @@ module memory (
         Current design only services TLBMiss.
         */
 
-        //Code for TLBMiss
-        
+        //Code for iTLBMiss
         memory[32'h800] = 32'h00502423; //sw x5, 8(x0)
         memory[32'h801] = 32'h00602623; //sw x6, 12(x0)
         memory[32'h802] = 32'h800002b3; //movrm x5, rm1 //This is really add x1, x0, x0, but with a special funct7 to take rm1
@@ -70,6 +69,22 @@ module memory (
         memory[32'h809] = 32'h00802283; //lw x5, 8(x0)
         memory[32'h80a] = 32'h00c02303; //lw x6, 12(x0)
         memory[32'h80b] = 32'h10200073; //sret (iret)
+
+        //Code for dTLBMiss
+        memory[32'h880] = 32'h00502423; //sw x5, 8(x0)
+        memory[32'h881] = 32'h00602623; //sw x6, 12(x0)
+        memory[32'h882] = 32'h800002b3; //movrm x5, rm1 //This is really add x1, x0, x0, but with a special funct7 to take rm1
+        memory[32'h883] = 32'h7d000393; //addi x7, x0, 2000
+
+        memory[32'h884] = 32'h7d038393; //addi x7, x7, 2000
+        memory[32'h885] = 32'h7d038393; //addi x7, x7, 2000
+        memory[32'h886] = 32'h7d038393; //addi x7, x7, 2000
+        memory[32'h887] = 32'h00728333; //add x6, x5, x7 //So x6 = VA (in x5) + 8000
+
+        memory[32'h888] = 32'h00629008; //dtlbwrite x5, x6, funct3 = 001
+        memory[32'h889] = 32'h00802283; //lw x5, 8(x0)
+        memory[32'h88a] = 32'h00c02303; //lw x6, 12(x0)
+        memory[32'h88b] = 32'h10200073; //sret (iret)
     end
 
     always @(posedge clk or posedge reset) begin
