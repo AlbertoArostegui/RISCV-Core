@@ -41,6 +41,9 @@ module registers_IDEX(
     //Exception vector
     input [2:0] in_exception_vector,
 
+    //Supervisor
+    input in_supervisor_mode,
+
     //OUTPUT
     output reg [31:0] out_instruction,
     output reg [31:0] out_PC,
@@ -73,7 +76,10 @@ module registers_IDEX(
     output reg [3:0] out_complete_idx,
 
     //Exception vector
-    output reg [2:0] out_exception_vector
+    output reg [2:0] out_exception_vector,
+
+    //Supervisor
+    output reg out_supervisor_mode
 );
 
     always @(posedge clk) begin
@@ -103,6 +109,8 @@ module registers_IDEX(
             out_complete_idx <= 4'b0;
             //Exception
             out_exception_vector <= 3'b0;
+            //Supervisor
+            out_supervisor_mode <= 1'b1;
         end else begin
             if (!in_d_cache_stall) begin
                 out_instruction <= in_instruction;
@@ -131,6 +139,7 @@ module registers_IDEX(
                 out_complete_idx <= in_complete_idx;
 
                 out_exception_vector <= in_exception_vector;
+                out_supervisor_mode <= in_supervisor_mode;
             end
         end
     end

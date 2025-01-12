@@ -47,6 +47,7 @@ reg [2:0]  funct3    [SB_SIZE-1:0];
 reg [3:0]  rob_idx   [SB_SIZE-1:0];
 reg        valid     [SB_SIZE-1:0];
 
+reg [1:0] store_idx;
 reg [1:0] store_counter; 
 reg [1:0] oldest;
 
@@ -60,20 +61,13 @@ initial out_stall <= 0;
 
 always @(*) begin
     //Case full and new store enters -> Stall
-    /*
     out_hit <= 0;
     out_addr <= 0;
     out_data <= 0;
     out_funct3 <= 0;
     out_write_to_cache <= 0;
-    */
+
     if (stall) out_stall <= 1;
-    
-
-    
-
-    //Case load instr -> check if addr in store buffer. This is sb bypass
-    //TODO: SB bypass. Handle case in which we have more than one store for the same addr. Youngest should be returned.
     else if (in_load_instr) begin
         for (int i = 0; i < SB_SIZE; i++) begin
             if (valid[i] && addr[i] == in_addr) begin
@@ -84,6 +78,11 @@ always @(*) begin
             end
         end
     end
+    for (int i = 0; i < SB_SIZE; i++) begin
+        if (valid[i]) begin
+            store_counter = store_counter + 1;
+        end
+    end
 end
 
 
@@ -92,12 +91,12 @@ end
 always @(posedge clk) begin
     if (reset || in_exception_vector != 3'b000) reset_sb();                              //Case exception        --> Nuke Store Buffer (precise exceptions) or simply reset
     else if (in_store_instr) begin                                                          //Case we store         --> We save into the entries the store
-        addr[store_counter] <= in_addr;
-        data[store_counter] <= in_data;
-        funct3[store_counter] <= in_funct3;
-        rob_idx[store_counter] <= in_rob_idx;
-        valid[store_counter] <= 1;
-        store_counter <= store_counter + 1;
+        addr[store_idx] <= in_addr;
+        data[store_idx] <= in_data;
+        funct3[store_idx] <= in_funct3;
+        rob_idx[store_idx] <= in_rob_idx;
+        valid[store_idx] <= 1;
+        store_idx <= store_idx + 1;
     end
     if (in_complete) begin    
         for (int i = 0; i < SB_SIZE; i++) begin
@@ -109,7 +108,7 @@ always @(posedge clk) begin
                 valid[i] <= 0;
             end
         end
-        store_counter <= store_counter - 1;                //Case we commit 2 cache --> We remove from our entries the data we are committing
+        store_idx <= store_idx - 1;                //Case we commit 2 cache --> We remove from our entries the data we are committing
     end else begin
         if (out_write_to_cache && !in_cache_stall)
             out_write_to_cache <= 0;
@@ -117,17 +116,19 @@ always @(posedge clk) begin
 end
 
 task reset_sb;
-    for (int i = 0; i < 3; i++) begin
+    for (int i = 0; i < SB_SIZE; i++) begin
         addr[i] <= 0;
         data[i] <= 0;
         funct3[i] <= 0;
         rob_idx[i] <= 0;
         valid[i] <= 0;
     end
+    store_idx <= 0;
     store_counter <= 0;
     oldest <= 0;
     out_data <= 0;
     out_hit <= 0;
+    out_addr <= 0;
 endtask
 
 endmodule

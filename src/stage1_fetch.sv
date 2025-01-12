@@ -50,12 +50,16 @@ module stage_fetch #(
     output [2:0] out_exception_vector,
 
     //PRIV. REGS
-    output [31:0] out_rm1
+    output [31:0] out_rm1,
+
+    //Supervisor
+    output out_supervisor_mode
 );
 
 reg [31:0] PC;
 
 assign out_PC = PC;
+assign out_supervisor_mode = supervisor_mode;
 
 initial begin 
     PC = 32'h0;

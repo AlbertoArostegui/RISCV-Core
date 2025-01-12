@@ -27,6 +27,9 @@ module registers_EXMEM(
     //Exception vector
     input [2:0]         in_exception_vector,
 
+    //Supervisor
+    input               in_supervisor_mode,
+
     //OUTPUT
     output reg [31:0]   out_alu_out,
     output reg [31:0]   out_new_PC,
@@ -48,7 +51,10 @@ module registers_EXMEM(
     output reg          out_complete,
 
     //Exception vector
-    output reg [2:0]    out_exception_vector
+    output reg [2:0]    out_exception_vector,
+
+    //Supervisor
+    output reg          out_supervisor_mode
 );
 
 initial begin
@@ -66,6 +72,7 @@ initial begin
     out_complete_value = 0;
     out_complete = 0;
     out_exception_vector = 0;
+    out_supervisor_mode = 1;
 end
 
 always @(posedge clk) begin
@@ -94,6 +101,7 @@ always @(posedge clk) begin
         out_complete <= in_complete;
 
         out_exception_vector <= in_exception_vector;
+        out_supervisor_mode <= in_supervisor_mode;
     end
 end
 

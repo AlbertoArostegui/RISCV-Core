@@ -78,6 +78,9 @@ wire execute_to_cache_dtlb_write_enable;
 wire [31:0] execute_to_TLB_virtual_address;
 wire [31:0] execute_to_TLB_physical_address;
 
+//Supervisor
+wire fetch_to_registers_supervisor_mode;
+
 stage_fetch fetch(
     .clk(clk),    
     .reset(reset),
@@ -122,7 +125,10 @@ stage_fetch fetch(
     .out_exception_vector(fetch_to_registers_exception_vector),
 
     //PRIV. REGS
-    .out_rm1(fetch_to_execute_rm1)
+    .out_rm1(fetch_to_execute_rm1),
+
+    //Supervisor
+    .out_supervisor_mode(fetch_to_registers_supervisor_mode)
 );
 
 //wires for
@@ -143,6 +149,9 @@ wire IFID_to_ROB_wait_stall;
 
 //Exception vector
 wire [2:0] IFID_to_decode_exception_vector;
+
+//Supervisor
+wire IFID_to_decode_supervisor_mode;
 
 registers_IFID registers_IFID(
     .clk(clk),
@@ -166,6 +175,9 @@ registers_IFID registers_IFID(
     //Exception vector
     .in_exception_vector(fetch_to_registers_exception_vector),
 
+    //Supervisor
+    .in_supervisor_mode(fetch_to_registers_supervisor_mode),
+
     //OUTPUT
     .out_instruction(IFID_to_decode_instruction),
     .out_PC(IFID_to_decode_PC),
@@ -176,7 +188,10 @@ registers_IFID registers_IFID(
 
 
     //Exception vector
-    .out_exception_vector(IFID_to_decode_exception_vector)
+    .out_exception_vector(IFID_to_decode_exception_vector),
+
+    //Supervisor
+    .out_supervisor_mode(IFID_to_decode_supervisor_mode)
 );
 
 //wires for
@@ -236,6 +251,9 @@ wire [3:0] decode_to_ROB_allocate_idx;
 //Exception vector
 wire [2:0] decode_to_registers_exception_vector;
 
+//Supervisor
+wire decode_to_registers_supervisor_mode;
+
 stage_decode decode(
     .clk(clk),
     .reset(reset),
@@ -261,6 +279,8 @@ stage_decode decode(
     //Exception vector
     .in_exception_vector(IFID_to_decode_exception_vector),
 
+    //Supervisor
+    .in_supervisor_mode(IFID_to_decode_supervisor_mode),
 
     //OUTPUT
         //CONTROL
@@ -302,7 +322,10 @@ stage_decode decode(
     .out_complete_idx(decode_to_registers_complete_idx),
 
     //Exception vector
-    .out_exception_vector(decode_to_registers_exception_vector)
+    .out_exception_vector(decode_to_registers_exception_vector),
+
+    //Supervisor
+    .out_supervisor_mode(decode_to_registers_supervisor_mode)
 );
 
 //wires for
@@ -339,6 +362,9 @@ wire [3:0] IDEX_to_execute_complete_idx;
 
 //Exception vector
 wire [2:0] IDEX_to_execute_exception_vector;
+
+//Supervisor
+wire IDEX_to_execute_supervisor_mode;
 
 registers_IDEX registers_IDEX( //IDM1
     .clk(clk),
@@ -383,6 +409,8 @@ registers_IDEX registers_IDEX( //IDM1
     //Exception vector
     .in_exception_vector(decode_to_registers_exception_vector),
     
+    //Supervisor
+    .in_supervisor_mode(decode_to_registers_supervisor_mode),
 
     //OUTPUT
     .out_instruction(IDEX_to_execute_inst),
@@ -412,7 +440,10 @@ registers_IDEX registers_IDEX( //IDM1
     .out_complete_idx(IDEX_to_execute_complete_idx),
 
     //Exception vector
-    .out_exception_vector(IDEX_to_execute_exception_vector)
+    .out_exception_vector(IDEX_to_execute_exception_vector),
+
+    //Supervisor
+    .out_supervisor_mode(IDEX_to_execute_supervisor_mode)
 );
 
 //wires for
@@ -453,6 +484,9 @@ wire [31:0] ROB_to_execute_bypass_rs2_value;
 
 //Exception vector
 wire [2:0] execute_to_registers_exception_vector;
+
+//Supervisor
+wire execute_to_registers_supervisor_mode;
 
 stage_execute execute(
     .clk(clk),
@@ -507,6 +541,8 @@ stage_execute execute(
     //PRIV. REGS
     .in_rm1(fetch_to_execute_rm1),
 
+    //Supervisor
+    .in_supervisor_mode(IDEX_to_execute_supervisor_mode),
 
     //OUTPUT
     .out_alu_out(execute_to_registers_alu_out),
@@ -543,7 +579,10 @@ stage_execute execute(
     .out_itlb_write_enable(execute_to_fetch_itlb_write_enable),
     .out_dtlb_write_enable(execute_to_cache_dtlb_write_enable),
     .out_tlb_virtual_address(execute_to_TLB_virtual_address),
-    .out_tlb_physical_address(execute_to_TLB_physical_address)
+    .out_tlb_physical_address(execute_to_TLB_physical_address),
+
+    //Supervisor
+    .out_supervisor_mode(execute_to_registers_supervisor_mode)
 );
 
 //wires for
@@ -566,7 +605,10 @@ wire            EXMEM_to_rob_complete;
 wire [2:0]      EXMEM_to_cache_and_ROB_exception_vector;
 
 //Passing by
-wire EXMEM_to_cache_mem_to_reg;
+wire            EXMEM_to_cache_mem_to_reg;
+
+//Supervisor
+wire            EXMEM_to_cache_supervisor_mode;
 
 registers_EXMEM registers_EXMEM( //M1M2
     .clk(clk),
@@ -599,6 +641,9 @@ registers_EXMEM registers_EXMEM( //M1M2
     //Exception
     .in_exception_vector(execute_to_registers_exception_vector),
 
+    //Supervisor
+    .in_supervisor_mode(execute_to_registers_supervisor_mode),
+
     //OUTPUT
     //To Fetch Stage
     //.out_new_PC(EXMEM_to_fetch_PC),
@@ -626,7 +671,10 @@ registers_EXMEM registers_EXMEM( //M1M2
     .out_complete(EXMEM_to_rob_complete),                   //If alu instruction, write to ROB
 
     //Exception
-    .out_exception_vector(EXMEM_to_cache_and_ROB_exception_vector)
+    .out_exception_vector(EXMEM_to_cache_and_ROB_exception_vector),
+
+    //Supervisor
+    .out_supervisor_mode(EXMEM_to_cache_supervisor_mode)
 );
 
 //wires for
@@ -684,6 +732,8 @@ stage_cache cache(
     .in_tlb_virtual_address(execute_to_TLB_virtual_address),
     .in_tlb_physical_address(execute_to_TLB_physical_address),
 
+    //Supervisor
+    .in_supervisor_mode(EXMEM_to_cache_supervisor_mode),
 
     //OUTPUT
     .out_alu_out(cache_to_MEMWB_alu_out),
@@ -861,7 +911,7 @@ initial rob_idx = 0;
 always @(posedge clk) begin 
     if (reset) rob_idx <= 0;
     if (rob_nuke) rob_idx <= 0;
-    if (execute_to_fetch_branch_taken) rob_idx <= execute_to_registers_complete_idx;
+    else if (execute_to_fetch_branch_taken) rob_idx <= execute_to_registers_complete_idx;
     else if (!d_cache_stall && !i_cache_stall) rob_idx <= (rob_idx + 1) % 10;
 end
     

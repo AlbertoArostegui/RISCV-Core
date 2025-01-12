@@ -78,8 +78,8 @@ assign out_write_enable = in_write_enable;
 assign out_instr_type = in_instr_type;
 assign out_complete_idx = in_allocate_idx; //We pass "ready to commit" to the ROB.
 assign out_complete = !out_stall && (in_instr_type == `INSTR_TYPE_LOAD || in_instr_type == `INSTR_TYPE_STORE);   
-assign out_exception_vector = (sb_bypass_found) ? 3'b000 : 
-                              (tlb_hit) ? 3'b000 : `EXCEPTION_TYPE_DTLBMISS; //Assuming we only generate exceptions in this stage if we have a TLB miss 
+assign out_exception_vector = in_read_en ? ((sb_bypass_found) ? 3'b000 : 
+                              (tlb_hit) ? 3'b000 : `EXCEPTION_TYPE_DTLBMISS) : 3'b000; //Assuming we only generate exceptions in this stage if we have a TLB miss 
 
 tlb dtlb (
     .clk(clk),

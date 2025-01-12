@@ -60,6 +60,9 @@ module stage_execute(
     //PRIV. REGS
     input [31:0] in_rm1,
 
+    //Supervisor
+    input in_supervisor_mode,
+
 
     //OUTPUT
     output [31:0] out_alu_out,
@@ -93,7 +96,10 @@ module stage_execute(
     output out_itlb_write_enable,
     output out_dtlb_write_enable,
     output [31:0] out_tlb_virtual_address,
-    output [31:0] out_tlb_physical_address
+    output [31:0] out_tlb_physical_address,
+
+    //Supervisor
+    output out_supervisor_mode
 );
 
 assign out_rd = in_IDEX_rd;
@@ -105,8 +111,15 @@ assign out_write_enable = in_write_enable;
 assign out_funct3 = in_funct3;
 assign out_exception_vector = in_exception_vector; 
 assign out_instr_type = in_instr_type;                          //This propagates the instruction type to the next stage
-assign out_complete = (in_exception_vector != 3'b000) || (in_instr_type == `INSTR_TYPE_IRET) || (in_instr_type == `INSTR_TYPE_MOVRM) || (in_instr_type == `INSTR_TYPE_ALU) && (in_opcode == `OPCODE_ALU || in_opcode == `OPCODE_ALU_IMM) || (in_instr_type == `INSTR_TYPE_TLBWRITE) || (in_instruction == 32'h00000013/*complete NOPs*/);     //This is for the ROB, to see if we write from this stage or not. We write if the instr is ALU type. Either way, we propagate the idx
+assign out_complete =   (in_exception_vector != 3'b000) ||
+                        (in_instr_type == `INSTR_TYPE_IRET) || 
+                        (in_instr_type == `INSTR_TYPE_MOVRM) || 
+                        (in_instr_type == `INSTR_TYPE_ALU && in_instruction != 32'h00000013) && 
+                        (in_opcode == `OPCODE_ALU || in_opcode == `OPCODE_ALU_IMM) || 
+                        (in_instr_type == `INSTR_TYPE_TLBWRITE);     
+                    //This is for the ROB, to see if we write from this stage or not. We write if the instr is ALU type. Either way, we propagate the idx
 assign out_complete_idx = in_complete_idx;
+assign out_supervisor_mode = in_supervisor_mode;
 assign out_rs1_ROB = in_rs1;
 assign out_rs2_ROB = in_rs2;
 

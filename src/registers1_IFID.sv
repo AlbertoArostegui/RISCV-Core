@@ -16,6 +16,8 @@ module registers_IFID(
     //ROB
     input [3:0] in_complete_idx,
 
+    //Supervisor
+    input in_supervisor_mode,
     //OUTPUT
     output reg [31:0] out_instruction,
     output reg [31:0] out_PC,
@@ -25,7 +27,10 @@ module registers_IFID(
     output reg out_wait_stall,
 
     //Exception vector
-    output reg [2:0] out_exception_vector
+    output reg [2:0] out_exception_vector,
+
+    //Supervisor
+    output reg out_supervisor_mode
 );
 
     initial begin
@@ -35,17 +40,19 @@ module registers_IFID(
 
     always @(posedge clk) begin
         if (reset || in_IFID_flush || in_i_cache_stall) begin //Flush IFID or stall on iCache: sends NOPs down the pipeline
-            out_instruction <= 32'b0;
+            out_instruction <= 32'h00000013;
             out_PC <= 32'b0;
             out_complete_idx <= 4'b0;
             out_exception_vector <= 3'b0;
             out_wait_stall <= 1'b1;
+            out_supervisor_mode <= 1'b1;
         end else if (!in_IFID_write_disable && !in_d_cache_stall) begin
             out_PC <= in_PC;
             out_instruction <= in_instruction;
             out_complete_idx <= in_complete_idx;
             out_exception_vector <= in_exception_vector;
             out_wait_stall <= 1'b0;
+            out_supervisor_mode <= in_supervisor_mode;
         end
     end
 

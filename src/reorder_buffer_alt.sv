@@ -151,6 +151,10 @@ always @(*) begin
     for (int i = 0; i < ROB_SIZE; i++) begin
         if (valid[i]) count = count + 1;
     end
+    for (int i = 0; i < ROB_SIZE; i++) begin
+        if (complete[i] && !valid[i])
+            complete[i] <= 0;
+    end
 
     if (!in_stall && valid[head] && complete[head]) begin
         if (exception[head] == 3'b000) begin
@@ -160,6 +164,8 @@ always @(*) begin
                     out_priv_write_enable = 1;
                     out_priv_rm_idx = 3'd4; //rm4
                     out_priv_write_data = 32'h0;
+                    out_rob_nuke = 1;
+                    head = 0;
                 end
                 `INSTR_TYPE_MOVRM: begin
                     out_ready = 0;
@@ -256,6 +262,7 @@ always @(posedge clk) begin
         end else begin
             out_ready <= 0;
         end
+        
     end
 end
 

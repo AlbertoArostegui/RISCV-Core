@@ -26,6 +26,9 @@ module stage_decode(
     //Exception
     input [2:0] in_exception_vector,
 
+    //Supervisor
+    input in_supervisor_mode,
+
     //OUTPUT
     //CONTROL    
     //For EX
@@ -70,7 +73,10 @@ module stage_decode(
     output [31:0] out_addr_miss,
 
     //Exception
-    output [2:0] out_exception_vector
+    output [2:0] out_exception_vector,
+
+    //Supervisor
+    output out_supervisor_mode
 );
 
 wire [4:0] decoder_to_rf_rs1;
@@ -81,6 +87,7 @@ assign out_PC = in_PC;
 assign out_exception_vector = in_exception_vector;
 assign out_complete_idx = in_complete_idx;
 assign out_allocate_idx = in_complete_idx;
+assign out_supervisor_mode = in_supervisor_mode;
 
 assign out_allocate = (out_instr_type != `INSTR_TYPE_NO_WB); 
 //We only allocate in the ROB if the instruction has a write back to the registers or if its a store (SB is managed by ROB).
@@ -89,7 +96,7 @@ assign out_allocate = (out_instr_type != `INSTR_TYPE_NO_WB);
 decoder decoder(
     //INPUT
     .instr(in_instruction),     
-    .in_supervisor_mode(),
+    .in_supervisor_mode(in_supervisor_mode),
     .in_exception_vector(),
 
     //OUTPUT
