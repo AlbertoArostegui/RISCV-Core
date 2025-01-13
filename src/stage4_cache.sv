@@ -80,6 +80,7 @@ assign out_complete_idx = in_allocate_idx; //We pass "ready to commit" to the RO
 assign out_complete = !out_stall && (in_instr_type == `INSTR_TYPE_LOAD || in_instr_type == `INSTR_TYPE_STORE);   
 assign out_exception_vector = in_read_en ? ((sb_bypass_found) ? 3'b000 : 
                               (tlb_hit) ? 3'b000 : `EXCEPTION_TYPE_DTLBMISS) : 3'b000; //Assuming we only generate exceptions in this stage if we have a TLB miss 
+wire [31:0] tlb_addr = (write_sb_entry_to_cache) ? sb_to_tlb_addr : in_alu_out;
 
 tlb dtlb (
     .clk(clk),
@@ -87,7 +88,7 @@ tlb dtlb (
     
     //INPUT
     .in_supervisor_mode(in_supervisor_mode),
-    .in_virtual_address(sb_to_tlb_addr),
+    .in_virtual_address(tlb_addr),
 
     .in_write_enable(in_dtlb_write_enable),
     .in_write_virtual_address(in_tlb_virtual_address),

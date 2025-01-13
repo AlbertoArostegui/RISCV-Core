@@ -90,6 +90,7 @@ reg [2:0]  instr_type  [ROB_SIZE-1:0];
 reg [3:0] head;
 //reg [3:0] in_allocate_idx;
 reg [3:0] count;
+reg [31:0] perf_counter;
 
 assign out_full = (count == ROB_SIZE);
 assign out_alloc_idx = in_allocate_idx;
@@ -208,9 +209,10 @@ always @(posedge clk) begin
         //in_allocate_idx <= 0;
         count <= 0;
         out_ready <= 0;
+        perf_counter <= 0;
         
         invalidate_rob();
-    end else if (exception[head] != 3'b0 && complete[head] && valid[head]) begin
+    end else if (!in_stall && exception[head] != 3'b0 && complete[head] && valid[head]) begin
         head <= 0;
         //in_allocate_idx <= 0;
         count <= 0;
@@ -267,6 +269,8 @@ always @(posedge clk) begin
             rd[head] <= 0;
             exception[head] <= 0;
             value[head] <= 0;
+            addr_miss[head] <= 0;
+            perf_counter <= perf_counter + 1;
 
             head <= (head + 1) % ROB_SIZE;
             //if (count > 0) count <= count - 1 ;

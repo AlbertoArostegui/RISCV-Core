@@ -42,7 +42,6 @@ module tlb #(
         if (!in_supervisor_mode) begin
             for (int i = 0; i < N; i = i + 1) begin
                 if (valid[i] && v_addr[i] == (in_virtual_address[31:12])) begin
-                    $display("TLB input virtual[19:0] = %h", in_virtual_address[31:12]);
                     out_tlb_hit = 1;
                     out_physical_address = {p_addr[i], in_virtual_address[11:0]};
                 end

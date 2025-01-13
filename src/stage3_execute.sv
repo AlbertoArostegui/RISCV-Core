@@ -150,12 +150,12 @@ wire [31:0] alu_operand2;
 
 // MUX for forwarding
 assign alu_operand1 =   (forwardA == 2'b10) ? in_EXMEM_alu_out :
-                        //(forwardA == 2'b01) ? in_MEMWB_out_data :
+                        (forwardA == 2'b01) ? in_MEMWB_out_data :
                         in_rs1_ROB_bypass ? in_rs1_ROB_bypass_value :
                         in_data_rs1;
 
 assign alu_operand2 =   (forwardB == 2'b10) ? in_EXMEM_alu_out :
-                        //(forwardB == 2'b01) ? in_MEMWB_out_data :
+                        (forwardB == 2'b01) ? in_MEMWB_out_data :
                         in_rs2_ROB_bypass ? in_rs2_ROB_bypass_value :
                         in_data_rs2;
                      

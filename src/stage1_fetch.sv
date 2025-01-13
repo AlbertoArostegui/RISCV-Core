@@ -65,18 +65,18 @@ initial begin
     PC = 32'h0;
 end
 
-wire [31:0] next_pc = (branch_taken) ? new_pc :
-                (overwrite_PC) ? overwrite_PC_addr :
+wire [31:0] next_pc = (overwrite_PC) ? overwrite_PC_addr :
+                (branch_taken) ? new_pc :
                 PC + 4;
 
 always @(posedge clk or posedge reset) begin
     if (reset) 
         PC <= INIT_ADDR;
     else if (!pc_write_disable && !in_d_cache_stall) begin
-        if (branch_taken)
-            PC <= new_pc;
-        else if (overwrite_PC)
+        if (overwrite_PC)
             PC <= overwrite_PC_addr;
+        else if (branch_taken)
+            PC <= new_pc;
         else if (!out_stall)
             PC <= PC + 4;
     end

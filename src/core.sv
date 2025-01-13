@@ -510,7 +510,7 @@ stage_execute execute(
     .in_EXMEM_write_enable(EXMEM_to_execute_and_cache_write_enable),
     .in_MEMWB_write_enable(MEMWB_to_execute_and_writeback_write_enable),
     .in_EXMEM_alu_out(EXMEM_to_execute_and_cache_and_ROB_alu_out),
-    .in_MEMWB_out_data(writeback_to_decode_and_execute_out_data),
+    .in_MEMWB_out_data(MEMWB_to_ROB_mem_out),
 
     .in_alu_src(IDEX_to_execute_alu_src),
     .in_alu_op(IDEX_to_execute_alu_op),
@@ -914,6 +914,7 @@ initial rob_idx = 0;
 always @(posedge clk) begin 
     if (reset) rob_idx <= 0;
     if (rob_nuke) rob_idx <= 0;
+    else if (pc_write_disable) rob_idx <= rob_idx;
     else if (execute_to_fetch_branch_taken) rob_idx <= execute_to_registers_complete_idx;
     else if (!d_cache_stall && !i_cache_stall) rob_idx <= (rob_idx + 1) % 10;
 end

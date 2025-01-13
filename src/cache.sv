@@ -45,6 +45,7 @@ module cache #(
     reg valid [NUM_SETS-1:0][NUM_WAYS-1:0];        
     reg dirty [NUM_SETS-1:0][NUM_WAYS-1:0];
     reg [NUM_WAYS-1:0] lru;         
+    reg [31:0] address [NUM_SETS-1:0][NUM_WAYS-1:0];
 
     /*
     31                              4 3 2 1 0
@@ -133,6 +134,7 @@ module cache #(
 
                         if (valid[set_index][way_to_replace] && dirty[set_index][way_to_replace]) begin
                             state <= MEM_WRITE;
+                            out_mem_addr <= address[set_index][way_to_replace];
                         end else begin
                             out_mem_addr <= {tag, set_index, 4'b0000};
                             out_mem_read_en <= 1;
@@ -154,6 +156,7 @@ module cache #(
                                 endcase
                                 dirty[set_index][i] <= 1;
                                 lru[set_index] <= ~i;
+                                address[set_index][i] <= in_addr;
                             end
                         end
                     end else if (in_write_en && !out_hit) begin
@@ -169,7 +172,6 @@ module cache #(
                 end
                 MEM_WRITE: begin
                     //Initiate petition to write to memory
-                    out_mem_addr <= {tags[set_index][way_to_replace], set_index, 4'b0000};
                     out_mem_write_data <= data[set_index][way_to_replace];
                     out_mem_write_en <= 1;
                     if (in_mem_ready) begin
