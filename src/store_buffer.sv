@@ -11,6 +11,7 @@ module store_buffer #(
     input               in_store_instr,
     input               in_load_instr,
     input               in_cache_stall,
+    input               in_cache_ack,
 
     //ROB
     input [3:0]         in_rob_idx,                         //Allocate
@@ -61,13 +62,7 @@ initial out_stall <= 0;
 
 always @(*) begin
     //Case full and new store enters -> Stall
-    /*
-    out_hit <= 0;
-    out_addr <= 0;
-    out_data <= 0;
-    out_funct3 <= 0;
-    out_write_to_cache <= 0;
-    */
+    
 
     if (stall) out_stall <= 1;
     else if (in_load_instr) begin
@@ -79,17 +74,11 @@ always @(*) begin
                 out_hit <= 1;
             end
         end
-    end
-    for (int i = 0; i < SB_SIZE; i++) begin
-        if (valid[i]) begin
-            store_counter = store_counter + 1;
-        end
-    end
+    end 
 end
 
 
 
-//TODO: Drain store buffer. Figure out when is it needed to drain.
 always @(posedge clk) begin
     if (reset || in_exception_vector != 3'b000) reset_sb();                              //Case exception        --> Nuke Store Buffer (precise exceptions) or simply reset
     else if (in_store_instr) begin                                                          //Case we store         --> We save into the entries the store
@@ -112,8 +101,14 @@ always @(posedge clk) begin
         end
         store_idx <= store_idx - 1;                //Case we commit 2 cache --> We remove from our entries the data we are committing
     end else begin
-        if (out_write_to_cache && !in_cache_stall)
+        if (out_write_to_cache && !in_cache_stall && in_cache_ack)
             out_write_to_cache <= 0;
+    end
+    store_counter = 0;
+    for (int i = 0; i < SB_SIZE; i++) begin
+        if (valid[i] == 1'b1) begin
+            store_counter = store_counter + 1;
+        end
     end
 end
 

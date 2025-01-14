@@ -72,7 +72,7 @@ initial begin
     out_complete_value = 0;
     out_complete = 0;
     out_exception_vector = 0;
-    out_supervisor_mode = 1;
+    out_supervisor_mode = 0;
 end
 
 always @(posedge clk) begin

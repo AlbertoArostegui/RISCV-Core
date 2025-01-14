@@ -23,6 +23,7 @@ module cache #(
     output reg [31:0] out_read_data,
     output reg out_busy,                //Stall the pipeline
     output reg out_hit,
+    output reg out_cache_ack,
 
     //MEM IFACE
     output reg out_mem_read_en,
@@ -85,6 +86,13 @@ module cache #(
         out_busy = 0;
         out_hit = 0;
         out_read_data = 32'b0;
+        out_cache_ack = 0;
+
+        if (in_mem_ready) begin
+            out_mem_read_en = 0;
+            out_mem_write_en = 0;
+        end
+
         
         if (read_cache || in_write_en) begin
             // Check all ways in parallel
@@ -157,11 +165,13 @@ module cache #(
                                 dirty[set_index][i] <= 1;
                                 lru[set_index] <= ~i;
                                 address[set_index][i] <= in_addr;
+                                out_cache_ack <= 1;
                             end
                         end
                     end else if (in_write_en && !out_hit) begin
                         way_to_replace = lru[set_index];
                         if (valid[set_index][way_to_replace] && dirty[set_index][way_to_replace]) begin
+                            out_mem_addr <= address[set_index][way_to_replace];
                             state <= MEM_WRITE;
                         end else begin
                             out_mem_addr <= {tag, set_index, 4'b0000};
@@ -197,6 +207,7 @@ module cache #(
                             endcase
                             data[set_index][way_to_replace][word_offset*32 +: 32] <= word_data;
                             dirty[set_index][way_to_replace] <= 1;
+                            out_cache_ack <= 1;
                         end else if (in_read_en) begin
                             out_read_data <= data[set_index][way_to_replace];
                         end

@@ -33,8 +33,8 @@ module memory (
     state_t imem_state, dmem_state;
     integer imem_cycle_count, dmem_cycle_count;
 
-    reg [29:0] i_addr;
-    reg [29:0] d_addr;
+    reg [27:0] i_addr;
+    reg [27:0] d_addr;
 
     initial begin
         for (int i = 0; i < MEM_SIZE; i++) begin
@@ -114,7 +114,7 @@ module memory (
                 READ: begin
                     imem_cycle_count <= imem_cycle_count + 1;
                     if (imem_cycle_count == 9) begin
-                        i_addr = in_imem_addr[31:2];
+                        i_addr = (in_imem_addr >> 4) << 2;
                         out_imem_read_data <= {
                             memory[i_addr+3],
                             memory[i_addr+2],
@@ -155,7 +155,7 @@ module memory (
                 READ: begin
                     dmem_cycle_count <= dmem_cycle_count + 1;
                     if (dmem_cycle_count == 9) begin
-                        d_addr = in_dmem_addr[31:2];
+                        d_addr = (in_dmem_addr >> 4) << 2;
                         out_dmem_read_data <= {
                             memory[d_addr+3],
                             memory[d_addr+2],
@@ -170,10 +170,11 @@ module memory (
                 WRITE: begin
                     dmem_cycle_count <= dmem_cycle_count + 1;
                     if (dmem_cycle_count == 9) begin
-                        memory[in_dmem_addr >> 2]       <= in_dmem_write_data[31:0];
-                        memory[in_dmem_addr >> 2 + 1]   <= in_dmem_write_data[63:32];
-                        memory[in_dmem_addr >> 2 + 2]   <= in_dmem_write_data[95:64];
-                        memory[in_dmem_addr >> 2 + 3]   <= in_dmem_write_data[127:96];
+                        d_addr = (in_dmem_addr >> 4) << 2;
+                        memory[d_addr]       <= in_dmem_write_data[31:0];
+                        memory[d_addr + 1]   <= in_dmem_write_data[63:32];
+                        memory[d_addr + 2]   <= in_dmem_write_data[95:64];
+                        memory[d_addr + 3]   <= in_dmem_write_data[127:96];
                         out_dmem_ready <= 1;
                         dmem_state <= IDLE;
                     end

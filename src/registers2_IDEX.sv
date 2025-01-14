@@ -110,7 +110,7 @@ module registers_IDEX(
             //Exception
             out_exception_vector <= 3'b0;
             //Supervisor
-            out_supervisor_mode <= 1'b1;
+            out_supervisor_mode <= 1'b0;
         end else begin
             if (!in_d_cache_stall) begin
                 out_instruction <= in_instruction;

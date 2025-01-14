@@ -89,7 +89,7 @@ assign out_complete_idx = in_complete_idx;
 assign out_allocate_idx = in_complete_idx;
 assign out_supervisor_mode = in_supervisor_mode;
 
-assign out_allocate = (out_instr_type != `INSTR_TYPE_NO_WB); 
+assign out_allocate = 1'b1/*(out_instr_type != `INSTR_TYPE_NO_WB)*/; 
 //We only allocate in the ROB if the instruction has a write back to the registers or if its a store (SB is managed by ROB).
 //On taken branches we will wipe the ROB
 

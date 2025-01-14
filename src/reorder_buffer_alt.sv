@@ -187,12 +187,12 @@ always @(*) begin
                 end
             endcase
         end 
-        if (3'b001 == exception[head]) begin
+        if (3'b001 == exception[head] || (3'b001 == in_cache_exception && in_cache_complete_idx == head)) begin
             out_PC = PC[head];                         //Send to rm0
             out_miss_addr = PC[head];                  //Send to rm1
             out_exception_vector = exception[head];
             out_priv_write_enable = 1;
-        end else if (exception[head] == `EXCEPTION_TYPE_DTLBMISS) begin
+        end else if (exception[head] == `EXCEPTION_TYPE_DTLBMISS || (`EXCEPTION_TYPE_DTLBMISS == in_cache_exception && in_cache_complete_idx == head)) begin
             out_PC = PC[head];                         //Send to rm0
             out_miss_addr = addr_miss[head];           //Send to rm1
             out_exception_vector = exception[head];

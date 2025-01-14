@@ -118,6 +118,7 @@ assign out_complete =   (in_exception_vector != 3'b000) ||
                         (in_instr_type == `INSTR_TYPE_MOVRM) || 
                         (in_instr_type == `INSTR_TYPE_ALU && in_instruction != 32'h00000013) && 
                         (in_opcode == `OPCODE_ALU || in_opcode == `OPCODE_ALU_IMM) || 
+                        (in_opcode == `OPCODE_BRANCH || in_opcode == `OPCODE_JUMP) ||
                         (in_instr_type == `INSTR_TYPE_TLBWRITE);     
                     //This is for the ROB, to see if we write from this stage or not. We write if the instr is ALU type. Either way, we propagate the idx
 assign out_complete_idx = in_complete_idx;
@@ -150,13 +151,13 @@ wire [31:0] alu_operand2;
 
 // MUX for forwarding
 assign alu_operand1 =   (forwardA == 2'b10) ? in_EXMEM_alu_out :
-                        (forwardA == 2'b01) ? in_MEMWB_out_data :
                         in_rs1_ROB_bypass ? in_rs1_ROB_bypass_value :
+                        (forwardA == 2'b01) ? in_MEMWB_out_data :
                         in_data_rs1;
 
 assign alu_operand2 =   (forwardB == 2'b10) ? in_EXMEM_alu_out :
-                        (forwardB == 2'b01) ? in_MEMWB_out_data :
                         in_rs2_ROB_bypass ? in_rs2_ROB_bypass_value :
+                        (forwardB == 2'b01) ? in_MEMWB_out_data :
                         in_data_rs2;
                      
 //IMPORTANT: This is the data that will be stored in the memory. It also comes

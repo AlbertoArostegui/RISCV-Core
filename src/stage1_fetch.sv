@@ -79,6 +79,8 @@ always @(posedge clk or posedge reset) begin
             PC <= new_pc;
         else if (!out_stall)
             PC <= PC + 4;
+    end else if (in_d_cache_stall && branch_taken) begin
+        PC <= new_pc;
     end
 end
 

@@ -79,8 +79,12 @@ assign out_instr_type = in_instr_type;
 assign out_complete_idx = in_allocate_idx; //We pass "ready to commit" to the ROB.
 assign out_complete = !out_stall && (in_instr_type == `INSTR_TYPE_LOAD || in_instr_type == `INSTR_TYPE_STORE);   
 assign out_exception_vector = in_read_en ? ((sb_bypass_found) ? 3'b000 : 
-                              (tlb_hit) ? 3'b000 : `EXCEPTION_TYPE_DTLBMISS) : 3'b000; //Assuming we only generate exceptions in this stage if we have a TLB miss 
-wire [31:0] tlb_addr = (write_sb_entry_to_cache) ? sb_to_tlb_addr : in_alu_out;
+                              (tlb_hit) ? 3'b000 : `EXCEPTION_TYPE_DTLBMISS) : 
+                              (in_complete && !tlb_hit) ? `EXCEPTION_TYPE_DTLBMISS :
+                              3'b000; //Assuming we only generate exceptions in this stage if we have a TLB miss 
+wire [31:0] tlb_addr =  (in_read_en && !sb_bypass_found) ? in_alu_out : 
+                        (write_sb_entry_to_cache) ? sb_to_tlb_addr : 
+                        in_alu_out;
 
 tlb dtlb (
     .clk(clk),
@@ -143,6 +147,7 @@ cache d_cache(
     .out_read_data(cache_data_out),
     .out_busy(cache_stall),
     .out_hit(),
+    .out_cache_ack(cache_write_ack),
 
     //MEM IFACE
     .out_mem_read_en(out_mem_read_en),
@@ -152,6 +157,7 @@ cache d_cache(
 );
 
 wire complete_store = in_complete && in_instr_type_ROB == `INSTR_TYPE_STORE;
+wire cache_write_ack;
 
 store_buffer store_buffer(
     .clk(clk),
@@ -164,6 +170,7 @@ store_buffer store_buffer(
     .in_store_instr(in_write_en),
     .in_load_instr(in_read_en),
     .in_cache_stall(cache_stall),
+    .in_cache_ack(cache_write_ack),
     
     //ROB
     .in_rob_idx(in_allocate_idx),  //Allocate

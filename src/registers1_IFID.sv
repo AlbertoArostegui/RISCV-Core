@@ -36,6 +36,7 @@ module registers_IFID(
     initial begin
         out_PC = 0;
         out_instruction = 0;
+        out_supervisor_mode = 0;
     end
 
     always @(posedge clk) begin
@@ -45,7 +46,6 @@ module registers_IFID(
             out_complete_idx <= 4'b0;
             out_exception_vector <= 3'b0;
             out_wait_stall <= 1'b1;
-            out_supervisor_mode <= 1'b1;
         end else if (!in_IFID_write_disable && !in_d_cache_stall) begin
             out_PC <= in_PC;
             out_instruction <= in_instruction;
