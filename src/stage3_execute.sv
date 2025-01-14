@@ -119,6 +119,7 @@ assign out_complete =   (in_exception_vector != 3'b000) ||
                         (in_instr_type == `INSTR_TYPE_ALU && in_instruction != 32'h00000013) && 
                         (in_opcode == `OPCODE_ALU || in_opcode == `OPCODE_ALU_IMM) || 
                         (in_opcode == `OPCODE_BRANCH || in_opcode == `OPCODE_JUMP) ||
+                        (in_opcode == 7'b0110111) ||
                         (in_instr_type == `INSTR_TYPE_TLBWRITE);     
                     //This is for the ROB, to see if we write from this stage or not. We write if the instr is ALU type. Either way, we propagate the idx
 assign out_complete_idx = in_complete_idx;

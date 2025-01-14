@@ -15,28 +15,23 @@ module soc_testbench();
     always #1 clk = ~clk;
 
     initial begin
-        $dumpfile("soc_testbench.vcd");
+        $dumpfile("buffer_sum_testbench.vcd");
         $dumpvars(0, soc_testbench);
         $dumpvars(0, dut);
 
-        $readmemh("/Users/alberto/pa/src/tests/hex/loop_add_bne.hex", dut.memory.memory, 32'h400, 32'h407);
-        /*
-            addi x1, x0, 50
-            addi x2, x0, 50
-        loop:
-            add x3, x3, x1
-            addi x2, x2, -1	
-            bne x2, x0, loop
-        */
+        $readmemh("/Users/alberto/pa/src/tests/hex/buffer_sum.hex", dut.memory.memory, 32'h414, 32'h41d);
+        for (int i = 32'h8FA; i <= 32'h97A; i++) begin
+            dut.memory.memory[i] = 32'h00000001;
+        end
 
         reset = 1;
         #2 reset = 0;
 
-        repeat(290) begin
+        repeat(2000) begin
             #2;
-            display_processor_state();
-            if (dut.core.decode.RF.registers[3] == 32'h9c4) begin
-                $display("Register 3: %d", dut.core.decode.RF.registers[3]);
+            //display_processor_state();
+            if (dut.core.decode.RF.registers[11] == 32'h80) begin
+                $display("Register 12: %d", dut.core.decode.RF.registers[11]);
                 $display("Copmleted instructions: %d", dut.core.rob.perf_counter);
                 $display("IPC: %f", real'(dut.core.rob.perf_counter) / real'($time/2));
                 $finish;
@@ -411,12 +406,11 @@ module soc_testbench();
             if (i < 3) $display("╟────┼────────────┼────────────┼──────────┼──────────┼───────╢");
         end
         $display("╚════╧════════════╧════════════╧══════════╧══════════╧═══════╝");
-        $display("OUTPUTS: out_addr=%h out_data=%h out_funct3=%3b write_sb_entry_to_cache=%b cache_ack=%b\nout_hit=%b out_stall=%b",
+        $display("OUTPUTS: out_addr=%h out_data=%h out_funct3=%3b write_sb_entry_to_cache=%b\nout_hit=%b out_stall=%b",
             dut.core.cache.store_buffer.out_addr,
             dut.core.cache.store_buffer.out_data,
             dut.core.cache.store_buffer.out_funct3,
             dut.core.cache.store_buffer.out_write_to_cache,
-            dut.core.cache.store_buffer.in_cache_ack,
             dut.core.cache.store_buffer.out_hit,
             dut.core.cache.store_buffer.out_stall
         );
@@ -456,46 +450,36 @@ module soc_testbench();
         $display("INPUTS:");
         $display("  Address: %h", dut.core.cache.d_cache.in_addr);
         $display("  Write Data: %h", dut.core.cache.d_cache.in_write_data);
-        $display("  Read/Write: %b/%b", dut.core.cache.d_cache.read_cache, dut.core.cache.d_cache.in_write_en);
+        $display("  Read/Write: %b/%b", dut.core.cache.d_cache.in_read_en, dut.core.cache.d_cache.in_write_en);
         $display("  Function3: %b", dut.core.cache.d_cache.in_funct3);
         
         $display("\nSTATE:");
-        $display("╔════╤════╤════════════╤══════════════════════════════════╤═══════╤═══════╤══════════╗");
-        $display("║Set │Way │    Tag     │              Data                │ Valid │ Dirty │  Address ║");
-        $display("╠════╪════╪════════════╪══════════════════════════════════╪═══════╪═══════╪══════════╣");
+        $display("╔════╤════╤════════════╤══════════════════════════════════╤═══════╤═══════╗");
+        $display("║Set │Way │    Tag     │              Data                │ Valid │ Dirty ║");
+        $display("╠════╪════╪════════════╪══════════════════════════════════╪═══════╪═══════╣");
         for(int i = 0; i < 2; i++) begin
             for(int j = 0; j < 2; j++) begin
-                $display("║ %2d │ %2d │    %h │ %32h │   %b   │   %b   │ %h ║",
+                $display("║ %2d │ %2d │    %h │ %32h │   %b   │   %b   ║",
                     i, j,
                     dut.core.cache.d_cache.tags[i][j],
                     dut.core.cache.d_cache.data[i][j],
                     dut.core.cache.d_cache.valid[i][j],
-                    dut.core.cache.d_cache.dirty[i][j],
-                    dut.core.cache.d_cache.address[i][j]
+                    dut.core.cache.d_cache.dirty[i][j]
                 );
             end
-            if (i == 0) $display("╟────┼────┼────────────┼──────────────────────────────────┼───────┼───────┼──────────╢");
+            if (i == 0) $display("╟────┼────┼────────────┼──────────────────────────────────┼───────┼───────╢");
         end
-        $display("╚════╧════╧════════════╧══════════════════════════════════╧═══════╧═══════╧══════════╝");
+        $display("╚════╧════╧════════════╧══════════════════════════════════╧═══════╧═══════╝");
         $display("LRU: Set0=%b Set1=%b", dut.core.cache.d_cache.lru[0], dut.core.cache.d_cache.lru[1]);
         
         $display("\nOUTPUTS:");
         $display("  Data Out: %h", dut.core.cache.d_cache.out_read_data);
         $display("  Hit: %b  Busy: %b", dut.core.cache.d_cache.out_hit, dut.core.cache.d_cache.out_busy);
-        $display("  Memory Interface: mem_ready=%b\n  addr=%h\n  read=%b in_mem_read_data=%32h\n  write=%b out_mem_write_data=%32h",
-            dut.core.cache.d_cache.in_mem_ready,
+        $display("  Memory Interface: addr=%h read=%b write=%b",
             dut.core.cache.d_cache.out_mem_addr,
             dut.core.cache.d_cache.out_mem_read_en,
-            dut.core.cache.d_cache.in_mem_read_data,
-            dut.core.cache.d_cache.out_mem_write_en,
-            dut.core.cache.d_cache.out_mem_write_data
+            dut.core.cache.d_cache.out_mem_write_en
         );
-        $display("  Actual memory data at 0x%h: %h %h %h %h", 
-                dut.core.cache.d_cache.out_mem_addr, 
-                dut.memory.memory[dut.core.cache.d_cache.out_mem_addr >> 2 +3], 
-                dut.memory.memory[dut.core.cache.d_cache.out_mem_addr >> 2 +2], 
-                dut.memory.memory[dut.core.cache.d_cache.out_mem_addr >> 2 +1], 
-                dut.memory.memory[dut.core.cache.d_cache.out_mem_addr >> 2]);
 
         // MEM/WB Pipeline Registers
         $display("\n[🔄 MEM/WB REGISTERS]");
@@ -565,25 +549,12 @@ module soc_testbench();
 
         // Memory Contents
         $display("\n[📝 MEMORY CONTENTS]");
-        $display("Array A");
-        $display("Addr     Memory");
-        for(int i = 32'h8F4; i < 32'h97C; i += 4) begin
-            $display("%4h %3h: %8h %8h %8h %8h",
-                (i << 2), i, 
-                dut.memory.memory[i+3],
-                dut.memory.memory[i+2],
+        for(int i = 32'h400; i < 32'h480; i += 4) begin
+            $display("%3h: %8h %8h %8h %8h",
+                i, dut.memory.memory[i],
                 dut.memory.memory[i+1],
-                dut.memory.memory[i]
-            );
-        end
-        $display("Array B");
-        for(int i = 32'h9F0; i < 32'hA74; i += 4) begin
-            $display("%4h %3h: %8h %8h %8h %8h",
-                (i << 2), i, 
-                dut.memory.memory[i+3],
                 dut.memory.memory[i+2],
-                dut.memory.memory[i+1],
-                dut.memory.memory[i]
+                dut.memory.memory[i+3]
             );
         end
 
@@ -600,7 +571,7 @@ module soc_testbench();
         logic [11:0] imm_s;
         logic [12:0] imm_b;
         string asm;
-        
+
         opcode = instruction[6:0];
         rd = instruction[11:7];
         rs1 = instruction[19:15];
@@ -611,20 +582,52 @@ module soc_testbench();
         imm_s = {instruction[31:25], instruction[11:7]};
         imm_b = {instruction[31], instruction[7], instruction[30:25], instruction[11:8], 1'b0};
 
-        case(opcode)
+        case (opcode)
             7'b0110011: begin // R-type
-                case({funct7, funct3})
+                case ({funct7, funct3})
                     10'b0000000000: asm = $sformatf("add x%0d,x%0d,x%0d", rd, rs1, rs2);
                     10'b0100000000: asm = $sformatf("sub x%0d,x%0d,x%0d", rd, rs1, rs2);
-                    default: asm = "unknown-R";
+                    10'b0000001000: asm = $sformatf("mul x%0d,x%0d,x%0d", rd, rs1, rs2);
+                default: asm = "unknown-R";
+            endcase
+            end
+            7'b1110011: begin // System instructions
+                case (funct3)
+                    3'b000: asm = "iret";                                     // IRET
+                    3'b010: asm = $sformatf("tlbwrite x%0d,x%0d", rs1, rs2);  // TLBWRITE
+                    3'b001: asm = $sformatf("movrm x%0d,rm%0d", rd, rs1);     // MOVRM
+                    default: asm = "unknown-system";
                 endcase
             end
             7'b0010011: asm = $sformatf("addi x%0d,x%0d,%0d", rd, rs1, $signed(imm_i));
             7'b1100011: begin // B-type
-                case(funct3)
+                case (funct3)
                     3'b001: asm = $sformatf("bne x%0d,x%0d,%0d", rs1, rs2, $signed(imm_b));
                     3'b000: asm = $sformatf("beq x%0d,x%0d,%0d", rs1, rs2, $signed(imm_b));
                     default: asm = "unknown-B";
+                endcase
+            end
+            7'b0000011: begin // Load instructions
+                case (funct3)
+                    3'b010: asm = $sformatf("lw x%0d,%0d(x%0d)", rd, $signed(imm_i), rs1); // lw
+                    3'b001: asm = $sformatf("lh x%0d,%0d(x%0d)", rd, $signed(imm_i), rs1); // lh
+                    3'b000: asm = $sformatf("lb x%0d,%0d(x%0d)", rd, $signed(imm_i), rs1); // lb
+                    default: asm = "unknown-load";
+                endcase
+            end
+            7'b0100011: begin // Store instructions
+                case (funct3)
+                    3'b010: asm = $sformatf("sw x%0d,%0d(x%0d)", rs2, $signed(imm_s), rs1); // sw
+                    3'b001: asm = $sformatf("sh x%0d,%0d(x%0d)", rs2, $signed(imm_s), rs1); // sh
+                    3'b000: asm = $sformatf("sb x%0d,%0d(x%0d)", rs2, $signed(imm_s), rs1); // sb
+                    default: asm = "unknown-store";
+                endcase
+            end
+            7'b0001000: begin
+                case (funct3)
+                    3'b000: asm = $sformatf("itlbwrite x%0d, x%0d", rs1, rs2);
+                    3'b001: asm = $sformatf("dtlbwrite x%0d, x%0d", rs1, rs2);
+                    default: asm = "unknown-tlbwrite";
                 endcase
             end
             default: asm = instruction == 32'h00000013 ? "nop" : "unknown";
@@ -640,7 +643,7 @@ module soc_testbench();
         default: return "REG";
     endcase
     endfunction
-    
+
     function string decode_exception;
         input [2:0] exception_vector;
         begin

@@ -19,14 +19,10 @@ module soc_testbench();
         $dumpvars(0, soc_testbench);
         $dumpvars(0, dut);
 
-        $readmemh("/Users/alberto/pa/src/tests/hex/loop_add_bne.hex", dut.memory.memory, 32'h400, 32'h407);
+        $readmemh("/Users/alberto/pa/src/tests/hex/lui.hex", dut.memory.memory, 32'h400, 32'h401);
         /*
-            addi x1, x0, 50
-            addi x2, x0, 50
-        loop:
-            add x3, x3, x1
-            addi x2, x2, -1	
-            bne x2, x0, loop
+            lui x12, 16
+            addi x12, x12, 992
         */
 
         reset = 1;

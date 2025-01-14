@@ -53,9 +53,9 @@ module alu (
                     3'b000: //ADDI rd, rs1, imm12
                         alu_out = operand1 + immediate;
                     3'b001: //SLLI rd, rs1, imm12. Shift left logical immediate
-                        alu_out = operand1 << operand2;
+                        alu_out = operand1 << immediate;
                     3'b101: //SRLI rd, rs1, imm12. Shift right logical immediate
-                        alu_out = operand1 >> operand2;
+                        alu_out = operand1 >> immediate;
                     default:
                         alu_out = 0;
                 endcase
@@ -66,7 +66,8 @@ module alu (
             end
             7'b0110111: begin //LUI rd, imm20 -- rd <- imm20 << 12 -- Load upper immediate
                 branch_taken = 0;
-                alu_out = immediate;                
+                alu_out = immediate;
+                               
             end
             7'b1100011: begin //Branching
                 case (funct3)

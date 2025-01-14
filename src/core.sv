@@ -955,7 +955,8 @@ reorder_buffer rob(
     .in_mul_exception(M5WB_to_ROB_exception_vector),
 
     //CONTROL
-    .in_stall(IFID_to_ROB_wait_stall | d_cache_stall),
+    .in_i_stall(IFID_to_ROB_wait_stall),
+    .in_d_stall(d_cache_stall),
 
     //BYPASS
     .in_execute_rs1(execute_to_ROB_rs1),

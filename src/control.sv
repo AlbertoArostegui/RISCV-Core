@@ -28,6 +28,6 @@ assign MEM_mem_read = (opcode == `OPCODE_LOAD);
 assign MEM_branch_inst = (opcode == `OPCODE_BRANCH);
 
 assign WB_write_mem_to_reg = (opcode == `OPCODE_LOAD);
-assign WB_write_enable = ((opcode == `OPCODE_RTYPE) || (opcode == `OPCODE_LOAD) || (opcode == `OPCODE_ALU_IMM));
+assign WB_write_enable = ((opcode == `OPCODE_RTYPE) || (opcode == `OPCODE_LOAD) || (opcode == `OPCODE_ALU_IMM) || (opcode == `OPCODE_LUI));
 
 endmodule

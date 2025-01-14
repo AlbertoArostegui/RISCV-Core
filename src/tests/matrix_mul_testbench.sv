@@ -15,32 +15,22 @@ module soc_testbench();
     always #1 clk = ~clk;
 
     initial begin
-        $dumpfile("soc_testbench.vcd");
+        $dumpfile("matrix_mul.vcd");
         $dumpvars(0, soc_testbench);
         $dumpvars(0, dut);
 
-        $readmemh("/Users/alberto/pa/src/tests/hex/loop_add_bne.hex", dut.memory.memory, 32'h400, 32'h407);
-        /*
-            addi x1, x0, 50
-            addi x2, x0, 50
-        loop:
-            add x3, x3, x1
-            addi x2, x2, -1	
-            bne x2, x0, loop
-        */
+        $readmemh("/Users/alberto/pa/src/tests/hex/matrix_mul.hex", dut.memory.memory, 32'h414, 32'h435);
+        for (int i = 32'h8FA; i <= 32'h80F8; i++) begin
+            dut.memory.memory[i] = 32'h00000001;
+        end
 
         reset = 1;
         #2 reset = 0;
 
-        repeat(290) begin
+        repeat(6500) begin
             #2;
             display_processor_state();
-            if (dut.core.decode.RF.registers[3] == 32'h9c4) begin
-                $display("Register 3: %d", dut.core.decode.RF.registers[3]);
-                $display("Copmleted instructions: %d", dut.core.rob.perf_counter);
-                $display("IPC: %f", real'(dut.core.rob.perf_counter) / real'($time/2));
-                $finish;
-            end
+            
         end
         $finish;
     end
@@ -64,7 +54,7 @@ module soc_testbench();
             dut.core.rob.in_PC,
             dut.core.rob.in_rd,
             dut.core.rob.in_instr_type,
-            dut.core.rob.in_stall,
+            dut.core.rob.in_i_stall || dut.core.rob.in_d_stall,
             dut.core.IFID_to_ROB_wait_stall,
             dut.core.d_cache_stall
         );
@@ -600,7 +590,7 @@ module soc_testbench();
         logic [11:0] imm_s;
         logic [12:0] imm_b;
         string asm;
-        
+
         opcode = instruction[6:0];
         rd = instruction[11:7];
         rs1 = instruction[19:15];
@@ -611,20 +601,52 @@ module soc_testbench();
         imm_s = {instruction[31:25], instruction[11:7]};
         imm_b = {instruction[31], instruction[7], instruction[30:25], instruction[11:8], 1'b0};
 
-        case(opcode)
+        case (opcode)
             7'b0110011: begin // R-type
-                case({funct7, funct3})
+                case ({funct7, funct3})
                     10'b0000000000: asm = $sformatf("add x%0d,x%0d,x%0d", rd, rs1, rs2);
                     10'b0100000000: asm = $sformatf("sub x%0d,x%0d,x%0d", rd, rs1, rs2);
-                    default: asm = "unknown-R";
+                    10'b0000001000: asm = $sformatf("mul x%0d,x%0d,x%0d", rd, rs1, rs2);
+                default: asm = "unknown-R";
+            endcase
+            end
+            7'b1110011: begin // System instructions
+                case (funct3)
+                    3'b000: asm = "iret";                                     // IRET
+                    3'b010: asm = $sformatf("tlbwrite x%0d,x%0d", rs1, rs2);  // TLBWRITE
+                    3'b001: asm = $sformatf("movrm x%0d,rm%0d", rd, rs1);     // MOVRM
+                    default: asm = "unknown-system";
                 endcase
             end
             7'b0010011: asm = $sformatf("addi x%0d,x%0d,%0d", rd, rs1, $signed(imm_i));
             7'b1100011: begin // B-type
-                case(funct3)
+                case (funct3)
                     3'b001: asm = $sformatf("bne x%0d,x%0d,%0d", rs1, rs2, $signed(imm_b));
                     3'b000: asm = $sformatf("beq x%0d,x%0d,%0d", rs1, rs2, $signed(imm_b));
                     default: asm = "unknown-B";
+                endcase
+            end
+            7'b0000011: begin // Load instructions
+                case (funct3)
+                    3'b010: asm = $sformatf("lw x%0d,%0d(x%0d)", rd, $signed(imm_i), rs1); // lw
+                    3'b001: asm = $sformatf("lh x%0d,%0d(x%0d)", rd, $signed(imm_i), rs1); // lh
+                    3'b000: asm = $sformatf("lb x%0d,%0d(x%0d)", rd, $signed(imm_i), rs1); // lb
+                    default: asm = "unknown-load";
+                endcase
+            end
+            7'b0100011: begin // Store instructions
+                case (funct3)
+                    3'b010: asm = $sformatf("sw x%0d,%0d(x%0d)", rs2, $signed(imm_s), rs1); // sw
+                    3'b001: asm = $sformatf("sh x%0d,%0d(x%0d)", rs2, $signed(imm_s), rs1); // sh
+                    3'b000: asm = $sformatf("sb x%0d,%0d(x%0d)", rs2, $signed(imm_s), rs1); // sb
+                    default: asm = "unknown-store";
+                endcase
+            end
+            7'b0001000: begin
+                case (funct3)
+                    3'b000: asm = $sformatf("itlbwrite x%0d, x%0d", rs1, rs2);
+                    3'b001: asm = $sformatf("dtlbwrite x%0d, x%0d", rs1, rs2);
+                    default: asm = "unknown-tlbwrite";
                 endcase
             end
             default: asm = instruction == 32'h00000013 ? "nop" : "unknown";
@@ -640,7 +662,7 @@ module soc_testbench();
         default: return "REG";
     endcase
     endfunction
-    
+
     function string decode_exception;
         input [2:0] exception_vector;
         begin

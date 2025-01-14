@@ -35,7 +35,8 @@ module reorder_buffer #(
     input wire [2:0]    in_mul_exception,
 
     //Control
-    input wire          in_stall,
+    input wire          in_i_stall,
+    input wire          in_d_stall,
 
     //Bypass
     input wire [4:0]    in_execute_rs1,
@@ -159,7 +160,7 @@ always @(*) begin
             complete[i] <= 0;
     end
 
-    if (!in_stall && valid[head] && complete[head]) begin
+    if (!in_d_stall && !in_i_stall && valid[head] && complete[head]) begin
         if (exception[head] == 3'b000) begin
             case (instr_type[head])
                 `INSTR_TYPE_IRET: begin
@@ -212,7 +213,7 @@ always @(posedge clk) begin
         perf_counter <= 0;
         
         invalidate_rob();
-    end else if (!in_stall && exception[head] != 3'b0 && complete[head] && valid[head]) begin
+    end else if (!in_d_stall && !in_i_stall && exception[head] != 3'b0 && complete[head] && valid[head]) begin
         head <= 0;
         //in_allocate_idx <= 0;
         count <= 0;
@@ -223,7 +224,7 @@ always @(posedge clk) begin
         out_rob_nuke <= 0;
 
         // Allocation. From decode. Once per cycle. Only on non-stalled cycles. 
-        if (in_allocate && !out_full && !in_stall) begin
+        if (in_allocate && !out_full && !in_i_stall) begin
             PC[in_allocate_idx] <= in_PC;
             addr_miss[in_allocate_idx] <= in_addr_miss;
             if (in_instr_type == `INSTR_TYPE_STORE)
@@ -263,7 +264,7 @@ always @(posedge clk) begin
         end
         
         //Entry completed
-        if (!in_stall && valid[head] && complete[head]) begin
+        if (!in_d_stall && !in_i_stall && valid[head] && complete[head]) begin
             valid[head] <= 0;
             complete[head] <= 0;
             rd[head] <= 0;

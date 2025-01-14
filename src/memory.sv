@@ -55,6 +55,7 @@ module memory (
         */
 
         //Code for iTLBMiss
+        /*
         memory[32'h800] = 32'h00502423; //sw x5, 8(x0)
         memory[32'h801] = 32'h00602623; //sw x6, 12(x0)
         memory[32'h802] = 32'h800002b3; //movrm x5, rm1 //This is really add x1, x0, x0, but with a special funct7 to take rm1
@@ -85,6 +86,26 @@ module memory (
         memory[32'h889] = 32'h00802283; //lw x5, 8(x0)
         memory[32'h88a] = 32'h00c02303; //lw x6, 12(x0)
         memory[32'h88b] = 32'h10200073; //sret (iret)
+        */
+
+        memory[32'h800] = 32'h00502423; //sw x5, 8(x0)
+        memory[32'h801] = 32'h00602623; //sw x6, 12(x0)
+        memory[32'h802] = 32'h00702823; //sw x7, 16(x0)
+        memory[32'h803] = 32'h800002b3; //movrm x5, rm1 //This is really add x1, x0, x0, but with a special funct7 to take rm1
+
+        memory[32'h804] = 32'h7d000393; //addi x7, x0, 2000
+        memory[32'h805] = 32'h7d038393; //addi x7, x7, 2000
+        memory[32'h806] = 32'h7d038393; //addi x7, x7, 2000
+        memory[32'h807] = 32'h7d038393; //addi x7, x7, 2000
+
+        memory[32'h808] = 32'h00728333; //add x6, x5, x7 //So x6 = VA (in x5) + 8000
+        memory[32'h809] = 32'h00628008; //itlbwrite x5, x6 //dtlb would be with funct3 = 001
+        memory[32'h80a] = 32'h00802283; //lw x5, 8(x0)
+        memory[32'h80b] = 32'h00c02303; //lw x6, 12(x0)
+
+        memory[32'h80c] = 32'h01002383; //lw x1, 16(x0)
+        memory[32'h80d] = 32'h10200073; //sret (iret)
+        
     end
 
     always @(posedge clk or posedge reset) begin
