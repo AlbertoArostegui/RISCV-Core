@@ -44,19 +44,7 @@
 `define ADD_OR_AND_FUNCT7   7'b0000000
 
 
-
-
 `define CACHE_LINE_SIZE 128
-`define CACHE_N_LINES   4
-`define CACHE_ASSOCIATIVITY (0)
-`define CACHE_DELAY_CYCLES 5
-`define OFFSET_SIZE $clog2(`CACHE_LINE_SIZE / 8)
-
-/* WORD_SIZE - line index bits - byte offset bits. Associativity increases tag size */
-`define TAG_SIZE (`WORD_SIZE - $clog2(`CACHE_N_LINES) - `OFFSET_SIZE + `CACHE_ASSOCIATIVITY)
-
-`define MEM_DELAY_CYCLES 10
-`define MEM_SIZE (1 << 18)
 
 `define INSTR_TYPE_ALU      3'b000
 `define INSTR_TYPE_MUL      3'b001
@@ -72,8 +60,6 @@
 `define EXCEPTION_TYPE_PRIV    3'b100
 `define EXCEPTION_TYPE_DTLBMISS 3'b101
 `define EXCEPTION_TYPE_ITLBMISS 3'b001
-
-`define STORE_BUFFER_ENTRIES	4
 
 `endif
 

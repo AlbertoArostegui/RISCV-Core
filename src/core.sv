@@ -920,7 +920,6 @@ always @(posedge clk) begin
 end
     
 
-//TODO: Manage stalls. When to stall (SB full, Cache miss,). What to do when stalled (writeback instructions?)
 reorder_buffer rob(
     .clk(clk),
     .reset(reset),
@@ -966,9 +965,9 @@ reorder_buffer rob(
     .out_ready(ROB_to_decode_and_cache_ready),
     .out_value(ROB_to_decode_value),
     .out_miss_addr(ROB_to_fetch_fault_addr),                           //TLB MISS          Write to rm0, rm1
-    .out_PC(ROB_to_fetch_fault_PC),                                  //TODO: TLB MISS
+    .out_PC(ROB_to_fetch_fault_PC),                                  
     .out_rd(ROB_to_decode_rd),  
-    .out_exception_vector(ROB_to_fetch_and_cache_exception_vector),                           //TODO: On exception, nuke rob, flush pipeline and save PC and address of exception
+    .out_exception_vector(ROB_to_fetch_and_cache_exception_vector),                           
     .out_instr_type(ROB_to_cache_instr_type),   //Maybe not needed, just used as logic inside ROB for deciding if w.enable
     .out_full(),                                //Stalling when full
     .out_alloc_idx(rob_to_registers_IFID_idx),  //This is the index of the instruction in the ROB

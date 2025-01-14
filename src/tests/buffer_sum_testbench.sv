@@ -59,7 +59,7 @@ module soc_testbench();
             dut.core.rob.in_PC,
             dut.core.rob.in_rd,
             dut.core.rob.in_instr_type,
-            dut.core.rob.in_stall,
+            dut.core.rob.in_i_stall || dut.core.rob.in_d_stall,
             dut.core.IFID_to_ROB_wait_stall,
             dut.core.d_cache_stall
         );
