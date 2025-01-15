@@ -1,30 +1,30 @@
 # RISC V PROCESSOR
-The following are the intended features to be implemented on this processor.
+The following are the intended features to be implemented on this processor. It currently works, although it would benefit from some more debugging
 
 
-- [ ] iTLB
-- [ ] dTLB
+- [X] iTLB
+- [X] dTLB
 - [X] iCache         
 - [X] dCache           
 - [ ] Branch Prediction
 - [X] Bypass ALU
 - [X] Bypass memory
-- [ ] ptw
+- [X] Page table walker (TLB Write)
 - [X] LB, LH, LW
 - [X] SB, SH, SW
 - [X] Store Buffer
 - [X] Common Memory
 - [X] ROB
-- [ ] iret
-- [ ] csrrw
-- [ ] exceptions
+- [X] iret
+- [X] csrrw
+- [X] exceptions
 - [X] ISA
-- [ ] TLB miss
-- [ ] TLB write
-- [ ] sb drain
+- [X] TLB miss
+- [X] TLB write
+- [X] sb drain
 - [X] 5 stage multiplication
 - [X] bypass from sb
-- [ ] Performance data
+- [X] Performance data
 
 # CODE STRUCTURE
 The top module is SoC.sv, in which both core and memory modules are instantiated. Each stage has one module file (stageX_name.sv) and each set of pipeline registers has another one (registersX_name.sv). All the stages and registers modules are instantiated in the core.sv file. All combinational logic is inside its respective stage module.
